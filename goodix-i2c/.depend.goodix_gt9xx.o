@@ -1,0 +1,67 @@
+goodix_gt9xx.o: goodix_gt9xx.c /usr/src/sys/sys/param.h \
+  /usr/src/sys/sys/_null.h /usr/src/sys/sys/types.h \
+  /usr/src/sys/sys/cdefs.h machine/endian.h x86/endian.h \
+  /usr/src/sys/sys/_types.h machine/_types.h x86/_types.h \
+  machine/_limits.h x86/_limits.h /usr/src/sys/sys/_pthreadtypes.h \
+  /usr/src/sys/sys/_stdint.h /usr/src/sys/sys/select.h \
+  /usr/src/sys/sys/_sigset.h /usr/src/sys/sys/_timeval.h \
+  /usr/src/sys/sys/timespec.h /usr/src/sys/sys/_timespec.h \
+  /usr/src/sys/sys/syslimits.h /usr/src/sys/sys/errno.h \
+  /usr/src/sys/sys/time.h /usr/src/sys/sys/priority.h machine/param.h \
+  machine/_align.h x86/_align.h /usr/src/sys/sys/systm.h \
+  machine/atomic.h machine/cpufunc.h /usr/src/sys/sys/callout.h \
+  /usr/src/sys/sys/_callout.h /usr/src/sys/sys/queue.h \
+  /usr/src/sys/sys/stdint.h machine/_stdint.h x86/_stdint.h \
+  /usr/src/sys/sys/libkern.h /usr/src/sys/sys/bus.h machine/_bus.h \
+  /usr/src/sys/sys/_bus_dma.h /usr/src/sys/sys/ioccom.h \
+  /usr/src/sys/sys/eventhandler.h /usr/src/sys/sys/lock.h \
+  /usr/src/sys/sys/_lock.h /usr/src/sys/sys/ktr_class.h \
+  /usr/src/sys/sys/ktr.h /usr/src/sys/sys/_cpuset.h \
+  /usr/src/sys/sys/_bitset.h /usr/src/sys/sys/mutex.h \
+  /usr/src/sys/sys/_mutex.h /usr/src/sys/sys/pcpu.h \
+  /usr/src/sys/sys/_sx.h /usr/src/sys/sys/_rmlock.h \
+  /usr/src/sys/sys/resource.h machine/pcpu.h \
+  /usr/src/sys/sys/lock_profile.h /usr/src/sys/sys/lockstat.h \
+  /usr/src/sys/sys/sdt.h /usr/src/sys/sys/linker_set.h \
+  /usr/src/sys/sys/kobj.h device_if.h bus_if.h /usr/src/sys/sys/clock.h \
+  /usr/src/sys/sys/kernel.h /usr/src/sys/sys/module.h \
+  /usr/src/sys/sys/endian.h /usr/src/sys/sys/rman.h machine/resource.h \
+  machine/bus.h x86/bus.h machine/bus_dma.h x86/bus_dma.h \
+  /usr/src/sys/sys/bus_dma.h x86/busdma_impl.h \
+  /usr/src/sys/contrib/dev/acpica/include/acpi.h \
+  /usr/src/sys/contrib/dev/acpica/include/platform/acenv.h \
+  /usr/src/sys/contrib/dev/acpica/include/platform/acgcc.h \
+  /usr/src/sys/contrib/dev/acpica/include/platform/acfreebsd.h \
+  /usr/src/sys/sys/ctype.h machine/acpica_machdep.h x86/acpica_machdep.h \
+  machine/stdarg.h x86/stdarg.h opt_acpi.h \
+  /usr/src/sys/contrib/dev/acpica/include/acnames.h \
+  /usr/src/sys/contrib/dev/acpica/include/actypes.h \
+  /usr/src/sys/contrib/dev/acpica/include/acexcep.h \
+  /usr/src/sys/contrib/dev/acpica/include/actbl.h \
+  /usr/src/sys/contrib/dev/acpica/include/actbl1.h \
+  /usr/src/sys/contrib/dev/acpica/include/actbl2.h \
+  /usr/src/sys/contrib/dev/acpica/include/actbl3.h \
+  /usr/src/sys/contrib/dev/acpica/include/acoutput.h \
+  /usr/src/sys/contrib/dev/acpica/include/acrestyp.h \
+  /usr/src/sys/contrib/dev/acpica/include/acpiosxf.h \
+  /usr/src/sys/contrib/dev/acpica/include/acpixf.h \
+  /usr/src/sys/contrib/dev/acpica/include/acconfig.h \
+  /usr/src/sys/contrib/dev/acpica/include/acbuffer.h \
+  /usr/src/sys/contrib/dev/acpica/include/platform/acenvex.h \
+  /usr/src/sys/contrib/dev/acpica/include/platform/acgccex.h \
+  /usr/src/sys/contrib/dev/acpica/include/accommon.h \
+  /usr/src/sys/contrib/dev/acpica/include/acmacros.h \
+  /usr/src/sys/contrib/dev/acpica/include/aclocal.h \
+  /usr/src/sys/contrib/dev/acpica/include/acobject.h \
+  /usr/src/sys/contrib/dev/acpica/include/acstruct.h \
+  /usr/src/sys/contrib/dev/acpica/include/acglobal.h \
+  /usr/src/sys/contrib/dev/acpica/include/achware.h \
+  /usr/src/sys/contrib/dev/acpica/include/acutils.h \
+  /usr/src/sys/dev/acpica/acpivar.h acpi_if.h /usr/src/sys/sys/selinfo.h \
+  /usr/src/sys/sys/event.h /usr/src/sys/sys/sx.h \
+  /usr/src/sys/sys/sysctl.h /usr/src/sys/dev/iicbus/iicbus.h \
+  /usr/src/sys/dev/iicbus/iiconf.h /usr/src/sys/dev/iicbus/iic.h \
+  /usr/src/sys/dev/evdev/input.h \
+  /usr/src/sys/dev/evdev/input-event-codes.h \
+  /usr/src/sys/dev/evdev/evdev.h /usr/src/sys/sys/kbio.h \
+  /usr/src/sys/dev/kbd/kbdreg.h
