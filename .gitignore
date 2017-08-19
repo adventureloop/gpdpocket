@@ -1,0 +1,9 @@
+src/bus_if.h        
+src/export_syms     
+src/machine         
+src/x86
+src/acpi_if.h       
+src/device_if.h     
+src/goodix.ko       
+src/goodix_gt9xx.o  
+src/opt_acpi.h         
