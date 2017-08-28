@@ -37,12 +37,23 @@
 #include <machine/bus.h>
 #include <machine/resource.h>
 
+#include <contrib/dev/acpica/include/acpi.h>
+#include <contrib/dev/acpica/include/accommon.h>
+
+#include <dev/acpica/acpivar.h>
+
 #include <dev/iicbus/iicbus.h>
 #include <dev/iicbus/iiconf.h>
 
 struct chvpower_softc {
 	device_t			sc_dev;
+	ACPI_HANDLE			sc_handle;
 };
+
+static char *chvpower_hids[] = {
+	"INT33FE",     
+	NULL            
+};                  
 
 
 static int chvpower_probe(device_t);
@@ -52,6 +63,10 @@ static int chvpower_detach(device_t);
 static int
 chvpower_probe(device_t dev)
 {
+	if (acpi_disabled("chvpower") ||
+    ACPI_ID_PROBE(device_get_parent(dev), dev, chvpower_hids) == NULL)
+		return (ENXIO);
+
 	device_set_desc(dev, "Intel Cherry View power device");
 	return (0);
 }
@@ -59,8 +74,45 @@ chvpower_probe(device_t dev)
 static int
 chvpower_attach(device_t dev)
 {
-//	struct chvpower_softc *sc = device_get_softc(dev);
 
+    /*
+     * TODO:
+     * look here:
+     * https://github.com/freebsd/freebsd/blob/2df1b01611ffde3f1ce1630866cf76f4de49c7a6/sys/dev/chromebook_platform/chromebook_platform.c#L57
+     *
+     * - Probe agaist the acpi_hid
+	 * - check if we get probed multiple times
+     * - get the parent acpi bus
+     * - check the handle for a unit number
+     * - search the acpi parent bus for an iic driver (unit-1)
+     *      - if that fails try again
+     * - search the new bus for the acutal device
+     */
+
+	struct chvpower_softc *sc = device_get_softc(dev);
+    device_t parent;
+	ACPI_STATUS status;
+	int uid;
+
+	/* getting the _UID */
+	sc = device_get_softc(dev);
+	sc->sc_dev = dev;
+
+	sc->sc_handle = acpi_get_handle(dev);
+	status = acpi_GetInteger(sc->sc_handle, "_UID", &uid);
+	if (ACPI_FAILURE(status)) {
+		device_printf(dev, "failed to read _UID\n");
+		return (ENXIO);
+	}
+
+    //unit = acpi_get_unitsomething(handle)	I wonder if it is resource I wish for
+
+    parent = device_get_parent(dev);
+
+    //if !acpi_parent
+     //   return ENOFRIENDS
+
+    //iicbus = device_find_child(parent, "iicbus", unit)
 	return (0);
 }
 
