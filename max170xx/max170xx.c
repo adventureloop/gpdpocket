@@ -57,6 +57,13 @@ static int max170xx_read(device_t, uint8_t, uint16_t *);
 static int max170xx_write(device_t, uint8_t, uint16_t );
 
 static int
+max170xx_probe_acpi(device_t dev)
+{
+	device_set_desc(dev, "Maxim max170xx Fuel Guage");
+	return (0);
+}
+
+static int
 max170xx_probe(device_t dev)
 {
 	device_set_desc(dev, "Maxim max170xx Fuel Guage");
