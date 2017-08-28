@@ -66,7 +66,7 @@ struct goodix_softc {
 	struct evdev_dev 	*sc_evdev;
 };
 
-static char *goodix_ids[] = {
+static char *goodix_hids[] = {
 	"GDIX1001",
 	NULL
 };
@@ -233,7 +233,7 @@ static int
 goodix_acpi_probe(device_t dev)
 {
 	if (acpi_disabled("goodix") ||
-		ACPI_ID_PROBE(device_get_parent(dev), dev, goodix_ids) == NULL)
+		ACPI_ID_PROBE(device_get_parent(dev), dev, goodix_hids) == NULL)
 		return (ENXIO);
 
 	device_set_desc(dev, "Goodix GT9xx Capacitive TouchScreen");
