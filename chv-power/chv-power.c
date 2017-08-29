@@ -63,25 +63,29 @@ static int chvpower_detach(device_t);
 static int
 chvpower_probe(device_t dev)
 {
+	device_printf(dev, "chvpower probe\n");
+	/*
+     * - Probe agaist the acpi_hid
+	 * - check if we get probed multiple times (hopefully not)
+	 */
 	if (acpi_disabled("chvpower") ||
     ACPI_ID_PROBE(device_get_parent(dev), dev, chvpower_hids) == NULL)
 		return (ENXIO);
 
-	device_set_desc(dev, "Intel Cherry View power device");
+	device_set_desc(dev, "Intel Cherry View Power Nexus");
 	return (0);
 }
 
 static int
 chvpower_attach(device_t dev)
 {
+	device_printf(dev, "chvpower attach\n");
 
     /*
      * TODO:
      * look here:
      * https://github.com/freebsd/freebsd/blob/2df1b01611ffde3f1ce1630866cf76f4de49c7a6/sys/dev/chromebook_platform/chromebook_platform.c#L57
      *
-     * - Probe agaist the acpi_hid
-	 * - check if we get probed multiple times
      * - get the parent acpi bus
      * - check the handle for a unit number
      * - search the acpi parent bus for an iic driver (unit-1)
@@ -105,7 +109,14 @@ chvpower_attach(device_t dev)
 		return (ENXIO);
 	}
 
+	/*
+	 * walk acpi resource tree, something like this maybe:
+	 * https://github.com/freebsd/freebsd/blob/386ddae58459341ec567604707805814a2128a57/sys/dev/acpica/acpi_pci_link.c#L521
+	 */
+
     //unit = acpi_get_unitsomething(handle)	I wonder if it is resource I wish for
+
+	
 
     parent = device_get_parent(dev);
 
@@ -129,10 +140,10 @@ chvpower_driver_loaded(struct module *m, int what, void *arg)
 
 	switch (what) {
 	case MOD_LOAD:
-		uprintf("chvpower touch screen KLD loaded.\n");
+		uprintf("chvpower KLD loaded.\n");
 		break;
 	case MOD_UNLOAD:
-		uprintf("chvpower touch screen KLD unloaded.\n");
+		uprintf("chvpower KLD unloaded.\n");
 		break;
 	default:
 		err = EOPNOTSUPP;
