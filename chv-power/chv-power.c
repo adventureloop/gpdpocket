@@ -166,7 +166,8 @@ static driver_t chvpower_driver = {
 };
 
 static devclass_t chvpower_devclass;
-DRIVER_MODULE(chvpower, iicbus, chvpower_driver, chvpower_devclass, chvpower_driver_loaded, NULL);
+DRIVER_MODULE(chvpower, acpi, chvpower_driver, chvpower_devclass, chvpower_driver_loaded, NULL);
 
-MODULE_DEPEND(chvpower, iicbus, IICBUS_MINVER, IICBUS_PREFVER, IICBUS_MAXVER);
+MODULE_DEPEND(chvpower, acpi, 1, 1, 1);
+//MODULE_DEPEND(chvpower, iicbus, IICBUS_MINVER, IICBUS_PREFVER, IICBUS_MAXVER);
 MODULE_VERSION(chvpower, 1);
