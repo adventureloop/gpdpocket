@@ -63,7 +63,6 @@ static int chvpower_detach(device_t);
 static int
 chvpower_probe(device_t dev)
 {
-	device_printf(dev, "chvpower probe\n");
 	/*
      * - Probe agaist the acpi_hid
 	 * - check if we get probed multiple times (hopefully not)
@@ -71,6 +70,7 @@ chvpower_probe(device_t dev)
 	if (acpi_disabled("chvpower") ||
     ACPI_ID_PROBE(device_get_parent(dev), dev, chvpower_hids) == NULL)
 		return (ENXIO);
+	device_printf(dev, "chvpower probe \n");
 
 	device_set_desc(dev, "Intel Cherry View Power Nexus");
 	return (0);
