@@ -137,9 +137,17 @@ acpi_count_i2c_resources(ACPI_RESOURCE *res, void *context)
 	req = (struct link_count_request *)context;
 	device_printf(dev, "resource of number: %x\n", res->Type);
 	switch (res->Type) {
-
 	case ACPI_RESOURCE_TYPE_SERIAL_BUS:
 		device_printf(dev, "serial resource number: %x\n", res->Type);
+		int type = res->Data.CommonSerialBus.Type;
+		switch (type) {
+		case ACPI_RESOURCE_SERIAL_TYPE_I2C:
+			device_printf(dev, "i2c device addr: %x\n", 
+				res->Data.I2cSerialBus.SlaveAddress);
+			break;
+		default:
+			break;
+		}
 		break;
 	default:
 		break;
