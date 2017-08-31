@@ -95,19 +95,20 @@ chvpower_attach(device_t dev)
 	struct chvpower_softc *sc = device_get_softc(dev);
     device_t parent;
 	ACPI_STATUS status;
-	int uid;
+	//int uid;
 
 	/* getting the _UID */
 	sc = device_get_softc(dev);
 	sc->sc_dev = dev;
 
 	sc->sc_handle = acpi_get_handle(dev);
+	/*
 	status = acpi_GetInteger(sc->sc_handle, "_UID", &uid);
 	if (ACPI_FAILURE(status)) {
 		device_printf(dev, "failed to read _UID\n");
 		return (ENXIO);
 	}
-
+	*/
 	/*
 	 * walk acpi resource tree, something like this maybe:
 	 * https://github.com/freebsd/freebsd/blob/386ddae58459341ec567604707805814a2128a57/sys/dev/acpica/acpi_pci_link.c#L521
@@ -116,15 +117,15 @@ chvpower_attach(device_t dev)
     //unit = acpi_get_unitsomething(handle)	I wonder if it is resource I wish for
 	status = AcpiWalkResources(sc->sc_handle, "_CRS", 
 		acpi_count_i2c_resources, dev);
-	
 
     parent = device_get_parent(dev);
+	return (ENXIO);
 
     //if !acpi_parent
      //   return ENOFRIENDS
 
     //iicbus = device_find_child(parent, "iicbus", unit)
-	return (0);
+	//return (0);
 }
 
 static ACPI_STATUS
