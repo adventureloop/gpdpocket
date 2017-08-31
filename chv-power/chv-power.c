@@ -37,6 +37,8 @@
 #include <machine/bus.h>
 #include <machine/resource.h>
 
+#include "opt_acpi.h"
+
 #include <contrib/dev/acpica/include/acpi.h>
 #include <contrib/dev/acpica/include/accommon.h>
 
@@ -60,17 +62,14 @@ static int chvpower_probe(device_t);
 static int chvpower_attach(device_t);
 static int chvpower_detach(device_t);
 
+static ACPI_STATUS acpi_count_i2c_resources(ACPI_RESOURCE *, void *);
+
 static int
 chvpower_probe(device_t dev)
 {
-	/*
-     * - Probe agaist the acpi_hid
-	 * - check if we get probed multiple times (hopefully not)
-	 */
 	if (acpi_disabled("chvpower") ||
     ACPI_ID_PROBE(device_get_parent(dev), dev, chvpower_hids) == NULL)
 		return (ENXIO);
-	device_printf(dev, "chvpower probe \n");
 
 	device_set_desc(dev, "Intel Cherry View Power Nexus");
 	return (0);
@@ -115,7 +114,8 @@ chvpower_attach(device_t dev)
 	 */
 
     //unit = acpi_get_unitsomething(handle)	I wonder if it is resource I wish for
-
+	status = AcpiWalkResources(sc->sc_handle, "_CRS", 
+		acpi_count_i2c_resources, dev);
 	
 
     parent = device_get_parent(dev);
@@ -125,6 +125,25 @@ chvpower_attach(device_t dev)
 
     //iicbus = device_find_child(parent, "iicbus", unit)
 	return (0);
+}
+
+static ACPI_STATUS
+acpi_count_i2c_resources(ACPI_RESOURCE *res, void *context)
+{
+	struct link_count_request *req;
+	device_t dev = (device_t)context;
+
+	req = (struct link_count_request *)context;
+	device_printf(dev, "resource of number: %x\n", res->Type);
+	switch (res->Type) {
+
+	case ACPI_RESOURCE_TYPE_SERIAL_BUS:
+		device_printf(dev, "serial resource number: %x\n", res->Type);
+		break;
+	default:
+		break;
+	}
+	return (AE_OK);
 }
 
 static int
