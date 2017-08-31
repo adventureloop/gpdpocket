@@ -140,8 +140,8 @@ acpi_count_i2c_resources(ACPI_RESOURCE *res, void *context)
 	switch (res->Type) {
 	case ACPI_RESOURCE_TYPE_SERIAL_BUS:
 		device_printf(dev, "serial resource number: %x\n"
-			"rev id: %x type: %x producer consumer: %x slave mode: %x"
-			"connection sharing: %x type rev id: %x type data len: %x"
+			"rev id: %x type: %x producer consumer: %x slave mode: %x "
+			"connection sharing: %x type rev id: %x type data len: %x "
 			"vendor len: %x\n",
 			res->Type,
 			res->Data.CommonSerialBus.RevisionId,
@@ -186,10 +186,10 @@ acpi_count_i2c_resources(ACPI_RESOURCE *res, void *context)
 			break;
 		case ACPI_RESOURCE_SERIAL_TYPE_UART:
 			device_printf(dev, "UART device"
-				"edian: %x data bits %x, stop bits %x"
-				"flow ctrl %x parity %x lines enabled %x"
-				"rx fifo size %x tx fifo size %x"
-				"default baud %x\n",
+				"edian: %x data bits %x, stop bits %x "
+				"flow ctrl %x parity %x lines enabled %x "
+				"rx fifo size %x tx fifo size %x "
+				"default baud %x\n ",
 				res->Data.UartSerialBus.Endian,
 				res->Data.UartSerialBus.DataBits,
 				res->Data.UartSerialBus.StopBits,
