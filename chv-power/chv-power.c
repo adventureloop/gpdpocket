@@ -136,14 +136,70 @@ acpi_count_i2c_resources(ACPI_RESOURCE *res, void *context)
 
 	req = (struct link_count_request *)context;
 	device_printf(dev, "resource of number: %x\n", res->Type);
+
 	switch (res->Type) {
 	case ACPI_RESOURCE_TYPE_SERIAL_BUS:
-		device_printf(dev, "serial resource number: %x\n", res->Type);
+		device_printf(dev, "serial resource number: %x\n"
+			"rev id: %x type: %x producer consumer: %x slave mode: %x"
+			"connection sharing: %x type rev id: %x type data len: %x"
+			"vendor len: %x\n",
+			res->Type,
+			res->Data.CommonSerialBus.RevisionId,
+			res->Data.CommonSerialBus.Type,
+			res->Data.CommonSerialBus.ProducerConsumer,
+			res->Data.CommonSerialBus.SlaveMode,
+			res->Data.CommonSerialBus.ConnectionSharing,
+			res->Data.CommonSerialBus.TypeRevisionId,
+			res->Data.CommonSerialBus.TypeDataLength,
+			res->Data.CommonSerialBus.VendorLength);
+
+		device_printf(dev, 
+			"resource source, index: %x, str len %x, str:\n\t%s\n",
+			res->Data.CommonSerialBus.ResourceSource.Index,
+			res->Data.CommonSerialBus.ResourceSource.StringLength,
+			res->Data.CommonSerialBus.ResourceSource.StringPtr);
+
+		//ACPI_RESOURCE_SOURCE            ResourceSource; \
+		//UINT8                           *VendorData;
+
+
 		int type = res->Data.CommonSerialBus.Type;
 		switch (type) {
 		case ACPI_RESOURCE_SERIAL_TYPE_I2C:
-			device_printf(dev, "i2c device addr: %x\n", 
-				res->Data.I2cSerialBus.SlaveAddress);
+			device_printf(dev, "i2c device," 
+				"access mode: %x addr: %x, connection speed %x\n", 
+				res->Data.I2cSerialBus.AccessMode,
+				res->Data.I2cSerialBus.SlaveAddress,
+				res->Data.I2cSerialBus.ConnectionSpeed);
+			break;
+		case ACPI_RESOURCE_SERIAL_TYPE_SPI:
+			device_printf(dev, "SPI device"
+				"wire mode: %x polarity: %x bit length %x clock phase %x "
+				"clock polarity %x device selection %x connection speed %x\n",
+				res->Data.SpiSerialBus.WireMode,
+				res->Data.SpiSerialBus.DevicePolarity,
+				res->Data.SpiSerialBus.DataBitLength,
+				res->Data.SpiSerialBus.ClockPhase,
+				res->Data.SpiSerialBus.ClockPolarity,
+				res->Data.SpiSerialBus.DeviceSelection,
+				res->Data.SpiSerialBus.ConnectionSpeed);
+			break;
+		case ACPI_RESOURCE_SERIAL_TYPE_UART:
+			device_printf(dev, "UART device"
+				"edian: %x data bits %x, stop bits %x"
+				"flow ctrl %x parity %x lines enabled %x"
+				"rx fifo size %x tx fifo size %x"
+				"default baud %x\n",
+				res->Data.UartSerialBus.Endian,
+				res->Data.UartSerialBus.DataBits,
+				res->Data.UartSerialBus.StopBits,
+				res->Data.UartSerialBus.FlowControl,
+				res->Data.UartSerialBus.Parity,
+				res->Data.UartSerialBus.LinesEnabled,
+				res->Data.UartSerialBus.RxFifoSize,
+				res->Data.UartSerialBus.TxFifoSize,
+				res->Data.UartSerialBus.DefaultBaudRate);
+			
 			break;
 		default:
 			break;
