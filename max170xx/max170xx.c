@@ -62,6 +62,7 @@ static int max170xx_write(device_t, uint8_t, uint16_t );
 static int
 max170xx_probe(device_t dev)
 {
+	device_printf(dev, "probe\n");
 	device_set_desc(dev, "Maxim max170xx Fuel Guage");
 	return (0);
 }
@@ -69,6 +70,7 @@ max170xx_probe(device_t dev)
 static int
 max170xx_attach(device_t dev)
 {
+	device_printf(dev, "attach\n");
 	struct max170xx_softc *sc = device_get_softc(dev);
 
 	sc->sc_dev = dev;
@@ -87,7 +89,7 @@ max170xx_attach(device_t dev)
 	max170xx_read(dev, MAX170xx_CONFIG, &config);
 	max170xx_read(dev, MAX170xx_SOCVF, &socvf);
 
-	device_printf(dev, "fuel guageread: STATUS: %x TEMP: %x "
+	device_printf(dev, "fuel guage read: STATUS: %x TEMP: %x "
 		"TTE: %x CONFIG: %x SOCVF: %x\n", status, temp, tte, config, socvf);
 
 	remain = (socvf >> 8);
