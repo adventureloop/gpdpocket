@@ -74,12 +74,12 @@ max170xx_attach(device_t dev)
 	sc->sc_dev = dev;
 	sc->sc_addr = MAX170xx_SADDR;
 
-	uint16_t status;
-	uint16_t temp;
-	uint16_t tte;
-	uint16_t config;
-	uint16_t socvf;
-	uint8_t remain;
+	uint16_t status = 0;
+	uint16_t temp = 0;
+	uint16_t tte = 0;
+	uint16_t config = 0;
+	uint16_t socvf = 0;
+	uint8_t remain = 0;
 
 	max170xx_read(dev, MAX170xx_STATUS, &status);
 	max170xx_read(dev, MAX170xx_TEMP, &temp);
@@ -154,10 +154,10 @@ max170xx_driver_loaded(struct module *m, int what, void *arg)
 
 	switch (what) {
 	case MOD_LOAD:
-		uprintf("max170xx touch screen KLD loaded.\n");
+		uprintf("max170xx fuel guage KLD loaded.\n");
 		break;
 	case MOD_UNLOAD:
-		uprintf("max170xx touch screen KLD unloaded.\n");
+		uprintf("max170xx fuel guage KLD unloaded.\n");
 		break;
 	default:
 		err = EOPNOTSUPP;
