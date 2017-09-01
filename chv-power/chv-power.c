@@ -120,7 +120,6 @@ chvpower_attach(device_t dev)
 
 	device_printf(dev, "walking acpi tree - DONE\n");
 
-	return (ENXIO);
 	if (sc->sc_iicchild_count != 4)
 		return (ENXIO);
 
@@ -211,11 +210,19 @@ acpi_collect_i2c_resources(ACPI_RESOURCE *res, void *context)
 					sc->sc_iicchildren[sc->sc_iicchild_count].address = 
 						res->Data.I2cSerialBus.SlaveAddress;
 /*
-					sc->sc_iicchildren[sc->sc_iicchild_count].resource_source = 
-						strndup(res->Data.CommonSerialBus.ResourceSource.StringPtr,
-							(size_t)res->Data.CommonSerialBus.ResourceSource.StringLength, 
-							M_CHVPWR);
+		sc->sc_iicchildren[sc->sc_iicchild_count].resource_source = 
+			strndup(res->Data.CommonSerialBus.ResourceSource.StringPtr,
+				(size_t)res->Data.CommonSerialBus.ResourceSource.StringLength, 
+				M_CHVPWR);
 */
+				sc->sc_iicchildren[sc->sc_iicchild_count].resource_source = 
+					malloc((size_t)res->Data.CommonSerialBus.ResourceSource.StringLength  * sizeof(uint8_t), 
+					M_CHVPWR, M_WAITOK);
+				memcpy(sc->sc_iicchildren[sc->sc_iicchild_count].resource_source, 
+					res->Data.CommonSerialBus.ResourceSource.StringPtr, 
+					(size_t)res->Data.CommonSerialBus.ResourceSource.StringLength);
+
+
 					sc->sc_iicchild_count++;
 				}
 			break;
