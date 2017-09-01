@@ -72,7 +72,7 @@ max170xx_attach(device_t dev)
 
 	struct max170xx_softc *sc = device_get_softc(dev);
 
-	sc->dev = dev;
+	sc->sc_dev = dev;
 	sc->sc_addr = MAX170xx_SADDR;
 
 	return (ENXIO);
