@@ -71,7 +71,7 @@ static int chvpower_attach(device_t);
 static int chvpower_detach(device_t);
 
 static ACPI_STATUS acpi_collect_i2c_resources(ACPI_RESOURCE *, void *);
-static device_t iicbus_for_acpi_resource_source(device_t , const char *);
+static device_t iicbus_for_acpi_resource_source(device_t, device_t , const char *);
 
 static int
 chvpower_probe(device_t dev)
@@ -112,7 +112,7 @@ chvpower_attach(device_t dev)
 
     parent = device_get_parent(dev);
 
-	iicbus = iicbus_for_acpi_resource_source(parent,
+	iicbus = iicbus_for_acpi_resource_source(dev, parent,
 		sc->sc_iicchildren[1]->ResourceSource.StringPtr);
 	
 	device_t child = BUS_ADD_CHILD(iicbus, 0, "max170xx", -1);
@@ -124,11 +124,13 @@ chvpower_attach(device_t dev)
 }
 
 static device_t
-iicbus_for_acpi_resource_source(device_t bus, const char *name)
+iicbus_for_acpi_resource_source(device_t dev, device_t bus, const char *name)
 {
 	int unit;
 	devclass_t dc;
 	dc = devclass_find("iicbus");
+
+	device_printf(dev, "searching for child source matching: %s\n", name);
 
 	for (unit = 0; unit < devclass_get_maxunit(dc); unit++) {
 		device_t iicbus = device_find_child(bus, "iicbus", unit);
@@ -140,6 +142,7 @@ iicbus_for_acpi_resource_source(device_t bus, const char *name)
 			continue;
 		}
 
+		device_printf(dev, "checking: %s\n", acpi_name(handle));
 		if (strcmp(acpi_name(handle), name) == 0) 
 			return iicbus;
 	}
