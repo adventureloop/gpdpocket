@@ -286,6 +286,8 @@ chvpower_detach(device_t dev)
 	sc = device_get_softc(dev);
 
 	for (child = 0; child < IIC_CHILD_MAX; child++) {
+		if (child == 1)		//HACK TODO REMOVE
+			continue;
 		if (sc->sc_iicchildren[child].resource_source) {
 			free(sc->sc_iicchildren[child].resource_source, M_CHVPWR);
 			sc->sc_iicchildren[child].resource_source = NULL;
