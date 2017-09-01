@@ -73,16 +73,20 @@ max170xx_attach(device_t dev)
 
 	uint16_t tte;
 	uint16_t socvf;
+	uint8_t remain;
 
 	max170xx_read(dev, MAX170xx_TTE, &tte);
 	max170xx_read(dev, MAX170xx_SOCVF, &socvf);
 
 	device_printf(dev, "battery status read TTE %x, socvf %x\n", tte, socvf);
 
-	uint8_t remain = (((uint32_t)socvf * 100)/0xFFFF)/100;
+	remain = (socvf >> 8);
+	remain = ((uint32_t)remain * 100) / 0xFF;
 
-	device_printf(dev, "battery status read TTE %d seconds, socvf %d\n", 
-		(tte * 5625)/1000, remain);
+	device_printf(dev, "battery %d%%\n", remain);
+
+		//(0xff * 100) / 0xff
+
 
 	return (0);
 }
