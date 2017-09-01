@@ -129,7 +129,7 @@ chvpower_attach(device_t dev)
 		sc->sc_iicchildren[1].resource_source);
 
 	free(sc->sc_iicchildren[1].resource_source, M_CHVPWR);
-	sc->sc_iicchildren[1].resource_source = "\\134_SB_.PCI0.I2C1";
+	sc->sc_iicchildren[1].resource_source = "\\_SB_.PCI0.I2C1";
 
 	device_printf(dev, "searching for iicbus: %s (fixed)\n", 
 		sc->sc_iicchildren[1].resource_source);
