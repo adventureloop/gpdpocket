@@ -154,11 +154,13 @@ iicbus_for_acpi_resource_source(device_t dev, device_t bus, const char *name)
 	device_printf(dev, "searching for child source matching: %s\n", name);
 
 	for (unit = 0; unit < devclass_get_maxunit(dc); unit++) {
-		device_t iicbus = device_find_child(bus, "iicbus", unit);
-		if (iicbus == NULL) {
-			device_printf(dev, "no iicbus for unit: %d\n", unit);
+		device_t ig4iic = device_find_child(bus, "ig4iic_acpi", unit);
+		if (ig4iic == NULL) {
+			device_printf(dev, "no ig4 for unit: %d\n", unit);
 			continue;
 		}
+
+		device_t iicbus = device_find_child(ig4iic, "iicbus", -1);
 
 		ACPI_HANDLE handle = acpi_get_handle(iicbus);
 		if (handle == NULL) {
