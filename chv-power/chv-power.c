@@ -155,11 +155,14 @@ iicbus_for_acpi_resource_source(device_t dev, device_t bus, const char *name)
 
 	for (unit = 0; unit < devclass_get_maxunit(dc); unit++) {
 		device_t iicbus = device_find_child(bus, "iicbus", unit);
-		if (iicbus == NULL)
+		if (iicbus == NULL) {
+			device_printf(dev, "no iicbus for unit: %d\n", unit);
 			continue;
+		}
 
 		ACPI_HANDLE handle = acpi_get_handle(iicbus);
 		if (handle == NULL) {
+			device_printf(dev, "no acpi handle for iicbus: %d\n", unit);
 			continue;
 		}
 
