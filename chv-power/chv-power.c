@@ -137,13 +137,11 @@ chvpower_attach(device_t dev)
 	iicbus = iicbus_for_acpi_resource_source(dev, parent,
 		sc->sc_iicchildren[1].resource_source);
 
-	device_printf(dev, "searching for iicbus - DONE\n");
-	return (ENXIO);
-	
-	device_t child = BUS_ADD_CHILD(iicbus, 0, "max170xx", -1);
-	if (child != NULL)
-		iicbus_set_addr(child, sc->sc_iicchildren[1].address);
-
+	if (iicbus != NULL) {
+		device_t child = BUS_ADD_CHILD(iicbus, 0, "max170xx", -1);
+		if (child != NULL)
+			iicbus_set_addr(child, sc->sc_iicchildren[1].address);
+	}
 	return (ENXIO);
 	//return (0);
 }
