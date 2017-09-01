@@ -113,17 +113,22 @@ chvpower_attach(device_t dev)
 	sc->sc_dev = dev;
 	device_t iicbus;
 
+	device_printf(dev, "walking acpi tree\n");
 	sc->sc_handle = acpi_get_handle(dev);
 	status = AcpiWalkResources(sc->sc_handle, "_CRS", 
 		acpi_collect_i2c_resources, dev);
+
+	device_printf(dev, "walking acpi tree - DONE\n");
 
 	if (sc->sc_iicchild_count != 4)
 		return (ENXIO);
 
     parent = device_get_parent(dev);
 
+	device_printf(dev, "searching for iicbus\n");
 	iicbus = iicbus_for_acpi_resource_source(dev, parent,
 		sc->sc_iicchildren[1].resource_source);
+	device_printf(dev, "searching for iicbus - DONE\n");
 	
 	device_t child = BUS_ADD_CHILD(iicbus, 0, "max170xx", -1);
 	if (child != NULL)
