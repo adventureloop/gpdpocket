@@ -195,6 +195,7 @@ acpi_collect_i2c_resources(ACPI_RESOURCE *res, void *context)
 			"resource source, index: %x, str len: %x, str ptr: %p str:\n\t%s\n",
 			res->Data.CommonSerialBus.ResourceSource.Index,
 			res->Data.CommonSerialBus.ResourceSource.StringLength,
+			res->Data.CommonSerialBus.ResourceSource.StringPtr,
 			res->Data.CommonSerialBus.ResourceSource.StringPtr);
 
 		int type = res->Data.CommonSerialBus.Type;
