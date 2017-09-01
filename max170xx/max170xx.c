@@ -71,6 +71,14 @@ max170xx_attach(device_t dev)
 	sc->sc_dev = dev;
 	sc->sc_addr = MAX170xx_SADDR;
 
+	uint16_t tte;
+	uint16_t socvf;
+
+	max170xx_read(dev, MAX170xx_TTE, &tte);
+	max170xx_read(dev, MAX170xx_SOCVF, &socvf);
+
+	device_printf(dev, "battery status TTE %x, socvf %x", tte, socvf);
+
 	return (0);
 }
 
