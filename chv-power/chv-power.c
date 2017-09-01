@@ -33,6 +33,8 @@
 #include <sys/module.h>
 #include <sys/endian.h>
 #include <sys/rman.h>
+#include <sys/types.h>
+#include <sys/malloc.h>
 
 #include <machine/bus.h>
 #include <machine/resource.h>
@@ -49,12 +51,20 @@
 
 #define IIC_CHILD_MAX 4
 
+static MALLOC_DEFINE(M_CHVPWR, "chv-power", "CHV Power Driver");
+
+
+struct chvpower_child {
+	uint8_t address;
+	char *resource_source;
+};
+
 struct chvpower_softc {
 	device_t			sc_dev;
 	ACPI_HANDLE			sc_handle;
 
 	uint8_t				sc_iicchild_count;
-	ACPI_RESOURCE_I2C_SERIALBUS 	*sc_iicchildren[IIC_CHILD_MAX];
+	struct chvpower_child 		sc_iicchildren[IIC_CHILD_MAX];
 
 	//max170xx
 	//fusb
@@ -113,11 +123,11 @@ chvpower_attach(device_t dev)
     parent = device_get_parent(dev);
 
 	iicbus = iicbus_for_acpi_resource_source(dev, parent,
-		sc->sc_iicchildren[1]->ResourceSource.StringPtr);
+		sc->sc_iicchildren[1].resource_source);
 	
 	device_t child = BUS_ADD_CHILD(iicbus, 0, "max170xx", -1);
 	if (child != NULL)
-		iicbus_set_addr(child, sc->sc_iicchildren[1]->SlaveAddress);
+		iicbus_set_addr(child, sc->sc_iicchildren[1].address);
 
 	return (ENXIO);
 	//return (0);
@@ -192,7 +202,14 @@ acpi_collect_i2c_resources(ACPI_RESOURCE *res, void *context)
 				res->Data.I2cSerialBus.ConnectionSpeed);
 
 				if (sc->sc_iicchild_count < IIC_CHILD_MAX) {
-					sc->sc_iicchildren[sc->sc_iicchild_count++] = &res->Data.I2cSerialBus;
+					sc->sc_iicchildren[sc->sc_iicchild_count].address = 
+						res->Data.I2cSerialBus.SlaveAddress;
+
+					sc->sc_iicchildren[sc->sc_iicchild_count].resource_source = 
+						strndup(res->Data.CommonSerialBus.ResourceSource.StringPtr,
+							(size_t)res->Data.CommonSerialBus.ResourceSource.StringLength, 
+							M_CHVPWR);
+					sc->sc_iicchild_count++;
 				}
 			break;
 		case ACPI_RESOURCE_SERIAL_TYPE_SPI:
