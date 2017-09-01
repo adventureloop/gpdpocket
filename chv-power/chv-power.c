@@ -196,8 +196,9 @@ acpi_collect_i2c_resources(ACPI_RESOURCE *res, void *context)
 	sc = device_get_softc(dev);
 
 	req = (struct link_count_request *)context;
+#if DEBUG
 	device_printf(dev, "resource of number: %x\n", res->Type);
-
+#endif
 	switch (res->Type) {
 	case ACPI_RESOURCE_TYPE_SERIAL_BUS:
 #if DEBUG
