@@ -114,6 +114,7 @@ chvpower_attach(device_t dev)
 	device_t iicbus;
 
 	device_printf(dev, "walking acpi tree\n");
+	return (ENXIO);
 	sc->sc_handle = acpi_get_handle(dev);
 	status = AcpiWalkResources(sc->sc_handle, "_CRS", 
 		acpi_collect_i2c_resources, dev);
