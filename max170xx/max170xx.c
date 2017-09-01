@@ -47,7 +47,10 @@ struct max170xx_softc {
 
 #define MAX170xx_SADDR	0x36
 
+#define	MAX170xx_STATUS	0x00
+#define	MAX170xx_TEMP	0x08
 #define	MAX170xx_TTE	0x11
+#define	MAX170xx_CONFIG 0x1D
 #define	MAX170xx_SOCVF	0xFF
 
 static int max170xx_probe(device_t);
@@ -71,22 +74,26 @@ max170xx_attach(device_t dev)
 	sc->sc_dev = dev;
 	sc->sc_addr = MAX170xx_SADDR;
 
+	uint16_t status;
+	uint16_t temp
 	uint16_t tte;
+	uint16_t config
 	uint16_t socvf;
 	uint8_t remain;
 
+	max170xx_read(dev, MAX170xx_STATUS, &status);
+	max170xx_read(dev, MAX170xx_TEMP, &temp);
 	max170xx_read(dev, MAX170xx_TTE, &tte);
+	max170xx_read(dev, MAX170xx_CONFIG, &config);
 	max170xx_read(dev, MAX170xx_SOCVF, &socvf);
 
-	device_printf(dev, "battery status read TTE %x, socvf %x\n", tte, socvf);
+	device_printf(dev, "fuel guageread: STATUS: %x TEMP: %x "
+		"TTE: %x CONFIG: %x SOCVF: %x\n", status, temp, tte, config, socvf);
 
 	remain = (socvf >> 8);
 	remain = ((uint32_t)remain * 100) / 0xFF;
 
 	device_printf(dev, "battery %d%%\n", remain);
-
-		//(0xff * 100) / 0xff
-
 
 	return (0);
 }
