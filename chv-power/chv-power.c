@@ -125,12 +125,12 @@ chvpower_attach(device_t dev)
 
     parent = device_get_parent(dev);
 
-	device_printf(dev, "searching for iicbus\n");
-	return (ENXIO);
-	device_printf(dev, "searching for iicbus - stopped\n");
+	device_printf(dev, "searching for iicbus: %s\n", 
+		sc->sc_iicchildren[1].resource_source);
 	iicbus = iicbus_for_acpi_resource_source(dev, parent,
 		sc->sc_iicchildren[1].resource_source);
 	device_printf(dev, "searching for iicbus - DONE\n");
+	return (ENXIO);
 	
 	device_t child = BUS_ADD_CHILD(iicbus, 0, "max170xx", -1);
 	if (child != NULL)
@@ -146,6 +146,10 @@ iicbus_for_acpi_resource_source(device_t dev, device_t bus, const char *name)
 	int unit;
 	devclass_t dc;
 	dc = devclass_find("iicbus");
+	if (dc == NULL) {
+		device_printf(dev, "devclas_find returned NULL\n");
+		return NULL;
+	}
 
 	device_printf(dev, "searching for child source matching: %s\n", name);
 
@@ -212,19 +216,11 @@ acpi_collect_i2c_resources(ACPI_RESOURCE *res, void *context)
 					sc->sc_iicchildren[sc->sc_iicchild_count].address = 
 						res->Data.I2cSerialBus.SlaveAddress;
 
-		sc->sc_iicchildren[sc->sc_iicchild_count].resource_source = 
-			strndup(res->Data.CommonSerialBus.ResourceSource.StringPtr,
-				(size_t)res->Data.CommonSerialBus.ResourceSource.StringLength, 
-				M_CHVPWR);
+					sc->sc_iicchildren[sc->sc_iicchild_count].resource_source = 
+						strndup(res->Data.CommonSerialBus.ResourceSource.StringPtr,
+						(size_t)res->Data.CommonSerialBus.ResourceSource.StringLength, 
+						M_CHVPWR);
 
-/*
-	sc->sc_iicchildren[sc->sc_iicchild_count].resource_source = 
-		malloc((size_t)res->Data.CommonSerialBus.ResourceSource.StringLength  * sizeof(uint8_t), 
-		M_CHVPWR, M_WAITOK);
-	memcpy(sc->sc_iicchildren[sc->sc_iicchild_count].resource_source, 
-		res->Data.CommonSerialBus.ResourceSource.StringPtr, 
-		(size_t)res->Data.CommonSerialBus.ResourceSource.StringLength);
-*/
 					sc->sc_iicchild_count++;
 				}
 			break;
