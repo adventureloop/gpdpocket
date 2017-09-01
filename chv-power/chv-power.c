@@ -124,14 +124,13 @@ chvpower_attach(device_t dev)
 
     parent = device_get_parent(dev);
 
-	//device_printf(dev, "searching for iicbus: %s\n", 
-		//sc->sc_iicchildren[1].resource_source);
-
+	/* 
+	 * The String in the child acpi is missing an underscore (\_SB. vs \/_SB_)
+	 * compensate for this manually, free the alloced string and replace it 
+	 * with the correct one.
+	 */
 	free(sc->sc_iicchildren[1].resource_source, M_CHVPWR);
 	sc->sc_iicchildren[1].resource_source = "\\_SB_.PCI0.I2C1";
-
-	//device_printf(dev, "searching for iicbus: %s (fixed)\n", 
-		//sc->sc_iicchildren[1].resource_source);
 
 	iicbus = iicbus_for_acpi_resource_source(dev, parent,
 		sc->sc_iicchildren[1].resource_source);
@@ -144,8 +143,7 @@ chvpower_attach(device_t dev)
 		} else
 			device_printf(dev, "failed to add child\n");
 	}
-	return (ENXIO);
-	//return (0);
+	return (0);
 }
 
 static device_t
