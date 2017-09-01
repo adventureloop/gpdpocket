@@ -61,13 +61,13 @@ struct chvpower_child {
 };
 
 struct chvpower_softc {
-	device_t			sc_dev;
-	ACPI_HANDLE			sc_handle;
+	device_t				sc_dev;
+	ACPI_HANDLE				sc_handle;
 
-	uint8_t				sc_iicchild_count;
-	struct chvpower_child 		sc_iicchildren[IIC_CHILD_MAX];
+	uint8_t					sc_iicchild_count;
+	struct chvpower_child 	sc_iicchildren[IIC_CHILD_MAX];
 
-	//max170xx
+	device_t				sc_max170xx;
 	//fusb
 	//pi3usb3xxxxx
 };
@@ -139,6 +139,7 @@ chvpower_attach(device_t dev)
 		device_t child = BUS_ADD_CHILD(iicbus, 0, "max170xx", -1);
 		if (child != NULL) {
 			iicbus_set_addr(child, sc->sc_iicchildren[1].address);
+			sc->sc_max170xx = child;
 			device_printf(dev, "added child\n");
 		} else
 			device_printf(dev, "failed to add child\n");
@@ -291,6 +292,8 @@ chvpower_detach(device_t dev)
 	int child; 
 	struct chvpower_softc *sc;
 	sc = device_get_softc(dev);
+
+	device_delete_child(device_get_parent(sc->sc_max170xx), sc->sc_max170xx);
 
 	for (child = 0; child < IIC_CHILD_MAX; child++) {
 		if (child == 1)		//HACK TODO REMOVE
