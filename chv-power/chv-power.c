@@ -110,39 +110,38 @@ chvpower_attach(device_t dev)
 	struct chvpower_softc *sc;
     device_t parent;
 	ACPI_STATUS status;
-	sc = device_get_softc(dev);
-	sc->sc_dev = dev;
 	device_t iicbus;
 
-	device_printf(dev, "walking acpi tree\n");
+	sc = device_get_softc(dev);
+	sc->sc_dev = dev;
+
 	sc->sc_handle = acpi_get_handle(dev);
 	status = AcpiWalkResources(sc->sc_handle, "_CRS", 
 		acpi_collect_i2c_resources, dev);
-
-	device_printf(dev, "walking acpi tree - DONE\n");
 
 	if (sc->sc_iicchild_count != 4)
 		return (ENXIO);
 
     parent = device_get_parent(dev);
 
-	device_printf(dev, "searching for iicbus: %s\n", 
-		sc->sc_iicchildren[1].resource_source);
+	//device_printf(dev, "searching for iicbus: %s\n", 
+		//sc->sc_iicchildren[1].resource_source);
 
 	free(sc->sc_iicchildren[1].resource_source, M_CHVPWR);
 	sc->sc_iicchildren[1].resource_source = "\\_SB_.PCI0.I2C1";
 
-	device_printf(dev, "searching for iicbus: %s (fixed)\n", 
-		sc->sc_iicchildren[1].resource_source);
+	//device_printf(dev, "searching for iicbus: %s (fixed)\n", 
+		//sc->sc_iicchildren[1].resource_source);
 
 	iicbus = iicbus_for_acpi_resource_source(dev, parent,
 		sc->sc_iicchildren[1].resource_source);
 
 	if (iicbus != NULL) {
 		device_t child = BUS_ADD_CHILD(iicbus, 0, "max170xx", -1);
-		if (child != NULL)
+		if (child != NULL) {
 			iicbus_set_addr(child, sc->sc_iicchildren[1].address);
-		else
+			device_printf(dev, "added child\n");
+		} else
 			device_printf(dev, "failed to add child\n");
 	}
 	return (ENXIO);
