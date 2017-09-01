@@ -7,3 +7,4 @@ src/device_if.h
 src/goodix.ko       
 src/goodix_gt9xx.o  
 src/opt_acpi.h         
+*.ko
