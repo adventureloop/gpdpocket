@@ -106,7 +106,7 @@ chvpower_attach(device_t dev)
      *
      */
 
-	struct chvpower_softc *sc = device_get_softc(dev);
+	struct chvpower_softc *sc;
     device_t parent;
 	ACPI_STATUS status;
 	sc = device_get_softc(dev);
@@ -281,6 +281,17 @@ acpi_collect_i2c_resources(ACPI_RESOURCE *res, void *context)
 static int
 chvpower_detach(device_t dev)
 {
+	int child; 
+	struct chvpower_softc *sc;
+	sc = device_get_softc(dev);
+
+	for (child = 0; child < IIC_CHILD_MAX; child++) {
+		if (sc->sc_iicchildren[child].resource_source) {
+			free(sc->sc_iicchildren[child].resource_source, M_CHVPWR);
+			sc->sc_iicchildren[child].resource_source = NULL;
+		}
+	}
+
 	return (0);
 }
 
