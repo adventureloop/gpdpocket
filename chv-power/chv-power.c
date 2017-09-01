@@ -161,10 +161,14 @@ iicbus_for_acpi_resource_source(device_t dev, device_t bus, const char *name)
 		}
 
 		device_t iicbus = device_find_child(ig4iic, "iicbus", -1);
+		if (iicbus == NULL) {
+			device_printf(dev, "no iicbus on ig4iic-acpi%d\n", unit);
+			continue;
+		}
 
-		ACPI_HANDLE handle = acpi_get_handle(iicbus);
+		ACPI_HANDLE handle = acpi_get_handle(ig4iic);
 		if (handle == NULL) {
-			device_printf(dev, "no acpi handle for iicbus: %d\n", unit);
+			device_printf(dev, "no acpi handle for ig4iic_acpi%d\n", unit);
 			continue;
 		}
 
