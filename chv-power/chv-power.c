@@ -47,9 +47,18 @@
 #include <dev/iicbus/iicbus.h>
 #include <dev/iicbus/iiconf.h>
 
+#define IIC_CHILD_MAX 4
+
 struct chvpower_softc {
 	device_t			sc_dev;
 	ACPI_HANDLE			sc_handle;
+
+	uint8_t				sc_iicchild_count;
+	ACPI_RESOURCE_I2C_SERIALBUS 	*sc_iicchildren[IIC_CHILD_MAX];
+
+	//max170xx
+	//fusb
+	//pi3usb3xxxxx
 };
 
 static char *chvpower_hids[] = {
@@ -57,12 +66,12 @@ static char *chvpower_hids[] = {
 	NULL            
 };                  
 
-
 static int chvpower_probe(device_t);
 static int chvpower_attach(device_t);
 static int chvpower_detach(device_t);
 
-static ACPI_STATUS acpi_count_i2c_resources(ACPI_RESOURCE *, void *);
+static ACPI_STATUS acpi_collect_i2c_resources(ACPI_RESOURCE *, void *);
+static device_t iicbus_for_acpi_resource_source(device_t , const char *);
 
 static int
 chvpower_probe(device_t dev)
@@ -85,54 +94,65 @@ chvpower_attach(device_t dev)
      * look here:
      * https://github.com/freebsd/freebsd/blob/2df1b01611ffde3f1ce1630866cf76f4de49c7a6/sys/dev/chromebook_platform/chromebook_platform.c#L57
      *
-     * - get the parent acpi bus
-     * - check the handle for a unit number
-     * - search the acpi parent bus for an iic driver (unit-1)
-     *      - if that fails try again
-     * - search the new bus for the acutal device
      */
 
 	struct chvpower_softc *sc = device_get_softc(dev);
     device_t parent;
 	ACPI_STATUS status;
-	//int uid;
-
-	/* getting the _UID */
 	sc = device_get_softc(dev);
 	sc->sc_dev = dev;
+	device_t iicbus;
 
 	sc->sc_handle = acpi_get_handle(dev);
-	/*
-	status = acpi_GetInteger(sc->sc_handle, "_UID", &uid);
-	if (ACPI_FAILURE(status)) {
-		device_printf(dev, "failed to read _UID\n");
-		return (ENXIO);
-	}
-	*/
-	/*
-	 * walk acpi resource tree, something like this maybe:
-	 * https://github.com/freebsd/freebsd/blob/386ddae58459341ec567604707805814a2128a57/sys/dev/acpica/acpi_pci_link.c#L521
-	 */
-
-    //unit = acpi_get_unitsomething(handle)	I wonder if it is resource I wish for
 	status = AcpiWalkResources(sc->sc_handle, "_CRS", 
-		acpi_count_i2c_resources, dev);
+		acpi_collect_i2c_resources, dev);
+
+	if (sc->sc_iicchild_count != 4)
+		return (ENXIO);
 
     parent = device_get_parent(dev);
+
+	iicbus = iicbus_for_acpi_resource_source(parent,
+		sc->sc_iicchildren[1]->ResourceSource.StringPtr);
+	
+	device_t child = BUS_ADD_CHILD(iicbus, 0, "max170xx", -1);
+	if (child != NULL)
+		iicbus_set_addr(child, sc->sc_iicchildren[1]->SlaveAddress);
+
 	return (ENXIO);
-
-    //if !acpi_parent
-     //   return ENOFRIENDS
-
-    //iicbus = device_find_child(parent, "iicbus", unit)
 	//return (0);
 }
 
+static device_t
+iicbus_for_acpi_resource_source(device_t bus, const char *name)
+{
+	int unit;
+	devclass_t dc;
+	dc = devclass_find("iicbus");
+
+	for (unit = 0; unit < devclass_get_maxunit(dc); unit++) {
+		device_t iicbus = device_find_child(bus, "iicbus", unit);
+		if (iicbus == NULL)
+			continue;
+
+		ACPI_HANDLE handle = acpi_get_handle(iicbus);
+		if (handle == NULL) {
+			continue;
+		}
+
+		if (strcmp(acpi_name(handle), name) == 0) 
+			return iicbus;
+	}
+	return NULL;
+}
+
 static ACPI_STATUS
-acpi_count_i2c_resources(ACPI_RESOURCE *res, void *context)
+acpi_collect_i2c_resources(ACPI_RESOURCE *res, void *context)
 {
 	struct link_count_request *req;
 	device_t dev = (device_t)context;
+	struct chvpower_softc *sc;
+	sc = device_get_softc(dev);
 
 	req = (struct link_count_request *)context;
 	device_printf(dev, "resource of number: %x\n", res->Type);
@@ -159,10 +179,6 @@ acpi_count_i2c_resources(ACPI_RESOURCE *res, void *context)
 			res->Data.CommonSerialBus.ResourceSource.StringLength,
 			res->Data.CommonSerialBus.ResourceSource.StringPtr);
 
-		//ACPI_RESOURCE_SOURCE            ResourceSource; \
-		//UINT8                           *VendorData;
-
-
 		int type = res->Data.CommonSerialBus.Type;
 		switch (type) {
 		case ACPI_RESOURCE_SERIAL_TYPE_I2C:
@@ -171,6 +187,10 @@ acpi_count_i2c_resources(ACPI_RESOURCE *res, void *context)
 				res->Data.I2cSerialBus.AccessMode,
 				res->Data.I2cSerialBus.SlaveAddress,
 				res->Data.I2cSerialBus.ConnectionSpeed);
+
+				if (sc->sc_iicchild_count < IIC_CHILD_MAX) {
+					sc->sc_iicchildren[sc->sc_iicchild_count++] = &res->Data.I2cSerialBus;
+				}
 			break;
 		case ACPI_RESOURCE_SERIAL_TYPE_SPI:
 			device_printf(dev, "SPI device"
