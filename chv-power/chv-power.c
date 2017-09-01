@@ -50,6 +50,7 @@
 #include <dev/iicbus/iiconf.h>
 
 #define IIC_CHILD_MAX 4
+#define DEBUG 0
 
 static MALLOC_DEFINE(M_CHVPWR, "chv-power", "CHV Power Driver");
 
@@ -188,6 +189,7 @@ iicbus_for_acpi_resource_source(device_t dev, device_t bus, const char *name)
 static ACPI_STATUS
 acpi_collect_i2c_resources(ACPI_RESOURCE *res, void *context)
 {
+	int type;
 	struct link_count_request *req;
 	device_t dev = (device_t)context;
 	struct chvpower_softc *sc;
@@ -198,6 +200,7 @@ acpi_collect_i2c_resources(ACPI_RESOURCE *res, void *context)
 
 	switch (res->Type) {
 	case ACPI_RESOURCE_TYPE_SERIAL_BUS:
+#if DEBUG
 		device_printf(dev, "serial resource number: %x\n"
 			"rev id: %x type: %x producer consumer: %x slave mode: %x "
 			"connection sharing: %x type rev id: %x type data len: %x "
@@ -217,16 +220,17 @@ acpi_collect_i2c_resources(ACPI_RESOURCE *res, void *context)
 			res->Data.CommonSerialBus.ResourceSource.Index,
 			res->Data.CommonSerialBus.ResourceSource.StringLength,
 			res->Data.CommonSerialBus.ResourceSource.StringPtr);
-
-		int type = res->Data.CommonSerialBus.Type;
+#endif
+		type = res->Data.CommonSerialBus.Type;
 		switch (type) {
 		case ACPI_RESOURCE_SERIAL_TYPE_I2C:
+#if DEBUG
 			device_printf(dev, "i2c device," 
 				"access mode: %x addr: %x, connection speed %x\n", 
 				res->Data.I2cSerialBus.AccessMode,
 				res->Data.I2cSerialBus.SlaveAddress,
 				res->Data.I2cSerialBus.ConnectionSpeed);
-
+#endif
 				if (sc->sc_iicchild_count < IIC_CHILD_MAX) {
 					sc->sc_iicchildren[sc->sc_iicchild_count].address = 
 						res->Data.I2cSerialBus.SlaveAddress;
@@ -240,6 +244,7 @@ acpi_collect_i2c_resources(ACPI_RESOURCE *res, void *context)
 				}
 			break;
 		case ACPI_RESOURCE_SERIAL_TYPE_SPI:
+#if DEBUG
 			device_printf(dev, "SPI device"
 				"wire mode: %x polarity: %x bit length %x clock phase %x "
 				"clock polarity %x device selection %x connection speed %x\n",
@@ -250,8 +255,10 @@ acpi_collect_i2c_resources(ACPI_RESOURCE *res, void *context)
 				res->Data.SpiSerialBus.ClockPolarity,
 				res->Data.SpiSerialBus.DeviceSelection,
 				res->Data.SpiSerialBus.ConnectionSpeed);
+#endif
 			break;
 		case ACPI_RESOURCE_SERIAL_TYPE_UART:
+#if DEBUG
 			device_printf(dev, "UART device"
 				"edian: %x data bits %x, stop bits %x "
 				"flow ctrl %x parity %x lines enabled %x "
@@ -266,7 +273,7 @@ acpi_collect_i2c_resources(ACPI_RESOURCE *res, void *context)
 				res->Data.UartSerialBus.RxFifoSize,
 				res->Data.UartSerialBus.TxFifoSize,
 				res->Data.UartSerialBus.DefaultBaudRate);
-			
+#endif
 			break;
 		default:
 			break;
