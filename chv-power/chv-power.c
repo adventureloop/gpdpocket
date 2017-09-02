@@ -292,9 +292,9 @@ chvpower_detach(device_t dev)
 	int child; 
 	struct chvpower_softc *sc;
 	sc = device_get_softc(dev);
-
+/*
 	device_delete_child(device_get_parent(sc->sc_max170xx), sc->sc_max170xx);
-
+*/
 	for (child = 0; child < IIC_CHILD_MAX; child++) {
 		if (child == 1)		//HACK TODO REMOVE
 			continue;
