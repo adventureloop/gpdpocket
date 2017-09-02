@@ -94,7 +94,7 @@ max170xx_attach(device_t dev)
 
 	device_printf(dev, "fuel guage read: STATUS: %x TEMP: %x SOCKAV: %x"
 		"TTE: %x CONFIG: %x SOCVF: %x\n", 
-		status, temp, scokav, tte, config, socvf);
+		status, temp, sockav, tte, config, socvf);
 
 	remain = (socvf >> 8);
 	remain = ((uint32_t)remain * 100) / 0xFF;
