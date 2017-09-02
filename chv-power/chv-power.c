@@ -215,28 +215,22 @@ iicbus_for_acpi_resource_source(device_t dev, device_t bus, const char *name)
 		return NULL;
 	}
 
-//	device_printf(dev, "searching for child source matching: %s\n", name);
-
 	for (unit = 0; unit < devclass_get_maxunit(dc); unit++) {
 		device_t ig4iic = device_find_child(bus, "ig4iic_acpi", unit);
 		if (ig4iic == NULL) {
-//			device_printf(dev, "no ig4 for unit: %d\n", unit);
 			continue;
 		}
 
 		device_t iicbus = device_find_child(ig4iic, "iicbus", -1);
 		if (iicbus == NULL) {
-//			device_printf(dev, "no iicbus on ig4iic-acpi%d\n", unit);
 			continue;
 		}
 
 		ACPI_HANDLE handle = acpi_get_handle(ig4iic);
 		if (handle == NULL) {
-//			device_printf(dev, "no acpi handle for ig4iic_acpi%d\n", unit);
 			continue;
 		}
 
-//		device_printf(dev, "checking: %s\n", acpi_name(handle));
 		if (strcmp(acpi_name(handle), name) == 0) 
 			return iicbus;
 	}
