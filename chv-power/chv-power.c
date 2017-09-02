@@ -340,7 +340,7 @@ acpi_collect_i2c_resources(ACPI_RESOURCE *res, void *context)
 static int
 chvpower_detach(device_t dev)
 {
-	int child; 
+//	int child; 
 	struct chvpower_softc *sc;
 	sc = device_get_softc(dev);
 
