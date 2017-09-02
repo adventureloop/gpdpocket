@@ -127,6 +127,31 @@ acpi_collect_gpio(ACPI_RESOURCE *res, void *context)
 	switch (res->Type) {
 	case ACPI_RESOURCE_TYPE_FIXED_MEMORY32:
 		device_printf(dev, "don't believe everything you read \n");
+
+		device_printf(dev, "resource number: %x\n"
+			"type: %x producer consumer: %x decode: %x "
+			"min address: %x max address: %x"
+			"addr granularity: %x, addr min: %x addr max: %x "
+			"addr trans offset: %x address len: %x",
+			res->Type,
+			res->Data.Address32.ResourceType,
+			res->Data.Address32.ProducerConsumer,
+			res->Data.Address32.Decode,
+			res->Data.Address32.MinAddressFixed,
+			res->Data.Address32.MaxAddressFixed,
+			res->Data.Address32.Address.Granularity,
+			res->Data.Address32.Address.Minimum,
+			res->Data.Address32.Address.Maximum,
+			res->Data.Address32.Address.TranslationOffset,
+			res->Data.Address32.Address.AddressLength);
+
+//ACPI_RESOURCE_ATTRIBUTE         Info;               
+		device_printf(dev, 
+			"resource source, index: %x, str len: %x, str:\n\t%s\n",
+			res->Data.Address32.ResourceSource.Index,
+			res->Data.Address32.ResourceSource.StringLength,
+			res->Data.Address32.ResourceSource.StringPtr);
+
 		break;
 	case ACPI_RESOURCE_TYPE_PIN_CONFIG:
 		device_printf(dev, "serial resource number: %x\n"
