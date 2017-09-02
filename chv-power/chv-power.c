@@ -50,7 +50,7 @@
 #include <dev/iicbus/iiconf.h>
 
 #define IIC_CHILD_MAX 4
-#define DEBUG 0
+#define DEBUG 1
 
 static MALLOC_DEFINE(M_CHVPWR, "chv-power", "CHV Power Driver");
 
