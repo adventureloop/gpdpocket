@@ -73,6 +73,7 @@ max170xx_attach(device_t dev)
 {
 	device_printf(dev, "attach\n");
 	struct max170xx_softc *sc = device_get_softc(dev);
+	int rv;
 
 	sc->sc_dev = dev;
 	sc->sc_addr = MAX170xx_SADDR;
@@ -85,14 +86,18 @@ max170xx_attach(device_t dev)
 	uint16_t socav = 0;
 	uint8_t remain = 0;
 
-	max170xx_read(dev, MAX170xx_STATUS, &status);
+	rv = max170xx_read(dev, MAX170xx_STATUS, &status);
+	if ( rv != 0) {
+		device_printf(dev, "first read failed\n");
+		return ENXIO;
+	}
 	max170xx_read(dev, MAX170xx_TEMP, &temp);
 	max170xx_read(dev, MAX170xx_SOCAV, &socav);
 	max170xx_read(dev, MAX170xx_TTE, &tte);
 	max170xx_read(dev, MAX170xx_CONFIG, &config);
 	max170xx_read(dev, MAX170xx_SOCVF, &socvf);
 
-	device_printf(dev, "fuel guage read: STATUS: %x TEMP: %x SOCKAV: %x"
+	device_printf(dev, "fuel guage read: STATUS: %x TEMP: %x SOCKAV: %x "
 		"TTE: %x CONFIG: %x SOCVF: %x\n", 
 		status, temp, socav, tte, config, socvf);
 
