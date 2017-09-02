@@ -27,3 +27,10 @@ fusb3/export_syms
 fusb3/iicbus_if.h
 fusb3/machine
 fusb3/x86
+
+pi3usb/bus_if.h
+pi3usb/device_if.h
+pi3usb/export_syms
+pi3usb/iicbus_if.h
+pi3usb/machine
+pi3usb/x86
