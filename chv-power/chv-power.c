@@ -356,16 +356,16 @@ chvpower_detach(device_t dev)
 	if (sc->sc_pi3usb)
 		device_delete_child(device_get_parent(sc->sc_pi3usb), sc->sc_pi3usb);
 #endif
-
+#if 0
 	for (child = 0; child < IIC_CHILD_MAX; child++) {
-		if (child == 1)		//HACK TODO REMOVE
+		if (child == 0)		//HACK TODO REMOVE
 			continue;
 		if (sc->sc_iicchildren[child].resource_source) {
 			free(sc->sc_iicchildren[child].resource_source, M_CHVPWR);
 			sc->sc_iicchildren[child].resource_source = NULL;
 		}
 	}
-
+#endif
 	return (0);
 }
 
