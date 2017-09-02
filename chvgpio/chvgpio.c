@@ -116,7 +116,6 @@ chvgpio_attach(device_t dev)
 static ACPI_STATUS
 acpi_collect_gpio(ACPI_RESOURCE *res, void *context)
 {
-	int type;
 	struct link_count_request *req;
 	device_t dev = (device_t)context;
 	struct chvgpio_softc *sc;
@@ -126,74 +125,28 @@ acpi_collect_gpio(ACPI_RESOURCE *res, void *context)
 	device_printf(dev, "resource of number: %x\n", res->Type);
 
 	switch (res->Type) {
-	case ACPI_RESOURCE_TYPE_SERIAL_BUS:
-#if DEBUG
+	case ACPI_RESOURCE_TYPE_PIN_CONFIG:
 		device_printf(dev, "serial resource number: %x\n"
-			"rev id: %x type: %x producer consumer: %x slave mode: %x "
-			"connection sharing: %x type rev id: %x type data len: %x "
+			"rev id: %x producer consumer: %x sharable: %x "
+			"pin config type: %x pin config value: %x pin table len: %x "
 			"vendor len: %x\n",
 			res->Type,
-			res->Data.CommonSerialBus.RevisionId,
-			res->Data.CommonSerialBus.Type,
-			res->Data.CommonSerialBus.ProducerConsumer,
-			res->Data.CommonSerialBus.SlaveMode,
-			res->Data.CommonSerialBus.ConnectionSharing,
-			res->Data.CommonSerialBus.TypeRevisionId,
-			res->Data.CommonSerialBus.TypeDataLength,
-			res->Data.CommonSerialBus.VendorLength);
+			res->Data.PinConfig.RevisionId,
+			res->Data.PinConfig.ProducerConsumer,
+			res->Data.PinConfig.Sharable,
+			res->Data.PinConfig.PinConfigType,
+			res->Data.PinConfig.PinConfigValue,
+			res->Data.PinConfig.PinTableLength,
+			res->Data.PinConfig.VendorLength);
 
 		device_printf(dev, 
 			"resource source, index: %x, str len: %x, str:\n\t%s\n",
-			res->Data.CommonSerialBus.ResourceSource.Index,
-			res->Data.CommonSerialBus.ResourceSource.StringLength,
-			res->Data.CommonSerialBus.ResourceSource.StringPtr);
-#endif
-		type = res->Data.CommonSerialBus.Type;
-		switch (type) {
-		case ACPI_RESOURCE_SERIAL_TYPE_I2C:
-#if DEBUG
-			device_printf(dev, "i2c device," 
-				"access mode: %x addr: %x, connection speed %x\n", 
-				res->Data.I2cSerialBus.AccessMode,
-				res->Data.I2cSerialBus.SlaveAddress,
-				res->Data.I2cSerialBus.ConnectionSpeed);
-#endif
-			break;
-		case ACPI_RESOURCE_SERIAL_TYPE_SPI:
-#if DEBUG
-			device_printf(dev, "SPI device"
-				"wire mode: %x polarity: %x bit length %x clock phase %x "
-				"clock polarity %x device selection %x connection speed %x\n",
-				res->Data.SpiSerialBus.WireMode,
-				res->Data.SpiSerialBus.DevicePolarity,
-				res->Data.SpiSerialBus.DataBitLength,
-				res->Data.SpiSerialBus.ClockPhase,
-				res->Data.SpiSerialBus.ClockPolarity,
-				res->Data.SpiSerialBus.DeviceSelection,
-				res->Data.SpiSerialBus.ConnectionSpeed);
-#endif
-			break;
-		case ACPI_RESOURCE_SERIAL_TYPE_UART:
-#if DEBUG
-			device_printf(dev, "UART device"
-				"edian: %x data bits %x, stop bits %x "
-				"flow ctrl %x parity %x lines enabled %x "
-				"rx fifo size %x tx fifo size %x "
-				"default baud %x\n ",
-				res->Data.UartSerialBus.Endian,
-				res->Data.UartSerialBus.DataBits,
-				res->Data.UartSerialBus.StopBits,
-				res->Data.UartSerialBus.FlowControl,
-				res->Data.UartSerialBus.Parity,
-				res->Data.UartSerialBus.LinesEnabled,
-				res->Data.UartSerialBus.RxFifoSize,
-				res->Data.UartSerialBus.TxFifoSize,
-				res->Data.UartSerialBus.DefaultBaudRate);
-#endif
-			break;
-		default:
-			break;
-		}
+			res->Data.PinConfig.ResourceSource.Index,
+			res->Data.PinConfig.ResourceSource.StringLength,
+			res->Data.PinConfig.ResourceSource.StringPtr);
+
+//UINT16                          *PinTable;       
+//UINT8                           *VendorData;     
 		break;
 	default:
 		break;
