@@ -34,3 +34,12 @@ pi3usb/export_syms
 pi3usb/iicbus_if.h
 pi3usb/machine
 pi3usb/x86
+
+chvgpio/acpi_if.h  
+chvgpio/bus_if.h   
+chvgpio/device_if.h
+chvgpio/export_syms
+chvgpio/iicbus_if.h
+chvgpio/machine    
+chvgpio/opt_acpi.h 
+chvgpio/x86        
