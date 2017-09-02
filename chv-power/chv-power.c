@@ -50,7 +50,7 @@
 #include <dev/iicbus/iiconf.h>
 
 #define IIC_CHILD_MAX 4
-#define DEBUG 1
+#define DEBUG 0
 
 static MALLOC_DEFINE(M_CHVPWR, "chv-power", "CHV Power Driver");
 
@@ -124,6 +124,8 @@ chvpower_attach(device_t dev)
 
     parent = device_get_parent(dev);
 
+#define MAX170XX 0
+#if MAX170XX
 	/* 
 	 * The String in the child acpi is missing an underscore (\_SB. vs \/_SB_)
 	 * compensate for this manually, free the alloced string and replace it 
@@ -145,6 +147,7 @@ chvpower_attach(device_t dev)
 		} else
 			device_printf(dev, "failed to add child max170xx\n");
 	}
+#endif
 #define FUSB3 0
 #if FUSB3
 	/*
@@ -173,7 +176,7 @@ chvpower_attach(device_t dev)
 			device_printf(dev, "failed to add child fusb3\n");
 	}
 #endif
-#define PI3USB 0
+#define PI3USB 1
 #if PI3USB
 	/* 
 	 * The String in the child acpi is missing an underscore (\_SB. vs \/_SB_)
