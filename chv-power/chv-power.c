@@ -347,7 +347,16 @@ chvpower_detach(device_t dev)
 	struct chvpower_softc *sc;
 	sc = device_get_softc(dev);
 
-	device_delete_child(device_get_parent(sc->sc_max170xx), sc->sc_max170xx);
+	if (sc->sc_max170xx)
+		device_delete_child(device_get_parent(sc->sc_max170xx), sc->sc_max170xx);
+#if FUSB3
+	if (sc->sc_fusb3)
+		device_delete_child(device_get_parent(sc->sc_fusb3), sc->sc_fusb3);
+#endif
+#if PI3USB
+	if (sc->sc_pi3usb)
+		device_delete_child(device_get_parent(sc->sc_pi3usb), sc->sc_pi3usb);
+#endif
 
 	for (child = 0; child < IIC_CHILD_MAX; child++) {
 		if (child == 1)		//HACK TODO REMOVE
