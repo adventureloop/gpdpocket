@@ -68,8 +68,8 @@ struct chvpower_softc {
 	struct chvpower_child 	sc_iicchildren[IIC_CHILD_MAX];
 
 	device_t				sc_max170xx;
-	//fusb
-	//pi3usb3xxxxx
+	device_t				fusb3;
+	device_t				pi3usb;
 };
 
 static char *chvpower_hids[] = {
@@ -141,10 +141,35 @@ chvpower_attach(device_t dev)
 			iicbus_set_addr(child, sc->sc_iicchildren[1].address);
 			sc->sc_max170xx = child;
 			bus_generic_attach(iicbus);
-			device_printf(dev, "added child\n");
+			device_printf(dev, "added max170xx child\n");
 		} else
-			device_printf(dev, "failed to add child\n");
+			device_printf(dev, "failed to add child max170xx\n");
 	}
+#define FUSB3 0
+#if FUSB3
+	/* 
+	 * The String in the child acpi is missing an underscore (\_SB. vs \/_SB_)
+	 * compensate for this manually, free the alloced string and replace it 
+	 * with the correct one.
+	 */
+	free(sc->sc_iicchildren[2].resource_source, M_CHVPWR);
+	sc->sc_iicchildren[2].resource_source = "\\_SB_.PCI0.I2C1";
+
+	iicbus = iicbus_for_acpi_resource_source(dev, parent,
+		sc->sc_iicchildren[2].resource_source);
+
+	if (iicbus != NULL) {
+		device_t child = BUS_ADD_CHILD(iicbus, 0, "fusb3", -1);
+		if (child != NULL) {
+			iicbus_set_addr(child, sc->sc_iicchildren[2].address);
+			sc->sc_fusb3 = child;
+			bus_generic_attach(iicbus);
+			device_printf(dev, "added fusb3 child\n");
+		} else
+			device_printf(dev, "failed to add child fusb3\n");
+	}
+#endif
+
 	return (0);
 }
 
