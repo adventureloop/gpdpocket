@@ -192,7 +192,7 @@ chvpower_attach(device_t dev)
 	if (iicbus != NULL) {
 		device_t child = BUS_ADD_CHILD(iicbus, 0, "pi3usb", -1);
 		if (child != NULL) {
-			iicbus_set_addr(child, sc->sc_iicchildren[3].address);
+//			iicbus_set_addr(child, sc->sc_iicchildren[3].address);
 			sc->sc_pi3usb = child;
 			bus_generic_attach(iicbus);
 			device_printf(dev, "added pi3usb child\n");
