@@ -125,6 +125,9 @@ acpi_collect_gpio(ACPI_RESOURCE *res, void *context)
 	device_printf(dev, "resource of number: %x\n", res->Type);
 
 	switch (res->Type) {
+	case ACPI_RESOURCE_TYPE_FIXED_MEMORY32:
+		device_printf(dev, "don't believe everything you read \n");
+		break;
 	case ACPI_RESOURCE_TYPE_PIN_CONFIG:
 		device_printf(dev, "serial resource number: %x\n"
 			"rev id: %x producer consumer: %x sharable: %x "
