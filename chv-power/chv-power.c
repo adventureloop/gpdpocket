@@ -350,8 +350,10 @@ chvpower_detach(device_t dev)
 	struct chvpower_softc *sc;
 	sc = device_get_softc(dev);
 
+#if MAX170XX
 	if (sc->sc_max170xx)
 		device_delete_child(device_get_parent(sc->sc_max170xx), sc->sc_max170xx);
+#endif
 #if FUSB3
 	if (sc->sc_fusb3)
 		device_delete_child(device_get_parent(sc->sc_fusb3), sc->sc_fusb3);
