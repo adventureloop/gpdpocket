@@ -88,7 +88,7 @@ max170xx_attach(device_t dev)
 
 	rv = max170xx_read(dev, MAX170xx_STATUS, &status);
 	if ( rv != 0) {
-		device_printf(dev, "first read failed\n");
+		device_printf(dev, "first read failed code: %d\n", rv);
 		return ENXIO;
 	}
 	max170xx_read(dev, MAX170xx_TEMP, &temp);
