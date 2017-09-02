@@ -12,3 +12,17 @@ chv-power/machine
 chv-power/opt_acpi.h
 chv-power/opt_acpi_if.h
 chv-power/x86
+
+max170xx/bus_if.h
+max170xx/device_if.h
+max170xx/export_syms
+max170xx/iicbus_if.h
+max170xx/machine
+max170xx/x86
+
+fusb3/bus_if.h
+fusb3/device_if.h
+fusb3/export_syms
+fusb3/iicbus_if.h
+fusb3/machine
+fusb3/x86
