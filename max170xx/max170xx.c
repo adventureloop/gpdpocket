@@ -49,9 +49,10 @@ struct max170xx_softc {
 
 #define	MAX170xx_STATUS	0x00
 #define	MAX170xx_TEMP	0x08
+#define MAX170xx_SOCAV	0x0E	//state of charge
 #define	MAX170xx_TTE	0x11
 #define	MAX170xx_CONFIG 0x1D
-#define	MAX170xx_SOCVF	0xFF
+#define	MAX170xx_SOCVF	0xFF	//State Of Charge
 
 static int max170xx_probe(device_t);
 static int max170xx_attach(device_t);
@@ -81,16 +82,19 @@ max170xx_attach(device_t dev)
 	uint16_t tte = 0;
 	uint16_t config = 0;
 	uint16_t socvf = 0;
+	uint16_t socav = 0;
 	uint8_t remain = 0;
 
 	max170xx_read(dev, MAX170xx_STATUS, &status);
 	max170xx_read(dev, MAX170xx_TEMP, &temp);
+	max170xx_read(dev, MAX170xx_SOCAV, &socav);
 	max170xx_read(dev, MAX170xx_TTE, &tte);
 	max170xx_read(dev, MAX170xx_CONFIG, &config);
 	max170xx_read(dev, MAX170xx_SOCVF, &socvf);
 
-	device_printf(dev, "fuel guage read: STATUS: %x TEMP: %x "
-		"TTE: %x CONFIG: %x SOCVF: %x\n", status, temp, tte, config, socvf);
+	device_printf(dev, "fuel guage read: STATUS: %x TEMP: %x SOCKAV: %x"
+		"TTE: %x CONFIG: %x SOCVF: %x\n", 
+		status, temp, scokav, tte, config, socvf);
 
 	remain = (socvf >> 8);
 	remain = ((uint32_t)remain * 100) / 0xFF;
