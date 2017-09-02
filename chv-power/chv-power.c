@@ -147,6 +147,10 @@ chvpower_attach(device_t dev)
 	}
 #define FUSB3 0
 #if FUSB3
+	/*
+	 * FUSB seems to require an irq, deal with that hassle.
+	 */
+
 	/* 
 	 * The String in the child acpi is missing an underscore (\_SB. vs \/_SB_)
 	 * compensate for this manually, free the alloced string and replace it 
