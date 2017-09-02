@@ -1,3 +1,4 @@
+*.swp
 *.ko
 *.o
 .depend.*
