@@ -50,8 +50,8 @@ struct pi3usb_softc {
 static int pi3usb_probe(device_t);
 static int pi3usb_attach(device_t);
 static int pi3usb_detach(device_t);
-static int pi3usb_read(device_t, uint8_t, uint8_t *);
-static int pi3usb_write(device_t, uint8_t, uint8_t );
+static int pi3usb_read(device_t, uint8_t *);
+static int pi3usb_write(device_t, uint8_t);
 
 static int
 pi3usb_probe(device_t dev)
@@ -66,9 +66,16 @@ pi3usb_attach(device_t dev)
 {
 	device_printf(dev, "attach\n");
 	struct pi3usb_softc *sc = device_get_softc(dev);
+	int rv; 
+	uint8_t config = 0;
 
 	sc->sc_dev = dev;
 	sc->sc_addr = PI3USB_SADDR;
+
+	if ((rv = pi3usb_read(dev, &config)) != 0)	
+		device_printf(dev, "read config failed code: %d\n", rv);
+	else
+		device_printf(dev, "config: %x\n", rv);
 
 	return (0);
 }
@@ -80,46 +87,45 @@ pi3usb_detach(device_t dev)
 }
 
 static int 
-pi3usb_read(device_t dev, uint8_t reg, uint8_t *val)
+pi3usb_read(device_t dev, uint8_t *val)
 {
 	struct pi3usb_softc *sc;
-	struct iic_msg msg[2];
+	struct iic_msg msg[1];
+	uint8_t buf[2];
+	int rv;
 
 	sc = device_get_softc(dev);
 
 	msg[0].slave = sc->sc_addr;
-	msg[0].flags = IIC_M_WR | IIC_M_NOSTOP;
-	msg[0].len = 1;
-	msg[0].buf = &reg;
+	msg[0].flags = IIC_M_RD;
+	msg[0].len = 2;
+	msg[0].buf = buf;
 
-	msg[1].slave = sc->sc_addr;
-	msg[1].flags = IIC_M_RD;
-	msg[1].len = sizeof(uint8_t);
-	msg[1].buf = val;
+	rv = iicbus_transfer(dev, msg, 1);
+	*val = buf[1];
 
-	return (iicbus_transfer(dev, msg, 2));
+	return (rv);
+	
 }
 
 static int 
-pi3usb_write(device_t dev, uint8_t reg, uint8_t val)
+pi3usb_write(device_t dev, uint8_t val)
 {
 	struct pi3usb_softc *sc;
 	struct iic_msg msg[2];
+	uint8_t buf[2];
+
+	buf[0] = 0;
+	buf[1] = val;
 
 	sc = device_get_softc(dev);
-	reg = htobe16(reg);
 
 	msg[0].slave = sc->sc_addr;
-	msg[0].flags = IIC_M_WR | IIC_M_NOSTOP;
-	msg[0].len = 1;
-	msg[0].buf = &reg;
+	msg[0].flags = IIC_M_WR;
+	msg[0].len = 2;
+	msg[0].buf = buf;
 
-	msg[1].slave = sc->sc_addr;		
-	msg[1].flags = IIC_M_WR;
-	msg[1].len = sizeof(uint8_t);
-	msg[1].buf = &val;
-
-	return (iicbus_transfer(dev, msg, 2));
+	return (iicbus_transfer(dev, msg, 1));
 }
 
 static int
