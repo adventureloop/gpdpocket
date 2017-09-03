@@ -129,10 +129,15 @@ acpi_collect_gpio(ACPI_RESOURCE *res, void *context)
 		device_printf(dev, "don't believe everything you read \n");
 
 		device_printf(dev, "resource number: %x\n"
-			"type: %x producer consumer: %x decode: %x "
-			"min address: %x max address: %x"
-			"addr granularity: %x, addr min: %x addr max: %x "
-			"addr trans offset: %x address len: %x",
+			"\n\ttype: %x producer consumer: %x decode: %x "
+			"\n\tmin address: %x max address: %x"
+			"\n\taddr granularity: %x, addr min: %x addr max: %x "
+			"\n\taddr trans offset: %x address len: %x"
+			"\n\tInfo mem"
+			"\n\t\twrite protext: %x caching: %x range type: %x translation: %x"
+			"\n\tInfo io"
+			"\n\t\trange type: %x translation: %x trans type: %x"
+			"\n\tInfo type specific: %x\n",
 			res->Type,
 			res->Data.Address32.ResourceType,
 			res->Data.Address32.ProducerConsumer,
@@ -143,38 +148,22 @@ acpi_collect_gpio(ACPI_RESOURCE *res, void *context)
 			res->Data.Address32.Address.Minimum,
 			res->Data.Address32.Address.Maximum,
 			res->Data.Address32.Address.TranslationOffset,
-			res->Data.Address32.Address.AddressLength);
+			res->Data.Address32.Address.AddressLength,
+			res->Data.Address32.Info.Mem.WriteProtect,   
+			res->Data.Address32.Info.Mem.Caching,        
+			res->Data.Address32.Info.Mem.RangeType,      
+			res->Data.Address32.Info.Mem.Translation,    
+			res->Data.Address32.Info.Io.RangeType,      
+			res->Data.Address32.Info.Io.Translation,    
+			res->Data.Address32.Info.Io.TranslationType,
+			res->Data.Address32.Info.TypeSpecific);
 
-//ACPI_RESOURCE_ATTRIBUTE         Info;               
 		device_printf(dev, 
-			"resource source, index: %x, str len: %x, str:\n\t%s\n",
+			"\tresource source, index: %x, str len: %x, str:\n\t%s\n",
 			res->Data.Address32.ResourceSource.Index,
 			res->Data.Address32.ResourceSource.StringLength,
 			res->Data.Address32.ResourceSource.StringPtr);
 
-		break;
-	case ACPI_RESOURCE_TYPE_PIN_CONFIG:
-		device_printf(dev, "serial resource number: %x\n"
-			"rev id: %x producer consumer: %x sharable: %x "
-			"pin config type: %x pin config value: %x pin table len: %x "
-			"vendor len: %x\n",
-			res->Type,
-			res->Data.PinConfig.RevisionId,
-			res->Data.PinConfig.ProducerConsumer,
-			res->Data.PinConfig.Sharable,
-			res->Data.PinConfig.PinConfigType,
-			res->Data.PinConfig.PinConfigValue,
-			res->Data.PinConfig.PinTableLength,
-			res->Data.PinConfig.VendorLength);
-
-		device_printf(dev, 
-			"resource source, index: %x, str len: %x, str:\n\t%s\n",
-			res->Data.PinConfig.ResourceSource.Index,
-			res->Data.PinConfig.ResourceSource.StringLength,
-			res->Data.PinConfig.ResourceSource.StringPtr);
-
-//UINT16                          *PinTable;       
-//UINT8                           *VendorData;     
 		break;
 	default:
 		break;
