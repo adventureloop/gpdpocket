@@ -114,8 +114,8 @@ chvpower_attach(device_t dev)
 
 	sc = device_get_softc(dev);
 	sc->sc_dev = dev;
-
 	sc->sc_handle = acpi_get_handle(dev);
+
 	status = AcpiWalkResources(sc->sc_handle, "_CRS", 
 		acpi_collect_i2c_resources, dev);
 
