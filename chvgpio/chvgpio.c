@@ -63,32 +63,22 @@ struct chvgpio_softc {
 
 	ACPI_HANDLE	sc_handle;
 
-//	struct acpi_softc *sc_acpi;
-//	struct aml_node *sc_node;
+	int				sc_mem_rid;
+	struct resource *sc_mem_res;
 
-	bus_space_tag_t sc_memt;
-	bus_space_handle_t sc_memh;
-	bus_addr_t sc_addr;
-	bus_size_t sc_size;
-
-	int sc_irq;
-	int sc_irq_flags;
-	void *sc_ih;
+	int				sc_irq_rid;
+	struct resource *sc_irq_res;
 
 	const int *sc_pins;
 	int sc_npins;
 	int sc_ngroups;
 
 	struct chvgpio_intrhand sc_pin_ih[16];
-
-//	struct acpi_gpio sc_gpio;
 };
 
 static int chvgpio_probe(device_t);
 static int chvgpio_attach(device_t);
 static int chvgpio_detach(device_t);
-
-static ACPI_STATUS acpi_collect_gpio(ACPI_RESOURCE *, void *);
 
 static inline int
 chvgpio_pad_cfg0_offset(int pin)
@@ -99,28 +89,28 @@ chvgpio_pad_cfg0_offset(int pin)
 static inline int
 chvgpio_read_pad_cfg0(struct chvgpio_softc *sc, int pin)
 {
-	return bus_space_read_4(sc->sc_memt, sc->sc_memh,
+	return bus_read_4(sc->sc_mem_res,
 	    chvgpio_pad_cfg0_offset(pin));
 }
 
 static inline void
 chvgpio_write_pad_cfg0(struct chvgpio_softc *sc, int pin, uint32_t val)
 {
-	bus_space_write_4(sc->sc_memt, sc->sc_memh,
+	bus_write_4(sc->sc_mem_res,
 	    chvgpio_pad_cfg0_offset(pin), val);
 }
 
 static inline int
 chvgpio_read_pad_cfg1(struct chvgpio_softc *sc, int pin)
 {
-	return bus_space_read_4(sc->sc_memt, sc->sc_memh,
+	return bus_read_4(sc->sc_mem_res,
 	    chvgpio_pad_cfg0_offset(pin) + 4);
 }
 
 static inline void
 chvgpio_write_pad_cfg1(struct chvgpio_softc *sc, int pin, uint32_t val)
 {
-	bus_space_write_4(sc->sc_memt, sc->sc_memh,
+	bus_write_4(sc->sc_mem_res,
 	    chvgpio_pad_cfg0_offset(pin) + 4, val);
 }
 
@@ -172,18 +162,6 @@ chvgpio_probe(device_t dev)
 static int
 chvgpio_attach(device_t dev)
 {
-/*
-	struct acpi_attach_args *aaa = aux;
-	struct chvgpio_softc *sc = (struct chvgpio_softc *)self;
-	struct aml_value res;
-	struct aml_value arg[2];
-	struct aml_node *node;
-	int64_t uid;
-
-	sc->sc_acpi = (struct acpi_softc *)parent;
-	sc->sc_node = aaa->aaa_node;
-	printf(": %s", sc->sc_node->name);
-*/
 	device_printf(dev, "chvgpio attach\n");
 
 	struct chvgpio_softc *sc;
@@ -203,6 +181,7 @@ chvgpio_attach(device_t dev)
 
 	device_printf(dev, "_UID %d\n", uid);
 
+//these should be symbols
 	switch (uid) {
 	case 1:
 		sc->sc_pins = chv_southwest_pins;
@@ -224,6 +203,21 @@ chvgpio_attach(device_t dev)
 	for (i = 0; sc->sc_pins[i] >= 0; i++) {
 		sc->sc_npins += sc->sc_pins[i];
 		sc->sc_ngroups++;
+	}
+
+	sc->sc_mem_rid = 0;
+	sc->sc_mem_res = bus_alloc_resource_any(sc->sc_dev, SYS_RES_MEMORY, 
+		&sc->sc_mem_rid, RF_ACTIVE);
+	if (sc->sc_mem_res == NULL) {
+		device_printf(dev, "can't allocate resource\n");
+		return (ENOMEM);
+	}
+
+	sc->sc_irq_res = bus_alloc_resource_any(dev, SYS_RES_IRQ, 
+		&sc->sc_irq_rid, RF_ACTIVE);
+	if (!sc->sc_irq_res) {
+		device_printf(dev, "IRQ allocation failed\n");
+		return (ENOMEM);
 	}
 
 	return (ENXIO);
@@ -289,7 +283,7 @@ unmap:
 	bus_space_unmap(sc->sc_memt, sc->sc_memh, sc->sc_size);
 #endif
 }
-
+#if 0
 static ACPI_STATUS
 acpi_collect_gpio(ACPI_RESOURCE *res, void *context)
 {
@@ -338,6 +332,19 @@ acpi_collect_gpio(ACPI_RESOURCE *res, void *context)
             res->Data.Address32.ResourceSource.Index,
             res->Data.Address32.ResourceSource.StringLength,
             res->Data.Address32.ResourceSource.StringPtr);
+		//sc->sc_addr = crs->lr_m32fixed._bas;
+		//sc->sc_size = crs->lr_m32fixed._len;
+
+		sc->sc_addr = res->Data.Address32.Address.Minimum;
+		sc->sc_size = res->Data.Address32.Address.AddressLength;
+
+		break;
+	case ACPI_RESOURCE_TYPE_EXTENDED_IRQ:
+        device_printf(dev, "ext irq\n");
+
+		sc->sc_irq = res->Data.ExtendedIrq.Interrupts[0];
+		//sc->sc_irq_flags = res->Data.ExtendedIrq.
+		break;
 
 #if 0
 int
@@ -369,7 +376,7 @@ chvgpio_parse_resources(int crsidx, union acpi_resource *crs, void *arg)
     }
     return (AE_OK);
 }
-
+#endif
 int
 chvgpio_check_pin(struct chvgpio_softc *sc, int pin)
 {
@@ -469,13 +476,13 @@ chvgpio_intr(void *arg)
 	int rc = 0;
 	int line;
 
-	reg = bus_space_read_4(sc->sc_memt, sc->sc_memh,
+	reg = bus_read_4(sc->sc_mem_res,
 	    CHVGPIO_INTERRUPT_STATUS);
 	for (line = 0; line < 16; line++) {
 		if ((reg & (1 << line)) == 0)
 			continue;
 
-		bus_space_write_4(sc->sc_memt,sc->sc_memh,
+		bus_write_4(sc->sc_mem_res,
 		    CHVGPIO_INTERRUPT_STATUS, 1 << line);
 		if (sc->sc_pin_ih[line].ih_func)
 			sc->sc_pin_ih[line].ih_func(sc->sc_pin_ih[line].ih_arg);
