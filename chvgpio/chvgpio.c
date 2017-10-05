@@ -17,6 +17,7 @@
 #include <sys/param.h>
 #include <sys/systm.h>
 #include <sys/bus.h>
+#include <sys/gpio.h>
 #include <sys/clock.h>
 #include <sys/kernel.h>
 #include <sys/module.h>
@@ -28,17 +29,35 @@
 #include <machine/bus.h>
 #include <machine/resource.h>
 
-#include "opt_acpi.h"
-
 #include <contrib/dev/acpica/include/acpi.h>
 #include <contrib/dev/acpica/include/accommon.h>
 
 #include <dev/acpica/acpivar.h>
+#include <dev/gpio/gpiobusvar.h>
 
-#define CHVGPIO_INTERRUPT_STATUS	0x0300
-#define CHVGPIO_INTERRUPT_MASK		0x0380
-#define CHVGPIO_PAD_CFG0		0x4400
-#define CHVGPIO_PAD_CFG1		0x4404
+#include "opt_platform.h"
+#include "opt_acpi.h"
+#include "gpio_if.h"
+
+/**
+ *	Macros for driver mutex locking
+ */
+#define	CHVGPIO_LOCK(_sc)		mtx_lock_spin(&(_sc)->sc_mtx)
+#define	CHVGPIO_UNLOCK(_sc)		mtx_unlock_spin(&(_sc)->sc_mtx)
+#define	CHVGPIO_LOCK_INIT(_sc)		\
+	mtx_init(&_sc->sc_mtx, device_get_nameunit((_sc)->sc_dev), \
+	    "chvgpio", MTX_SPIN)
+#define	CHVGPIO_LOCK_DESTROY(_sc)	mtx_destroy(&(_sc)->sc_mtx)
+#define	CHVGPIO_ASSERT_LOCKED(_sc)	mtx_assert(&(_sc)->sc_mtx, MA_OWNED)
+#define	CHVGPIO_ASSERT_UNLOCKED(_sc) mtx_assert(&(_sc)->sc_mtx, MA_NOTOWNED)
+
+/* Ignore function check, no info is available at the moment */
+#define PADCONF_FUNC_ANY    -1
+
+#define CHVGPIO_INTERRUPT_STATUS		0x0300
+#define CHVGPIO_INTERRUPT_MASK			0x0380
+#define CHVGPIO_PAD_CFG0			0x4400
+#define CHVGPIO_PAD_CFG1			0x4404
 
 #define CHVGPIO_PAD_CFG0_GPIORXSTATE		0x00000001
 #define CHVGPIO_PAD_CFG0_GPIOTXSTATE		0x00000002
@@ -53,29 +72,67 @@
 #define CHVGPIO_PAD_CFG1_INVRXTX_MASK		0x000000f0
 #define CHVGPIO_PAD_CFG1_INVRXTX_RXDATA		0x00000040
 
-struct chvgpio_intrhand {
-	int (*ih_func)(void *);
-	void *ih_arg;
-};
-
 struct chvgpio_softc {
-	device_t sc_dev;
-
+	device_t 	sc_dev;
+	device_t 	sc_busdev;
+	struct mtx 	sc_mtx;
 	ACPI_HANDLE	sc_handle;
-
-	int				sc_mem_rid;
+	int		sc_mem_rid;
 	struct resource *sc_mem_res;
 
-	int				sc_irq_rid;
+	int		sc_irq_rid;
 	struct resource *sc_irq_res;
 
-	const int *sc_pins;
-	int sc_npins;
-	int sc_ngroups;
+	void		*intr_handle;
 
-	struct chvgpio_intrhand sc_pin_ih[16];
+	const char	*sc_bank_prefix;
+	const int  	*sc_pins;
+	int 		sc_npins;
 };
 
+/*
+ * The pads for the pins are arranged in groups of maximal 15 pins.
+ * The arrays below give the number of pins per group, such that we
+ * can validate the (untrusted) pin numbers from ACPI.
+ */
+
+#define	SW_UID		1
+#define	SW_BANK_PREFIX	"southwestbank"	//TODO this is clearly not right
+
+const int chv_southwest_pins[] = {
+	8, 8, 8, 8, 8, 8, 8, -1
+};
+
+#define	SW_PINS	nitems(chv_southwest_pins)
+
+#define	N_UID		2
+#define	N_BANK_PREFIX	"northbank"	//TODO this is clearly not right
+
+const int chv_north_pins[] = {
+	9, 13, 12, 12, 13, -1
+};
+
+#define	N_PINS	nitems(chv_north_pins)
+
+#define	E_UID		3
+#define	E_BANK_PREFIX	"eastbank"	//TODO this is clearly not right
+
+const int chv_east_pins[] = {
+	12, 12, -1
+};
+
+#define	E_PINS	nitems(chv_east_pins)
+
+#define	SE_UID		4
+#define	SE_BANK_PREFIX	"southeastbank"	//TODO this is clearly not right
+
+const int chv_southeast_pins[] = {
+	8, 12, 6, 8, 10, 11, -1
+};
+
+#define	SE_PINS	nitems(chv_southeast_pins)
+
+static void chvgpio_intr(void *);
 static int chvgpio_probe(device_t);
 static int chvgpio_attach(device_t);
 static int chvgpio_detach(device_t);
@@ -89,59 +146,237 @@ chvgpio_pad_cfg0_offset(int pin)
 static inline int
 chvgpio_read_pad_cfg0(struct chvgpio_softc *sc, int pin)
 {
-	return bus_read_4(sc->sc_mem_res,
-	    chvgpio_pad_cfg0_offset(pin));
+	return bus_read_4(sc->sc_mem_res, chvgpio_pad_cfg0_offset(pin));
 }
 
 static inline void
 chvgpio_write_pad_cfg0(struct chvgpio_softc *sc, int pin, uint32_t val)
 {
-	bus_write_4(sc->sc_mem_res,
-	    chvgpio_pad_cfg0_offset(pin), val);
+	bus_write_4(sc->sc_mem_res, chvgpio_pad_cfg0_offset(pin), val);
 }
 
 static inline int
 chvgpio_read_pad_cfg1(struct chvgpio_softc *sc, int pin)
 {
-	return bus_read_4(sc->sc_mem_res,
-	    chvgpio_pad_cfg0_offset(pin) + 4);
+	return bus_read_4(sc->sc_mem_res, chvgpio_pad_cfg0_offset(pin) + 4);
 }
 
 static inline void
 chvgpio_write_pad_cfg1(struct chvgpio_softc *sc, int pin, uint32_t val)
 {
-	bus_write_4(sc->sc_mem_res,
-	    chvgpio_pad_cfg0_offset(pin) + 4, val);
+	bus_write_4(sc->sc_mem_res, chvgpio_pad_cfg0_offset(pin) + 4, val);
 }
 
-/*
- * The pads for the pins are arranged in groups of maximal 15 pins.
- * The arrays below give the number of pins per group, such that we
- * can validate the (untrusted) pin numbers from ACPI.
- */
+static device_t
+chvgpio_get_bus(device_t dev)
+{
+	struct chvgpio_softc *sc;
 
-const int chv_southwest_pins[] = {
-	8, 8, 8, 8, 8, 8, 8, -1
-};
+	sc = device_get_softc(dev);
 
-const int chv_north_pins[] = {
-	9, 13, 12, 12, 13, -1
-};
+	return (sc->sc_busdev);
+}
 
-const int chv_east_pins[] = {
-	12, 12, -1
-};
+static int 
+chvgpio_pin_max(device_t dev, int *maxpin)
+{
+	struct chvgpio_softc *sc;
 
-const int chv_southeast_pins[] = {
-	8, 12, 6, 8, 10, 11, -1
-};
+	sc = device_get_softc(dev);
 
-int	chvgpio_check_pin(struct chvgpio_softc *, int);
-int	chvgpio_read_pin(void *, int);
-void	chvgpio_write_pin(void *, int, int);
-//void	chvgpio_intr_establish(void *, int, int, int (*)(), void *);
-int	chvgpio_intr(void *);
+	*maxpin = sc->sc_npins - 1;
 
+	return (0);
+}
+
+static int
+chvgpio_valid_pin(struct chvgpio_softc *sc, int pin)
+{
+	if (pin >= sc->sc_npins || sc->sc_mem_res == NULL)
+		return (EINVAL);
+
+	return (0);
+}
+
+static int 
+chvgpio_pin_getname(device_t dev, uint32_t pin, char *name)
+{
+	struct chvgpio_softc *sc;
+
+	sc = device_get_softc(dev);
+	if (chvgpio_valid_pin(sc, pin) != 0)
+		return (EINVAL);
+
+	/* Set a very simple name */
+	snprintf(name, GPIOMAXNAME, "%s%u", sc->sc_bank_prefix, pin);
+	name[GPIOMAXNAME - 1] = '\0';
+
+	return (0);
+}
+
+#if 0
+static int 
+chvgpio_pin_getcaps(device_t dev, uint32_t pin, uint32_t *caps)
+{
+	struct chvgpio_softc *sc;
+
+	sc = device_get_softc(dev);
+	if (chvgpio_valid_pin(sc, pin) != 0)
+		return (EINVAL);
+
+	*caps = 0;
+	if (chvgpio_pad_is_gpio(sc, pin))
+		*caps = GPIO_PIN_INPUT | GPIO_PIN_OUTPUT;
+
+	return (0);
+}
+
+static int
+chvgpio_pin_setflags(device_t dev, uint32_t pin, uint32_t flags)
+{
+	struct chvgpio_softc *sc;
+	uint32_t reg, val;
+	uint32_t allowed;
+
+	sc = device_get_softc(dev);
+	if (chvgpio_valid_pin(sc, pin) != 0)
+		return (EINVAL);
+
+	if (chvgpio_pad_is_gpio(sc, pin))
+		allowed = GPIO_PIN_INPUT | GPIO_PIN_OUTPUT;
+	else
+		allowed = 0;
+
+	/* 
+	 * Only directtion flag allowed
+	 */
+	if (flags & ~allowed)
+		return (EINVAL);
+
+	/* 
+	 * Not both directions simultaneously
+	 */
+	if ((flags & allowed) == allowed)
+		return (EINVAL);
+
+	/* Set the GPIO mode and state */
+	CHVGPIO_LOCK(sc);
+	reg = CHVGPIO_PIN_REGISTER(sc, pin, CHVGPIO_PAD_VAL);
+	val = chvgpio_read_4(sc, reg);
+	val = val | CHVGPIO_PAD_VAL_DIR_MASK;
+	if (flags & GPIO_PIN_INPUT)
+		val = val & ~CHVGPIO_PAD_VAL_I_INPUT_ENABLED;
+	if (flags & GPIO_PIN_OUTPUT)
+		val = val & ~CHVGPIO_PAD_VAL_I_OUTPUT_ENABLED;
+	chvgpio_write_4(sc, reg, val);
+	CHVGPIO_UNLOCK(sc);
+
+	return (0);
+}
+#endif
+
+static int
+chvgpio_pin_set(device_t dev, uint32_t pin, unsigned int value)
+{
+	struct chvgpio_softc *sc;
+	uint32_t val;
+
+	sc = device_get_softc(dev);
+	if (chvgpio_valid_pin(sc, pin) != 0)
+		return (EINVAL);
+
+	CHVGPIO_LOCK(sc);
+	val = chvgpio_read_pad_cfg0(sc, pin);
+	if (value == GPIO_PIN_LOW)
+		val = val & ~CHVGPIO_PAD_CFG0_GPIOTXSTATE;
+	else
+		val = val | CHVGPIO_PAD_CFG0_GPIOTXSTATE;
+	chvgpio_write_pad_cfg0(sc, pin, val);
+	CHVGPIO_UNLOCK(sc);
+
+	return (0);
+}
+
+static int
+chvgpio_pin_get(device_t dev, uint32_t pin, unsigned int *value)
+{
+	struct chvgpio_softc *sc;
+	uint32_t val;
+
+	sc = device_get_softc(dev);
+	if (chvgpio_valid_pin(sc, pin) != 0)
+		return (EINVAL);
+
+	CHVGPIO_LOCK(sc);
+
+	/*
+	 * And read actual value
+	 */
+	val = chvgpio_read_pad_cfg0(sc, pin);
+	if (val & CHVGPIO_PAD_CFG0_GPIORXSTATE)
+		*value = GPIO_PIN_HIGH;
+	else
+		*value = GPIO_PIN_LOW;
+
+	CHVGPIO_UNLOCK(sc);
+
+	return (0);
+}
+
+static int
+chvgpio_pin_toggle(device_t dev, uint32_t pin)
+{
+	struct chvgpio_softc *sc;
+	uint32_t val;
+
+	sc = device_get_softc(dev);
+#if 0
+	if (chvgpio_valid_pin(sc, pin) != 0)
+		return (EINVAL);
+
+	if (!chvgpio_pad_is_gpio(sc, pin))
+		return (EINVAL);
+#endif
+	/* Toggle the pin */
+	CHVGPIO_LOCK(sc);
+
+	val = chvgpio_read_pad_cfg0(sc, pin);
+	val = val ^ CHVGPIO_PAD_CFG0_GPIOTXSTATE;
+	chvgpio_write_pad_cfg0(sc, pin, val);
+
+	CHVGPIO_UNLOCK(sc);
+
+	return (0);
+}
+#if 0
+int
+chvgpio_read_pin(void *cookie, int pin)
+{
+	struct chvgpio_softc *sc = cookie;
+	uint32_t reg;
+
+	KASSERT(chvgpio_check_pin(sc, pin) == 0, "read pin");
+
+	reg = chvgpio_read_pad_cfg0(sc, pin);
+	return (reg & CHVGPIO_PAD_CFG0_GPIORXSTATE);
+}
+
+void
+chvgpio_write_pin(void *cookie, int pin, int value)
+{
+	struct chvgpio_softc *sc = cookie;
+	uint32_t reg;
+
+	KASSERT(chvgpio_check_pin(sc, pin) == 0, "write pin");
+
+	reg = chvgpio_read_pad_cfg0(sc, pin);
+	if (value)
+		reg |= CHVGPIO_PAD_CFG0_GPIOTXSTATE;
+	else
+		reg &= ~CHVGPIO_PAD_CFG0_GPIOTXSTATE;
+	chvgpio_write_pad_cfg0(sc, pin, reg);
+}
+#endif
 
 static char *chvgpio_hids[] = {
 	"INT33FF",
@@ -166,8 +401,8 @@ chvgpio_attach(device_t dev)
 
 	struct chvgpio_softc *sc;
 	ACPI_STATUS status;
-	int uid;
-	int i;
+	//int uid, i, error;
+int uid, error;
 
 	sc = device_get_softc(dev);
 	sc->sc_dev = dev;
@@ -181,28 +416,30 @@ chvgpio_attach(device_t dev)
 
 	device_printf(dev, "_UID %d\n", uid);
 
-//these should be symbols
 	switch (uid) {
-	case 1:
+	case SW_UID:
+		sc->sc_npins = SW_PINS;
+		sc->sc_bank_prefix = SW_BANK_PREFIX;
 		sc->sc_pins = chv_southwest_pins;
 		break;
-	case 2:
+	case N_UID:
+		sc->sc_npins = N_PINS;
+		sc->sc_bank_prefix = N_BANK_PREFIX;
 		sc->sc_pins = chv_north_pins;
 		break;
-	case 3:
+	case E_UID:
+		sc->sc_npins = E_PINS;
+		sc->sc_bank_prefix = E_BANK_PREFIX;
 		sc->sc_pins = chv_east_pins;
 		break;
-	case 4:
+	case SE_UID:
+		sc->sc_npins = SE_PINS;
+		sc->sc_bank_prefix = SE_BANK_PREFIX;
 		sc->sc_pins = chv_southeast_pins;
 		break;
 	default:
 		printf("\n");
 		return (ENXIO);
-	}
-
-	for (i = 0; sc->sc_pins[i] >= 0; i++) {
-		sc->sc_npins += sc->sc_pins[i];
-		sc->sc_ngroups++;
 	}
 
 	sc->sc_mem_rid = 0;
@@ -220,260 +457,46 @@ chvgpio_attach(device_t dev)
 		return (ENOMEM);
 	}
 
-	return (ENXIO);
-#if 0
-	read register values out of the _CRS
+	error = bus_setup_intr(sc->sc_dev, sc->sc_irq_res, INTR_TYPE_MISC | INTR_MPSAFE,
+		NULL, chvgpio_intr, sc, &sc->intr_handle);
 
-	if (aml_evalname(sc->sc_acpi, sc->sc_node, "_CRS", 0, NULL, &res)) {
-		printf(", can't find registers\n");
-		return;
+	if (error) {
+		device_printf(sc->sc_dev,
+		"Unable to setup irq: error %d\n", error);
 	}
-
-	aml_parse_resource(&res, chvgpio_parse_resources, sc);
-	printf(" addr 0x%lx/0x%lx", sc->sc_addr, sc->sc_size);
-	if (sc->sc_addr == 0 || sc->sc_size == 0) {
-		printf("\n");
-		return;
-	}
-	aml_freevalue(&res);
-
-	printf(" irq %d", sc->sc_irq);
-
-	sc->sc_memt = aaa->aaa_memt;
-	if (bus_space_map(sc->sc_memt, sc->sc_addr, sc->sc_size, 0,
-	    &sc->sc_memh)) {
-		printf(", can't map registers\n");
-		return;
-	}
-
-	sc->sc_ih = acpi_intr_establish(sc->sc_irq, sc->sc_irq_flags, IPL_BIO,
-	    chvgpio_intr, sc, sc->sc_dev.dv_xname);
-	if (sc->sc_ih == NULL) {
-		printf(", can't establish interrupt\n");
-		goto unmap;
-	}
-
-	sc->sc_gpio.cookie = sc;
-	sc->sc_gpio.read_pin = chvgpio_read_pin;
-	sc->sc_gpio.write_pin = chvgpio_write_pin;
-	sc->sc_gpio.intr_establish = chvgpio_intr_establish;
-	sc->sc_node->gpio = &sc->sc_gpio;
 
 	/* Mask and ack all interrupts. */
-	bus_space_write_4(sc->sc_memt, sc->sc_memh,
-	    CHVGPIO_INTERRUPT_MASK, 0);
-	bus_space_write_4(sc->sc_memt, sc->sc_memh,
-	    CHVGPIO_INTERRUPT_STATUS, 0xffff);
+	//bus_write_4(sc->sc_mem_res, CHVGPIO_INTERRUPT_MASK, 0);
+	//bus_write_4(sc->sc_mem_res, CHVGPIO_INTERRUPT_STATUS, 0xffff);
 
-	printf(", %d pins\n", sc->sc_npins);
+	device_printf(dev, "%d pins\n", sc->sc_npins);
+	device_printf(dev, "%s prefix\n", sc->sc_bank_prefix);
 
-	/* Register address space. */
-	memset(&arg, 0, sizeof(arg));
-	arg[0].type = AML_OBJTYPE_INTEGER;
-	arg[0].v_integer = ACPI_OPREG_GPIO;
-	arg[1].type = AML_OBJTYPE_INTEGER;
-	arg[1].v_integer = 1;
-	node = aml_searchname(sc->sc_node, "_REG");
-	if (node && aml_evalnode(sc->sc_acpi, node, 2, arg, NULL))
-		printf("%s: _REG failed\n", sc->sc_dev.dv_xname);
-
-	return;
-
-unmap:
-	bus_space_unmap(sc->sc_memt, sc->sc_memh, sc->sc_size);
-#endif
-}
-#if 0
-static ACPI_STATUS
-acpi_collect_gpio(ACPI_RESOURCE *res, void *context)
-{
-    struct link_count_request *req;
-    device_t dev = (device_t)context;
-    struct chvgpio_softc *sc;
-    sc = device_get_softc(dev);
-
-    req = (struct link_count_request *)context;
-    device_printf(dev, "resource of number: %x\n", res->Type);
-
-    switch (res->Type) {
-    case ACPI_RESOURCE_TYPE_FIXED_MEMORY32:
-        device_printf(dev, "resource number: %x\n"
-            "\n\ttype: %x producer consumer: %x decode: %x "
-            "\n\tmin address: %x max address: %x"
-            "\n\taddr granularity: %x, addr min: %x addr max: %x "
-            "\n\taddr trans offset: %x address len: %x"
-            "\n\tInfo mem"
-            "\n\t\twrite protext: %x caching: %x range type: %x translation: %x"
-            "\n\tInfo io"
-            "\n\t\trange type: %x translation: %x trans type: %x"
-            "\n\tInfo type specific: %x\n",
-            res->Type,
-            res->Data.Address32.ResourceType,
-            res->Data.Address32.ProducerConsumer,
-            res->Data.Address32.Decode,
-            res->Data.Address32.MinAddressFixed,
-            res->Data.Address32.MaxAddressFixed,
-            res->Data.Address32.Address.Granularity,
-            res->Data.Address32.Address.Minimum,
-            res->Data.Address32.Address.Maximum,
-            res->Data.Address32.Address.TranslationOffset,
-            res->Data.Address32.Address.AddressLength,
-            res->Data.Address32.Info.Mem.WriteProtect,
-            res->Data.Address32.Info.Mem.Caching,
-            res->Data.Address32.Info.Mem.RangeType,
-            res->Data.Address32.Info.Mem.Translation,
-            res->Data.Address32.Info.Io.RangeType,
-            res->Data.Address32.Info.Io.Translation,
-            res->Data.Address32.Info.Io.TranslationType,
-            res->Data.Address32.Info.TypeSpecific);
-
-        device_printf(dev,
-            "\tresource source, index: %x, str len: %x, str:\n\t%s\n",
-            res->Data.Address32.ResourceSource.Index,
-            res->Data.Address32.ResourceSource.StringLength,
-            res->Data.Address32.ResourceSource.StringPtr);
-		//sc->sc_addr = crs->lr_m32fixed._bas;
-		//sc->sc_size = crs->lr_m32fixed._len;
-
-		sc->sc_addr = res->Data.Address32.Address.Minimum;
-		sc->sc_size = res->Data.Address32.Address.AddressLength;
-
-		break;
-	case ACPI_RESOURCE_TYPE_EXTENDED_IRQ:
-        device_printf(dev, "ext irq\n");
-
-		sc->sc_irq = res->Data.ExtendedIrq.Interrupts[0];
-		//sc->sc_irq_flags = res->Data.ExtendedIrq.
-		break;
-
-#if 0
-int
-chvgpio_parse_resources(int crsidx, union acpi_resource *crs, void *arg)
-{
-	struct chvgpio_softc *sc = arg;
-	int type = AML_CRSTYPE(crs);
-
-	switch (type) {
-	case LR_MEM32FIXED:
-		sc->sc_addr = crs->lr_m32fixed._bas;
-		sc->sc_size = crs->lr_m32fixed._len;
-		break;
-	case LR_EXTIRQ:
-		sc->sc_irq = crs->lr_extirq.irq[0];
-		sc->sc_irq_flags = crs->lr_extirq.flags;
-		break;
-	default:
-		printf(" type 0x%x\n", type);
-		break;
+	sc->sc_busdev = gpiobus_attach_bus(dev);
+	if (sc->sc_busdev == NULL) {
+		CHVGPIO_LOCK_DESTROY(sc);
+		bus_release_resource(dev, SYS_RES_MEMORY,
+		    sc->sc_mem_rid, sc->sc_mem_res);
+		return (ENXIO);
 	}
 
-	return 0;
-}
-#endif
-        break;
-    default:
-        break;
-    }
-    return (AE_OK);
-}
-#endif
-int
-chvgpio_check_pin(struct chvgpio_softc *sc, int pin)
-{
-	if (pin < 0)
-		return EINVAL;
-	if ((pin / 15) >= sc->sc_ngroups)
-		return EINVAL;
-	if ((pin % 15) >= sc->sc_pins[pin / 15])
-		return EINVAL;
+	int value;
+	if (uid == 1) {
+		device_printf(dev, "trying to toggle fan");
+		chvgpio_pin_set(dev, 0, 1); 	//enable pin 0 this could drive the fan
 
-	return 0;
-}
-
-int
-chvgpio_read_pin(void *cookie, int pin)
-{
-	struct chvgpio_softc *sc = cookie;
-	uint32_t reg;
-
-	KASSERT(chvgpio_check_pin(sc, pin) == 0, "read pin");
-
-	reg = chvgpio_read_pad_cfg0(sc, pin);
-	return (reg & CHVGPIO_PAD_CFG0_GPIORXSTATE);
-}
-
-void
-chvgpio_write_pin(void *cookie, int pin, int value)
-{
-	struct chvgpio_softc *sc = cookie;
-	uint32_t reg;
-
-	KASSERT(chvgpio_check_pin(sc, pin) == 0, "write pine");
-
-	reg = chvgpio_read_pad_cfg0(sc, pin);
-	if (value)
-		reg |= CHVGPIO_PAD_CFG0_GPIOTXSTATE;
-	else
-		reg &= ~CHVGPIO_PAD_CFG0_GPIOTXSTATE;
-	chvgpio_write_pad_cfg0(sc, pin, reg);
-}
-#if 0
-void
-chvgpio_intr_establish(void *cookie, int pin, int flags,
-    int (*func)(void *), void *arg)
-{
-	struct chvgpio_softc *sc = cookie;
-	uint32_t reg;
-	int line;
-
-	KASSERT(chvgpio_check_pin(sc, pin) == 0);
-
-	reg = chvgpio_read_pad_cfg0(sc, pin);
-	reg &= CHVGPIO_PAD_CFG0_INTSEL_MASK;
-	line = reg >> CHVGPIO_PAD_CFG0_INTSEL_SHIFT;
-
-	sc->sc_pin_ih[line].ih_func = func;
-	sc->sc_pin_ih[line].ih_arg = arg;
-
-	reg = chvgpio_read_pad_cfg1(sc, pin);
-	reg &= ~CHVGPIO_PAD_CFG1_INTWAKECFG_MASK;
-	reg &= ~CHVGPIO_PAD_CFG1_INVRXTX_MASK;
-	switch (flags & (LR_GPIO_MODE | LR_GPIO_POLARITY)) {
-	case LR_GPIO_LEVEL | LR_GPIO_ACTLO:
-		reg |= CHVGPIO_PAD_CFG1_INVRXTX_RXDATA;
-		/* FALLTHROUGH */
-	case LR_GPIO_LEVEL | LR_GPIO_ACTHI:
-		reg |= CHVGPIO_PAD_CFG1_INTWAKECFG_LEVEL;
-		break;
-	case LR_GPIO_EDGE | LR_GPIO_ACTLO:
-		reg |= CHVGPIO_PAD_CFG1_INTWAKECFG_FALLING;
-		break;
-	case LR_GPIO_EDGE | LR_GPIO_ACTHI:
-		reg |= CHVGPIO_PAD_CFG1_INTWAKECFG_RISING;
-		break;
-	case LR_GPIO_EDGE | LR_GPIO_ACTBOTH:
-		reg |= CHVGPIO_PAD_CFG1_INTWAKECFG_BOTH;
-		break;
-	default:
-		printf("%s: unsupported interrupt mode/polarity\n",
-		    sc->sc_dev.dv_xname);
-		break;
+		chvgpio_pin_get(dev, 0, &value);
+		device_printf(dev, "writing the pin made it %d", value);
 	}
-	chvgpio_write_pad_cfg1(sc, pin, reg);
 
-	reg = bus_space_read_4(sc->sc_memt, sc->sc_memh,
-	    CHVGPIO_INTERRUPT_MASK);
-	bus_space_write_4(sc->sc_memt, sc->sc_memh,
-	    CHVGPIO_INTERRUPT_MASK, reg | (1 << line));
+	return (0);
 }
-#endif
 
-int
+static void
 chvgpio_intr(void *arg)
 {
 	struct chvgpio_softc *sc = arg;
 	uint32_t reg;
-	int rc = 0;
 	int line;
 
 	reg = bus_read_4(sc->sc_mem_res,
@@ -484,12 +507,11 @@ chvgpio_intr(void *arg)
 
 		bus_write_4(sc->sc_mem_res,
 		    CHVGPIO_INTERRUPT_STATUS, 1 << line);
+/*
 		if (sc->sc_pin_ih[line].ih_func)
 			sc->sc_pin_ih[line].ih_func(sc->sc_pin_ih[line].ih_arg);
-		rc = 1;
+*/
 	}
-
-	return rc;
 }
 
 static int
@@ -524,6 +546,20 @@ static device_method_t chvgpio_methods[] = {
     DEVMETHOD(device_probe,     chvgpio_probe),
     DEVMETHOD(device_attach,    chvgpio_attach),
     DEVMETHOD(device_detach,    chvgpio_detach),
+
+	/* GPIO protocol */
+	DEVMETHOD(gpio_get_bus, 	chvgpio_get_bus),
+	DEVMETHOD(gpio_pin_max, 	chvgpio_pin_max),
+	DEVMETHOD(gpio_pin_getname, 	chvgpio_pin_getname),
+#if 0
+	DEVMETHOD(gpio_pin_getflags,	chvgpio_pin_getflags),
+	DEVMETHOD(gpio_pin_getcaps, 	chvgpio_pin_getcaps),
+	DEVMETHOD(gpio_pin_setflags,	chvgpio_pin_setflags),
+#endif
+	DEVMETHOD(gpio_pin_get, 	chvgpio_pin_get),
+	DEVMETHOD(gpio_pin_set, 	chvgpio_pin_set),
+	DEVMETHOD(gpio_pin_toggle, 	chvgpio_pin_toggle),
+
     DEVMETHOD_END
 };
 
