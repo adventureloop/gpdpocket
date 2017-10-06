@@ -471,19 +471,21 @@ int uid, error;
 	bus_write_4(sc->sc_mem_res, CHVGPIO_INTERRUPT_MASK, 0);
 	bus_write_4(sc->sc_mem_res, CHVGPIO_INTERRUPT_STATUS, 0xffff);
 
-	device_printf(dev, "%d pins\n", sc->sc_npins);
-	device_printf(dev, "%s prefix\n", sc->sc_bank_prefix);
+	if (uid == 1) {
+		device_printf(dev, "%d pins\n", sc->sc_npins);
+		device_printf(dev, "%s prefix\n", sc->sc_bank_prefix);
 
-	uint32_t value = 0;
+		uint32_t value = 0;
 
-	device_printf(dev, "attempting to read pin location directly\n");
-	value = bus_read_4(sc->sc_mem_res, CHVGPIO_PAD_CFG0);
-	device_printf(dev, "read pin location directly: %x\n", value);
+		device_printf(dev, "attempting to read pin location directly\n");
+		value = bus_read_4(sc->sc_mem_res, CHVGPIO_PAD_CFG0);
+		device_printf(dev, "read pin location directly: 0x%x\n", value);
+		//
 
-	device_printf(dev, "attempting to write to pin location directly\n");
-	value = value | CHVGPIO_PAD_CFG0_GPIOTXSTATE;
-	bus_write_4(sc->sc_mem_res, CHVGPIO_PAD_CFG0, value);
-
+		device_printf(dev, "attempting to write to pin location directly\n");
+		value = value | CHVGPIO_PAD_CFG0_GPIOTXSTATE;
+		bus_write_4(sc->sc_mem_res, CHVGPIO_PAD_CFG0, value);
+	}
 	return (ENXIO);
 #if 0
 	sc->sc_busdev = gpiobus_attach_bus(dev);
