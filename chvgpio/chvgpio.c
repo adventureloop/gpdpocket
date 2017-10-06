@@ -480,14 +480,21 @@ int uid, error;
 		return (ENXIO);
 	}
 
-	int value;
+	uint32_t value;
 	if (uid == 1) {
+		chvgpio_pin_get(dev, 0, &value);
+		device_printf(dev, "before write %x", value);
+
 		device_printf(dev, "trying to toggle fan");
 		chvgpio_pin_set(dev, 0, 1); 	//enable pin 0 this could drive the fan
 
 		chvgpio_pin_get(dev, 0, &value);
-		device_printf(dev, "writing the pin made it %d", value);
+		device_printf(dev, "writing the pin made it %x", value);
 	}
+
+	// or
+	value = bus_read_4(sc->sc_mem_res, CHVGPIO_PAD_CFG0);
+	device_printf(dev, "before write %x", value);
 
 	return (0);
 }
