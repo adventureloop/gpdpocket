@@ -480,11 +480,13 @@ int uid, error;
 		device_printf(dev, "attempting to read pin location directly\n");
 		value = bus_read_4(sc->sc_mem_res, CHVGPIO_PAD_CFG0);
 		device_printf(dev, "read pin location directly: 0x%x\n", value);
-		//
 
 		device_printf(dev, "attempting to write to pin location directly\n");
 		value = value | CHVGPIO_PAD_CFG0_GPIOTXSTATE;
 		bus_write_4(sc->sc_mem_res, CHVGPIO_PAD_CFG0, value);
+
+		value = bus_read_4(sc->sc_mem_res, CHVGPIO_PAD_CFG0);
+		device_printf(dev, "read pin after directly writing: 0x%x\n", value);
 	}
 	return (ENXIO);
 #if 0
