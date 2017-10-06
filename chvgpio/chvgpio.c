@@ -465,13 +465,15 @@ int uid, error;
 		"Unable to setup irq: error %d\n", error);
 	}
 
+	device_printf(dev, "attempting to mask interupts\n");
+
 	/* Mask and ack all interrupts. */
-	//bus_write_4(sc->sc_mem_res, CHVGPIO_INTERRUPT_MASK, 0);
-	//bus_write_4(sc->sc_mem_res, CHVGPIO_INTERRUPT_STATUS, 0xffff);
+	bus_write_4(sc->sc_mem_res, CHVGPIO_INTERRUPT_MASK, 0);
+	bus_write_4(sc->sc_mem_res, CHVGPIO_INTERRUPT_STATUS, 0xffff);
 
 	device_printf(dev, "%d pins\n", sc->sc_npins);
 	device_printf(dev, "%s prefix\n", sc->sc_bank_prefix);
-
+#if 0
 	sc->sc_busdev = gpiobus_attach_bus(dev);
 	if (sc->sc_busdev == NULL) {
 		CHVGPIO_LOCK_DESTROY(sc);
@@ -479,9 +481,10 @@ int uid, error;
 		    sc->sc_mem_rid, sc->sc_mem_res);
 		return (ENXIO);
 	}
-
-	uint32_t value;
+#endif
+	uint32_t value = 0;
 	if (uid == 1) {
+		device_printf(dev, "this will crash us ");
 		chvgpio_pin_get(dev, 0, &value);
 		device_printf(dev, "before write %x", value);
 
