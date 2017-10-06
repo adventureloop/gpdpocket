@@ -464,7 +464,8 @@ int uid, error;
 		device_printf(sc->sc_dev,
 		"Unable to setup irq: error %d\n", error);
 	}
-
+	device_printf(dev, "%d pins\n", sc->sc_npins);
+	device_printf(dev, "%s prefix\n", sc->sc_bank_prefix);
 	device_printf(dev, "attempting to mask interupts\n");
 
 	/* Mask and ack all interrupts. */
@@ -473,20 +474,25 @@ int uid, error;
 
 	uint32_t value = 0;
 	if (uid == 1) {
-		device_printf(dev, "%d pins\n", sc->sc_npins);
-		device_printf(dev, "%s prefix\n", sc->sc_bank_prefix);
+		value = bus_read_4(sc->sc_mem_res, chvgpio_pad_cfg0_offset(0));
+		device_printf(dev, "read pin 0 location directly: 0x%x\n", value);
 
-
-		device_printf(dev, "attempting to read pin location directly\n");
-		value = bus_read_4(sc->sc_mem_res, CHVGPIO_PAD_CFG0);
-		device_printf(dev, "read pin location directly: 0x%x\n", value);
-
-		device_printf(dev, "attempting to write to pin location directly\n");
+		device_printf(dev, "attempting to write to pin 0 location directly\n");
 		value = value | CHVGPIO_PAD_CFG0_GPIOTXSTATE;
-		bus_write_4(sc->sc_mem_res, CHVGPIO_PAD_CFG0, value);
+		bus_write_4(sc->sc_mem_res, chvgpio_pad_cfg0_offset(0), value);
 
-		value = bus_read_4(sc->sc_mem_res, CHVGPIO_PAD_CFG0);
-		device_printf(dev, "read pin after directly writing: 0x%x\n", value);
+		value = bus_read_4(sc->sc_mem_res, chvgpio_pad_cfg0_offset(0));
+		device_printf(dev, "read pin 0 after directly writing: 0x%x\n", value);
+
+		value = bus_read_4(sc->sc_mem_res, chvgpio_pad_cfg0_offset(1));
+		device_printf(dev, "read pin 1 location directly: 0x%x\n", value);
+
+		device_printf(dev, "attempting to write to pin 1 location directly\n");
+		value = value | CHVGPIO_PAD_CFG0_GPIOTXSTATE;
+		bus_write_4(sc->sc_mem_res, chvgpio_pad_cfg0_offset(1), value);
+
+		value = bus_read_4(sc->sc_mem_res, chvgpio_pad_cfg0_offset(1));
+		device_printf(dev, "read pin 1 after directly writing: 0x%x\n", value);
 	}
 	return (ENXIO);
 #if 0
