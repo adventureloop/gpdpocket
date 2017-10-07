@@ -76,7 +76,9 @@ struct chvgpio_softc {
 	device_t 	sc_dev;
 	device_t 	sc_busdev;
 	struct mtx 	sc_mtx;
+
 	ACPI_HANDLE	sc_handle;
+
 	int		sc_mem_rid;
 	struct resource *sc_mem_res;
 
@@ -88,6 +90,7 @@ struct chvgpio_softc {
 	const char	*sc_bank_prefix;
 	const int  	*sc_pins;
 	int 		sc_npins;
+	int 		sc_ngroups;
 };
 
 /*
@@ -97,40 +100,40 @@ struct chvgpio_softc {
  */
 
 #define	SW_UID		1
-#define	SW_BANK_PREFIX	"southwestbank"	//TODO this is clearly not right
+#define	SW_BANK_PREFIX	"southwestbank"
 
 const int chv_southwest_pins[] = {
 	8, 8, 8, 8, 8, 8, 8, -1
 };
 
-#define	SW_PINS	nitems(chv_southwest_pins)
+#define	SW_PIN_GROUPS	nitems(chv_southwest_pins)
 
 #define	N_UID		2
-#define	N_BANK_PREFIX	"northbank"	//TODO this is clearly not right
+#define	N_BANK_PREFIX	"northbank"
 
 const int chv_north_pins[] = {
 	9, 13, 12, 12, 13, -1
 };
 
-#define	N_PINS	nitems(chv_north_pins)
+#define	N_PIN_GROUPS	nitems(chv_north_pins)
 
 #define	E_UID		3
-#define	E_BANK_PREFIX	"eastbank"	//TODO this is clearly not right
+#define	E_BANK_PREFIX	"eastbank"
 
 const int chv_east_pins[] = {
 	12, 12, -1
 };
 
-#define	E_PINS	nitems(chv_east_pins)
+#define	E_PIN_GROUPS	nitems(chv_east_pins)
 
 #define	SE_UID		4
-#define	SE_BANK_PREFIX	"southeastbank"	//TODO this is clearly not right
+#define	SE_BANK_PREFIX	"southeastbank"
 
 const int chv_southeast_pins[] = {
 	8, 12, 6, 8, 10, 11, -1
 };
 
-#define	SE_PINS	nitems(chv_southeast_pins)
+#define	SE_PIN_GROUPS	nitems(chv_southeast_pins)
 
 static void chvgpio_intr(void *);
 static int chvgpio_probe(device_t);
@@ -192,9 +195,12 @@ chvgpio_pin_max(device_t dev, int *maxpin)
 static int
 chvgpio_valid_pin(struct chvgpio_softc *sc, int pin)
 {
-	if (pin >= sc->sc_npins || sc->sc_mem_res == NULL)
-		return (EINVAL);
-
+	if (pin < 0)
+		return EINVAL;
+	if ((pin / 15) >= sc->sc_ngroups)
+		return EINVAL;
+	if ((pin % 15) >= sc->sc_pins[pin / 15])
+		return EINVAL;
 	return (0);
 }
 
@@ -348,35 +354,6 @@ chvgpio_pin_toggle(device_t dev, uint32_t pin)
 
 	return (0);
 }
-#if 0
-int
-chvgpio_read_pin(void *cookie, int pin)
-{
-	struct chvgpio_softc *sc = cookie;
-	uint32_t reg;
-
-	KASSERT(chvgpio_check_pin(sc, pin) == 0, "read pin");
-
-	reg = chvgpio_read_pad_cfg0(sc, pin);
-	return (reg & CHVGPIO_PAD_CFG0_GPIORXSTATE);
-}
-
-void
-chvgpio_write_pin(void *cookie, int pin, int value)
-{
-	struct chvgpio_softc *sc = cookie;
-	uint32_t reg;
-
-	KASSERT(chvgpio_check_pin(sc, pin) == 0, "write pin");
-
-	reg = chvgpio_read_pad_cfg0(sc, pin);
-	if (value)
-		reg |= CHVGPIO_PAD_CFG0_GPIOTXSTATE;
-	else
-		reg &= ~CHVGPIO_PAD_CFG0_GPIOTXSTATE;
-	chvgpio_write_pad_cfg0(sc, pin, reg);
-}
-#endif
 
 static char *chvgpio_hids[] = {
 	"INT33FF",
@@ -401,8 +378,9 @@ chvgpio_attach(device_t dev)
 
 	struct chvgpio_softc *sc;
 	ACPI_STATUS status;
-	//int uid, i, error;
-int uid, error;
+	int uid;
+	int i;
+	int error;
 
 	sc = device_get_softc(dev);
 	sc->sc_dev = dev;
@@ -411,48 +389,58 @@ int uid, error;
 	status = acpi_GetInteger(sc->sc_handle, "_UID", &uid);
 	if (ACPI_FAILURE(status)) {
 		device_printf(dev, "failed to read _UID\n");
-		return (ENXIO);     //why can't we read the uid?
+		return (ENXIO);
 	}
 
 	device_printf(dev, "_UID %d\n", uid);
+	CHVGPIO_LOCK_INIT(sc);
 
 	switch (uid) {
 	case SW_UID:
-		sc->sc_npins = SW_PINS;
+		sc->sc_npins = SW_PIN_GROUPS;
 		sc->sc_bank_prefix = SW_BANK_PREFIX;
 		sc->sc_pins = chv_southwest_pins;
 		break;
 	case N_UID:
-		sc->sc_npins = N_PINS;
+		sc->sc_npins = N_PIN_GROUPS;
 		sc->sc_bank_prefix = N_BANK_PREFIX;
 		sc->sc_pins = chv_north_pins;
 		break;
 	case E_UID:
-		sc->sc_npins = E_PINS;
+		sc->sc_npins = E_PIN_GROUPS;
 		sc->sc_bank_prefix = E_BANK_PREFIX;
 		sc->sc_pins = chv_east_pins;
 		break;
 	case SE_UID:
-		sc->sc_npins = SE_PINS;
+		sc->sc_npins = SE_PIN_GROUPS;
 		sc->sc_bank_prefix = SE_BANK_PREFIX;
 		sc->sc_pins = chv_southeast_pins;
 		break;
 	default:
-		printf("\n");
+		device_printf(dev, "invalid _UID value: %d\n", uid);
 		return (ENXIO);
+	}
+	
+	for (i = 0; sc->sc_pins[i] >= 0; i++) {
+		sc->sc_npins += sc->sc_pins[i];
 	}
 
 	sc->sc_mem_rid = 0;
 	sc->sc_mem_res = bus_alloc_resource_any(sc->sc_dev, SYS_RES_MEMORY, 
 		&sc->sc_mem_rid, RF_ACTIVE);
 	if (sc->sc_mem_res == NULL) {
+		CHVGPIO_LOCK_DESTROY(sc);
 		device_printf(dev, "can't allocate resource\n");
 		return (ENOMEM);
 	}
 
 	sc->sc_irq_res = bus_alloc_resource_any(dev, SYS_RES_IRQ, 
 		&sc->sc_irq_rid, RF_ACTIVE);
+
 	if (!sc->sc_irq_res) {
+		CHVGPIO_LOCK_DESTROY(sc);
+		bus_release_resource(dev, SYS_RES_MEMORY, 
+			sc->sc_mem_rid, sc->sc_mem_res);
 		device_printf(dev, "IRQ allocation failed\n");
 		return (ENOMEM);
 	}
@@ -461,19 +449,26 @@ int uid, error;
 		NULL, chvgpio_intr, sc, &sc->intr_handle);
 
 	if (error) {
-		device_printf(sc->sc_dev,
-		"Unable to setup irq: error %d\n", error);
+		device_printf(sc->sc_dev, "Unable to setup irq: error %d\n", error);
+		CHVGPIO_LOCK_DESTROY(sc);
+		bus_release_resource(dev, SYS_RES_MEMORY, 
+			sc->sc_mem_rid, sc->sc_mem_res);
+		bus_release_resource(dev, SYS_RES_IRQ, 
+			sc->sc_irq_rid, sc->sc_irq_res);
+		return (ENXIO);
 	}
+
 	device_printf(dev, "%d pins\n", sc->sc_npins);
 	device_printf(dev, "%s prefix\n", sc->sc_bank_prefix);
-	device_printf(dev, "attempting to mask interupts\n");
 
 	/* Mask and ack all interrupts. */
 	bus_write_4(sc->sc_mem_res, CHVGPIO_INTERRUPT_MASK, 0);
 	bus_write_4(sc->sc_mem_res, CHVGPIO_INTERRUPT_STATUS, 0xffff);
 
+#if 0
+	// this magic that turns the fan on
 	uint32_t value = 0;
-	if (uid == 2) {
+	if (uid == N_UID) {
 		value = bus_read_4(sc->sc_mem_res, chvgpio_pad_cfg0_offset(0));
 		device_printf(dev, "read pin 0 location directly: 0x%x\n", value);
 
@@ -494,32 +489,17 @@ int uid, error;
 		value = bus_read_4(sc->sc_mem_res, chvgpio_pad_cfg0_offset(1));
 		device_printf(dev, "read pin 1 after directly writing: 0x%x\n", value);
 	}
-	return (ENXIO);
-#if 0
+#endif
+
 	sc->sc_busdev = gpiobus_attach_bus(dev);
 	if (sc->sc_busdev == NULL) {
 		CHVGPIO_LOCK_DESTROY(sc);
-		bus_release_resource(dev, SYS_RES_MEMORY,
-		    sc->sc_mem_rid, sc->sc_mem_res);
+		bus_release_resource(dev, SYS_RES_MEMORY, 
+			sc->sc_mem_rid, sc->sc_mem_res);
+		bus_release_resource(dev, SYS_RES_IRQ, 
+			sc->sc_irq_rid, sc->sc_irq_res);
 		return (ENXIO);
 	}
-#endif
-	if (uid == 1) {
-		device_printf(dev, "this will crash us ");
-		chvgpio_pin_get(dev, 0, &value);
-		device_printf(dev, "before write %x", value);
-
-		device_printf(dev, "trying to toggle fan");
-		chvgpio_pin_set(dev, 0, 1); 	//enable pin 0 this could drive the fan
-
-		chvgpio_pin_get(dev, 0, &value);
-		device_printf(dev, "writing the pin made it %x", value);
-	}
-
-	// or
-	value = bus_read_4(sc->sc_mem_res, CHVGPIO_PAD_CFG0);
-	device_printf(dev, "before write %x", value);
-
 	return (0);
 }
 
