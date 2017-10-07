@@ -374,8 +374,6 @@ chvgpio_probe(device_t dev)
 static int
 chvgpio_attach(device_t dev)
 {
-	device_printf(dev, "chvgpio attach\n");
-
 	struct chvgpio_softc *sc;
 	ACPI_STATUS status;
 	int uid;
@@ -392,7 +390,6 @@ chvgpio_attach(device_t dev)
 		return (ENXIO);
 	}
 
-	device_printf(dev, "_UID %d\n", uid);
 	CHVGPIO_LOCK_INIT(sc);
 
 	switch (uid) {
@@ -458,9 +455,6 @@ chvgpio_attach(device_t dev)
 		return (ENXIO);
 	}
 
-	device_printf(dev, "%d pins\n", sc->sc_npins);
-	device_printf(dev, "%s prefix\n", sc->sc_bank_prefix);
-
 	/* Mask and ack all interrupts. */
 	bus_write_4(sc->sc_mem_res, CHVGPIO_INTERRUPT_MASK, 0);
 	bus_write_4(sc->sc_mem_res, CHVGPIO_INTERRUPT_STATUS, 0xffff);
@@ -500,6 +494,8 @@ chvgpio_attach(device_t dev)
 			sc->sc_irq_rid, sc->sc_irq_res);
 		return (ENXIO);
 	}
+	device_printf(sc->sc_busdev, "gpiobus_attach_bus returned device");
+
 	return (0);
 }
 
@@ -593,7 +589,7 @@ static driver_t chvgpio_driver = {
 
 static devclass_t chvgpio_devclass;
 DRIVER_MODULE(chvgpio, acpi, chvgpio_driver, chvgpio_devclass, chvgpio_driver_loaded, NULL);
-
 MODULE_DEPEND(chvgpio, acpi, 1, 1, 1);
 MODULE_DEPEND(chvgpio, gpiobus, 1, 1, 1);
+
 MODULE_VERSION(chvgpio, 1);
