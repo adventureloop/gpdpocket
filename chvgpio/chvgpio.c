@@ -473,7 +473,7 @@ int uid, error;
 	bus_write_4(sc->sc_mem_res, CHVGPIO_INTERRUPT_STATUS, 0xffff);
 
 	uint32_t value = 0;
-	if (uid == 1) {
+	if (uid == 2) {
 		value = bus_read_4(sc->sc_mem_res, chvgpio_pad_cfg0_offset(0));
 		device_printf(dev, "read pin 0 location directly: 0x%x\n", value);
 
