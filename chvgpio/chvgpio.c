@@ -530,6 +530,17 @@ chvgpio_detach(device_t dev)
 {
     struct chvgpio_softc *sc;
     sc = device_get_softc(dev);
+	
+	if (sc->sc_busdev)
+		gpiobus_detach_bus(dev);
+
+	if ( sc->sc_irq_res != NULL)
+		bus_release_resource(dev, SYS_RES_IRQ, sc->sc_irq_rid, sc->sc_irq_res);
+
+	if ( sc->sc_mem_res != NULL)
+		bus_release_resource(dev, SYS_RES_MEMORY, sc->sc_mem_rid, sc->sc_mem_res);
+
+	CHVGPIO_LOCK_DESTROY(sc);
 
     return (0);
 }
