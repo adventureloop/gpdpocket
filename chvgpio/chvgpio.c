@@ -220,7 +220,6 @@ chvgpio_pin_getname(device_t dev, uint32_t pin, char *name)
 	return (0);
 }
 
-#if 0
 static int 
 chvgpio_pin_getcaps(device_t dev, uint32_t pin, uint32_t *caps)
 {
@@ -231,15 +230,51 @@ chvgpio_pin_getcaps(device_t dev, uint32_t pin, uint32_t *caps)
 		return (EINVAL);
 
 	*caps = 0;
-	if (chvgpio_pad_is_gpio(sc, pin))
+	if (chvgpio_valid_pin(sc, pin))
 		*caps = GPIO_PIN_INPUT | GPIO_PIN_OUTPUT;
 
 	return (0);
 }
 
 static int
+chvgpio_pin_getflags(device_t dev, uint32_t pin, uint32_t *flags)
+{
+#if 0
+struct chvgpio_softc *sc;
+uint32_t reg, val;
+
+sc = device_get_softc(dev);
+if (chvgpio_valid_pin(sc, pin) != 0)
+return (EINVAL);
+
+*flags = 0;
+if (!chvgpio_pad_is_gpio(sc, pin))
+return (0);
+
+/* Get the current pin state */
+CHVGPIO_LOCK(sc);
+reg = BYGPIO_PIN_REGISTER(sc, pin, CHVGPIO_PAD_VAL);
+val = chvgpio_read_4(sc, reg);
+if ((val & CHVGPIO_PAD_VAL_I_OUTPUT_ENABLED) == 0)
+*flags |= GPIO_PIN_OUTPUT;
+/*
+* 	 * this bit can be cleared to read current output value
+* 	 	 * sou output bit takes precedense
+* 	 	 	 */
+else if ((val & CHVGPIO_PAD_VAL_I_INPUT_ENABLED) == 0)
+*flags |= GPIO_PIN_INPUT;
+CHVGPIO_UNLOCK(sc);
+
+return (0);
+
+#endif
+	return 0;
+}
+
+static int
 chvgpio_pin_setflags(device_t dev, uint32_t pin, uint32_t flags)
 {
+#if 0
 	struct chvgpio_softc *sc;
 	uint32_t reg, val;
 	uint32_t allowed;
@@ -276,10 +311,9 @@ chvgpio_pin_setflags(device_t dev, uint32_t pin, uint32_t flags)
 		val = val & ~CHVGPIO_PAD_VAL_I_OUTPUT_ENABLED;
 	chvgpio_write_4(sc, reg, val);
 	CHVGPIO_UNLOCK(sc);
-
+#endif
 	return (0);
 }
-#endif
 
 static int
 chvgpio_pin_set(device_t dev, uint32_t pin, unsigned int value)
@@ -494,7 +528,7 @@ chvgpio_attach(device_t dev)
 			sc->sc_irq_rid, sc->sc_irq_res);
 		return (ENXIO);
 	}
-	device_printf(sc->sc_busdev, "gpiobus_attach_bus returned device");
+	device_printf(sc->sc_busdev, "gpiobus_attach_bus returned device\n");
 
 	return (0);
 }
@@ -569,11 +603,9 @@ static device_method_t chvgpio_methods[] = {
 	DEVMETHOD(gpio_get_bus, 	chvgpio_get_bus),
 	DEVMETHOD(gpio_pin_max, 	chvgpio_pin_max),
 	DEVMETHOD(gpio_pin_getname, 	chvgpio_pin_getname),
-#if 0
 	DEVMETHOD(gpio_pin_getflags,	chvgpio_pin_getflags),
 	DEVMETHOD(gpio_pin_getcaps, 	chvgpio_pin_getcaps),
 	DEVMETHOD(gpio_pin_setflags,	chvgpio_pin_setflags),
-#endif
 	DEVMETHOD(gpio_pin_get, 	chvgpio_pin_get),
 	DEVMETHOD(gpio_pin_set, 	chvgpio_pin_set),
 	DEVMETHOD(gpio_pin_toggle, 	chvgpio_pin_toggle),
