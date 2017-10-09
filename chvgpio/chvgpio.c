@@ -469,7 +469,7 @@ chvgpio_attach(device_t dev)
 		&sc->sc_mem_rid, RF_ACTIVE);
 	if (sc->sc_mem_res == NULL) {
 		CHVGPIO_LOCK_DESTROY(sc);
-		device_printf(dev, "can't allocate resource\n");
+		device_printf(dev, "can't allocate memory resource\n");
 		return (ENOMEM);
 	}
 
@@ -480,7 +480,7 @@ chvgpio_attach(device_t dev)
 		CHVGPIO_LOCK_DESTROY(sc);
 		bus_release_resource(dev, SYS_RES_MEMORY, 
 			sc->sc_mem_rid, sc->sc_mem_res);
-		device_printf(dev, "IRQ allocation failed\n");
+		device_printf(dev, "can't allocate irq resource\n");
 		return (ENOMEM);
 	}
 
@@ -488,7 +488,7 @@ chvgpio_attach(device_t dev)
 		NULL, chvgpio_intr, sc, &sc->intr_handle);
 
 	if (error) {
-		device_printf(sc->sc_dev, "Unable to setup irq: error %d\n", error);
+		device_printf(sc->sc_dev, "unable to setup irq: error %d\n", error);
 		CHVGPIO_LOCK_DESTROY(sc);
 		bus_release_resource(dev, SYS_RES_MEMORY, 
 			sc->sc_mem_rid, sc->sc_mem_res);
