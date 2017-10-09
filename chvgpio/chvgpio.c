@@ -461,6 +461,7 @@ chvgpio_attach(device_t dev)
 	
 	for (i = 0; sc->sc_pins[i] >= 0; i++) {
 		sc->sc_npins += sc->sc_pins[i];
+		sc->sc_ngroups++;
 	}
 
 	sc->sc_mem_rid = 0;
