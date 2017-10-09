@@ -580,25 +580,6 @@ chvgpio_detach(device_t dev)
     return (0);
 }
 
-static int
-chvgpio_driver_loaded(struct module *m, int what, void *arg)
-{
-    int err = 0;
-
-    switch (what) {
-    case MOD_LOAD:
-        uprintf("chvgpio KLD loaded.\n");
-        break;
-    case MOD_UNLOAD:
-        uprintf("chvgpio KLD unloaded.\n");
-        break;
-    default:
-        err = EOPNOTSUPP;
-        break;
-    }
-    return(err);
-}
-
 static device_method_t chvgpio_methods[] = {
     DEVMETHOD(device_probe,     chvgpio_probe),
     DEVMETHOD(device_attach,    chvgpio_attach),
@@ -625,7 +606,7 @@ static driver_t chvgpio_driver = {
 };
 
 static devclass_t chvgpio_devclass;
-DRIVER_MODULE(chvgpio, acpi, chvgpio_driver, chvgpio_devclass, chvgpio_driver_loaded, NULL);
+DRIVER_MODULE(chvgpio, acpi, chvgpio_driver, chvgpio_devclass, NULL , NULL);
 MODULE_DEPEND(chvgpio, acpi, 1, 1, 1);
 MODULE_DEPEND(chvgpio, gpiobus, 1, 1, 1);
 
