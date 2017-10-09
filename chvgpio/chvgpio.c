@@ -501,32 +501,6 @@ chvgpio_attach(device_t dev)
 	bus_write_4(sc->sc_mem_res, CHVGPIO_INTERRUPT_MASK, 0);
 	bus_write_4(sc->sc_mem_res, CHVGPIO_INTERRUPT_STATUS, 0xffff);
 
-#if 0
-	// this magic that turns the fan on
-	uint32_t value = 0;
-	if (uid == N_UID) {
-		value = bus_read_4(sc->sc_mem_res, chvgpio_pad_cfg0_offset(0));
-		device_printf(dev, "read pin 0 location directly: 0x%x\n", value);
-
-		device_printf(dev, "attempting to write to pin 0 location directly\n");
-		value = value | CHVGPIO_PAD_CFG0_GPIOTXSTATE;
-		bus_write_4(sc->sc_mem_res, chvgpio_pad_cfg0_offset(0), value);
-
-		value = bus_read_4(sc->sc_mem_res, chvgpio_pad_cfg0_offset(0));
-		device_printf(dev, "read pin 0 after directly writing: 0x%x\n", value);
-
-		value = bus_read_4(sc->sc_mem_res, chvgpio_pad_cfg0_offset(1));
-		device_printf(dev, "read pin 1 location directly: 0x%x\n", value);
-
-		device_printf(dev, "attempting to write to pin 1 location directly\n");
-		value = value | CHVGPIO_PAD_CFG0_GPIOTXSTATE;
-		bus_write_4(sc->sc_mem_res, chvgpio_pad_cfg0_offset(1), value);
-
-		value = bus_read_4(sc->sc_mem_res, chvgpio_pad_cfg0_offset(1));
-		device_printf(dev, "read pin 1 after directly writing: 0x%x\n", value);
-	}
-#endif
-
 	sc->sc_busdev = gpiobus_attach_bus(dev);
 	if (sc->sc_busdev == NULL) {
 		CHVGPIO_LOCK_DESTROY(sc);
