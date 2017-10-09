@@ -64,6 +64,13 @@
 #define CHVGPIO_PAD_CFG0_INTSEL_MASK		0xf0000000
 #define CHVGPIO_PAD_CFG0_INTSEL_SHIFT		28
 
+#define CHVGPIO_PAD_CFG0_GPIOCFG_SHIFT		8
+#define CHVGPIO_PAD_CFG0_GPIOCFG_MASK		(7 << CHVGPIO_PAD_CFG0_GPIOCFG_SHIFT)
+#define CHVGPIO_PAD_CFG0_GPIOCFG_GPIO		0
+#define CHVGPIO_PAD_CFG0_GPIOCFG_GPO		1
+#define CHVGPIO_PAD_CFG0_GPIOCFG_GPI		2
+#define CHVGPIO_PAD_CFG0_GPIOCFG_HIZ		3
+
 #define CHVGPIO_PAD_CFG1_INTWAKECFG_MASK	0x00000007
 #define CHVGPIO_PAD_CFG1_INTWAKECFG_FALLING	0x00000001
 #define CHVGPIO_PAD_CFG1_INTWAKECFG_RISING	0x00000002
@@ -239,36 +246,34 @@ chvgpio_pin_getcaps(device_t dev, uint32_t pin, uint32_t *caps)
 static int
 chvgpio_pin_getflags(device_t dev, uint32_t pin, uint32_t *flags)
 {
-#if 0
-struct chvgpio_softc *sc;
-uint32_t reg, val;
+	struct chvgpio_softc *sc;
+	uint32_t val;
 
-sc = device_get_softc(dev);
-if (chvgpio_valid_pin(sc, pin) != 0)
-return (EINVAL);
+	sc = device_get_softc(dev);
+	if (chvgpio_valid_pin(sc, pin) != 0)
+		return (EINVAL);
 
-*flags = 0;
-if (!chvgpio_pad_is_gpio(sc, pin))
-return (0);
+	*flags = 0;
 
-/* Get the current pin state */
-CHVGPIO_LOCK(sc);
-reg = BYGPIO_PIN_REGISTER(sc, pin, CHVGPIO_PAD_VAL);
-val = chvgpio_read_4(sc, reg);
-if ((val & CHVGPIO_PAD_VAL_I_OUTPUT_ENABLED) == 0)
-*flags |= GPIO_PIN_OUTPUT;
-/*
-* 	 * this bit can be cleared to read current output value
-* 	 	 * sou output bit takes precedense
-* 	 	 	 */
-else if ((val & CHVGPIO_PAD_VAL_I_INPUT_ENABLED) == 0)
-*flags |= GPIO_PIN_INPUT;
-CHVGPIO_UNLOCK(sc);
+	//if (!chvgpio_pad_is_gpio(sc, pin))
+		//return (0);
 
-return (0);
 
-#endif
-	return 0;
+//Only support input and out flags to start.
+	/* Get the current pin state */
+	CHVGPIO_LOCK(sc);
+	val = chvgpio_read_pad_cfg0(sc, pin);
+
+	if (val & CHVGPIO_PAD_CFG0_GPIOCFG_GPIO || 
+		val & CHVGPIO_PAD_CFG0_GPIOCFG_GPO)
+		*flags |= GPIO_PIN_OUTPUT;
+
+	if (val & CHVGPIO_PAD_CFG0_GPIOCFG_GPIO || 
+		val & CHVGPIO_PAD_CFG0_GPIOCFG_GPI)
+		*flags |= GPIO_PIN_INPUT;
+
+	CHVGPIO_UNLOCK(sc);
+	return (0);
 }
 
 static int
