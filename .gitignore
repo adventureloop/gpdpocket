@@ -43,3 +43,7 @@ chvgpio/iicbus_if.h
 chvgpio/machine    
 chvgpio/opt_acpi.h 
 chvgpio/x86        
+chvgpio/gpio_if.h
+chvgpio/gpiobus_if.h
+chvgpio/opt_platform.h
+
