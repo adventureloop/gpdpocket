@@ -3,16 +3,16 @@
 *.o
 .depend.*
 
-chv-power/acpi_if.h
-chv-power/bus_if.h
-chv-power/chv-power.o
-chv-power/device_if.h
-chv-power/export_syms
-chv-power/iicbus_if.h
-chv-power/machine
-chv-power/opt_acpi.h
-chv-power/opt_acpi_if.h
-chv-power/x86
+chvpower/acpi_if.h
+chvpower/bus_if.h
+chvpower/chvpower.o
+chvpower/device_if.h
+chvpower/export_syms
+chvpower/iicbus_if.h
+chvpower/machine
+chvpower/opt_acpi.h
+chvpower/opt_acpi_if.h
+chvpower/x86
 
 max170xx/bus_if.h
 max170xx/device_if.h
