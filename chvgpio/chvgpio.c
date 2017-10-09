@@ -606,7 +606,7 @@ static driver_t chvgpio_driver = {
 };
 
 static devclass_t chvgpio_devclass;
-DRIVER_MODULE(chvgpio, acpi, chvgpio_driver, chvgpio_devclass, NULL , NULL);
+DRIVER_MODULE(chvgpio, gpiobus, chvgpio_driver, chvgpio_devclass, NULL , NULL);
 MODULE_DEPEND(chvgpio, acpi, 1, 1, 1);
 MODULE_DEPEND(chvgpio, gpiobus, 1, 1, 1);
 
