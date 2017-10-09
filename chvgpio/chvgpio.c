@@ -78,9 +78,6 @@
 #define	CHVGPIO_ASSERT_LOCKED(_sc)	mtx_assert(&(_sc)->sc_mtx, MA_OWNED)
 #define	CHVGPIO_ASSERT_UNLOCKED(_sc) mtx_assert(&(_sc)->sc_mtx, MA_NOTOWNED)
 
-/* Ignore function check, no info is available at the moment */
-#define PADCONF_FUNC_ANY    -1
-
 #define CHVGPIO_INTERRUPT_STATUS		0x0300
 #define CHVGPIO_INTERRUPT_MASK			0x0380
 #define CHVGPIO_PAD_CFG0			0x4400
@@ -543,10 +540,6 @@ chvgpio_intr(void *arg)
 
 		bus_write_4(sc->sc_mem_res,
 		    CHVGPIO_INTERRUPT_STATUS, 1 << line);
-/*
-		if (sc->sc_pin_ih[line].ih_func)
-			sc->sc_pin_ih[line].ih_func(sc->sc_pin_ih[line].ih_arg);
-*/
 	}
 }
 
@@ -574,9 +567,9 @@ chvgpio_detach(device_t dev)
 }
 
 static device_method_t chvgpio_methods[] = {
-    DEVMETHOD(device_probe,     chvgpio_probe),
-    DEVMETHOD(device_attach,    chvgpio_attach),
-    DEVMETHOD(device_detach,    chvgpio_detach),
+	DEVMETHOD(device_probe,     	chvgpio_probe),
+	DEVMETHOD(device_attach,    	chvgpio_attach),
+	DEVMETHOD(device_detach,    	chvgpio_detach),
 
 	/* GPIO protocol */
 	DEVMETHOD(gpio_get_bus, 	chvgpio_get_bus),
@@ -589,7 +582,7 @@ static device_method_t chvgpio_methods[] = {
 	DEVMETHOD(gpio_pin_set, 	chvgpio_pin_set),
 	DEVMETHOD(gpio_pin_toggle, 	chvgpio_pin_toggle),
 
-	DEVMETHOD_END
+    	DEVMETHOD_END
 };
 
 static driver_t chvgpio_driver = {
