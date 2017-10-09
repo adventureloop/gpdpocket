@@ -524,14 +524,11 @@ chvgpio_intr(void *arg)
 	uint32_t reg;
 	int line;
 
-	reg = bus_read_4(sc->sc_mem_res,
-	    CHVGPIO_INTERRUPT_STATUS);
+	reg = bus_read_4(sc->sc_mem_res, CHVGPIO_INTERRUPT_STATUS);
 	for (line = 0; line < 16; line++) {
 		if ((reg & (1 << line)) == 0)
 			continue;
-
-		bus_write_4(sc->sc_mem_res,
-		    CHVGPIO_INTERRUPT_STATUS, 1 << line);
+		bus_write_4(sc->sc_mem_res, CHVGPIO_INTERRUPT_STATUS, 1 << line);
 	}
 }
 
