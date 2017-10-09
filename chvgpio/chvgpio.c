@@ -202,6 +202,8 @@ chvgpio_pin_max(device_t dev, int *maxpin)
 static int
 chvgpio_valid_pin(struct chvgpio_softc *sc, int pin)
 {
+	device_printf(sc->sc_dev, "checking pin %d, groups %d\n", pin, sc->sc_ngroups);
+
 	if (pin < 0)
 		return EINVAL;
 	if ((pin / 15) >= sc->sc_ngroups)
@@ -217,16 +219,13 @@ chvgpio_pin_getname(device_t dev, uint32_t pin, char *name)
 	struct chvgpio_softc *sc;
 
 	sc = device_get_softc(dev);
-	if (chvgpio_valid_pin(sc, pin) != 0) {
-		device_printf(sc->sc_dev, "%d pin is invalid in getname\n", pin);
+	if (chvgpio_valid_pin(sc, pin) != 0)
 		return (EINVAL);
-	}
+
 
 	/* Set a very simple name */
 	snprintf(name, GPIOMAXNAME, "%s%u", sc->sc_bank_prefix, pin);
 	name[GPIOMAXNAME - 1] = '\0';
-
-	device_printf(sc->sc_dev, "%d name %s\n", pin, name);
 	return (0);
 }
 
@@ -536,7 +535,6 @@ chvgpio_attach(device_t dev)
 			sc->sc_irq_rid, sc->sc_irq_res);
 		return (ENXIO);
 	}
-	device_printf(sc->sc_busdev, "gpiobus_attach_bus returned device\n");
 
 	return (0);
 }
