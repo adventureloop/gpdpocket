@@ -559,13 +559,18 @@ static int
 chvgpio_detach(device_t dev)
 {
     struct chvgpio_softc *sc;
+	int error;
     sc = device_get_softc(dev);
 	
 	if (sc->sc_busdev)
 		gpiobus_detach_bus(dev);
 
+	error = bus_teardown_intr(sc->sc_dev, sc->sc_irq_res, &sc->intr_handle);
+	if (error)
+		device_printf(sc->sc_dev, "Unable to teardown irq: error %d\n", error);
 	if ( sc->sc_irq_res != NULL)
 		bus_release_resource(dev, SYS_RES_IRQ, sc->sc_irq_rid, sc->sc_irq_res);
+
 
 	if ( sc->sc_mem_res != NULL)
 		bus_release_resource(dev, SYS_RES_MEMORY, sc->sc_mem_rid, sc->sc_mem_res);
