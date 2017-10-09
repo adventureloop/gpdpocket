@@ -217,8 +217,10 @@ chvgpio_pin_getname(device_t dev, uint32_t pin, char *name)
 	struct chvgpio_softc *sc;
 
 	sc = device_get_softc(dev);
-	if (chvgpio_valid_pin(sc, pin) != 0)
+	if (chvgpio_valid_pin(sc, pin) != 0) {
+		device_printf(sc->sc_dev, "%d pin is invalid in getname\n", pin);
 		return (EINVAL);
+	}
 
 	/* Set a very simple name */
 	snprintf(name, GPIOMAXNAME, "%s%u", sc->sc_bank_prefix, pin);
