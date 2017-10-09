@@ -1,3 +1,30 @@
+/*-
+ * Copyright (c) 2017 Tom Jones <tj@enoti.me>
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ *
+ */
+
 /*
  * Copyright (c) 2016 Mark Kettenis
  *
@@ -222,7 +249,6 @@ chvgpio_pin_getname(device_t dev, uint32_t pin, char *name)
 	if (chvgpio_valid_pin(sc, pin) != 0)
 		return (EINVAL);
 
-
 	/* Set a very simple name */
 	snprintf(name, GPIOMAXNAME, "%s%u", sc->sc_bank_prefix, pin);
 	name[GPIOMAXNAME - 1] = '\0';
@@ -257,11 +283,6 @@ chvgpio_pin_getflags(device_t dev, uint32_t pin, uint32_t *flags)
 
 	*flags = 0;
 
-	//if (!chvgpio_pad_is_gpio(sc, pin))
-		//return (0);
-
-
-//Only support input and out flags to start.
 	/* Get the current pin state */
 	CHVGPIO_LOCK(sc);
 	val = chvgpio_read_pad_cfg0(sc, pin);
@@ -296,7 +317,7 @@ chvgpio_pin_setflags(device_t dev, uint32_t pin, uint32_t flags)
 		allowed = 0;
 
 	/* 
-	 * Only directtion flag allowed
+	 * Only direction flag allowed
 	 */
 	if (flags & ~allowed)
 		return (EINVAL);
@@ -377,13 +398,9 @@ chvgpio_pin_toggle(device_t dev, uint32_t pin)
 	uint32_t val;
 
 	sc = device_get_softc(dev);
-#if 0
 	if (chvgpio_valid_pin(sc, pin) != 0)
 		return (EINVAL);
 
-	if (!chvgpio_pad_is_gpio(sc, pin))
-		return (EINVAL);
-#endif
 	/* Toggle the pin */
 	CHVGPIO_LOCK(sc);
 
