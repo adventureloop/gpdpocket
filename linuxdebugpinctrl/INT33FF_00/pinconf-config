@@ -1,0 +1,5 @@
+No config found for dev/state/pin, expected:
+Searched dev:
+Searched state:
+Searched pin:
+Use: modify config_pin <devname> <state> <pinname> <value>

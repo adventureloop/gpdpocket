@@ -1,0 +1,5 @@
+name [pinmux] [pinconf]
+INT33FF:00 yes yes
+INT33FF:01 yes yes
+INT33FF:02 yes yes
+INT33FF:03 yes yes

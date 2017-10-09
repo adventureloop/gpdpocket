@@ -1,0 +1,58 @@
+Pin config settings per pin
+Format: pin (name): configs
+pin 0 (FST_SPI_D2): input bias pull up
+pin 1 (FST_SPI_D0): input bias pull up
+pin 2 (FST_SPI_CLK): input bias disabled
+pin 3 (FST_SPI_D3): input bias pull up
+pin 4 (FST_SPI_CS1_B): input bias pull down
+pin 5 (FST_SPI_D1): input bias pull up
+pin 6 (FST_SPI_CS0_B): input bias disabled
+pin 7 (FST_SPI_CS2_B): input bias disabled
+pin 15 (UART1_RTS_B): input bias disabled
+pin 16 (UART1_RXD): input bias disabled
+pin 17 (UART2_RXD): input bias disabled
+pin 18 (UART1_CTS_B): input bias disabled
+pin 19 (UART2_RTS_B): input bias disabled
+pin 20 (UART1_TXD): input bias disabled
+pin 21 (UART2_TXD): input bias disabled
+pin 22 (UART2_CTS_B): input bias disabled
+pin 30 (MF_HDA_CLK): input bias disabled
+pin 31 (MF_HDA_RSTB): input bias pull up
+pin 32 (MF_HDA_SDIO): input bias disabled
+pin 33 (MF_HDA_SDO): input bias disabled
+pin 34 (MF_HDA_DOCKRSTB): input bias disabled
+pin 35 (MF_HDA_SYNC): input bias disabled
+pin 36 (MF_HDA_SDI1): input bias disabled
+pin 37 (MF_HDA_DOCKENB): input bias disabled
+pin 45 (I2C5_SDA): input bias pull up
+pin 46 (I2C4_SDA): input bias pull up
+pin 47 (I2C6_SDA): input bias pull up
+pin 48 (I2C5_SCL): input bias pull up
+pin 49 (I2C_NFC_SDA): input bias high impedance, input bias pull up
+pin 50 (I2C4_SCL): input bias pull up
+pin 51 (I2C6_SCL): input bias pull up
+pin 52 (I2C_NFC_SCL): input bias high impedance, input bias pull up
+pin 60 (I2C1_SDA): input bias pull up
+pin 61 (I2C0_SDA): input bias pull up
+pin 62 (I2C2_SDA): input bias pull up
+pin 63 (I2C1_SCL): input bias pull up
+pin 64 (I2C3_SDA): input bias high impedance, input bias pull up
+pin 65 (I2C0_SCL): input bias pull up
+pin 66 (I2C2_SCL): input bias pull up
+pin 67 (I2C3_SCL): input bias high impedance, input bias pull up
+pin 75 (SATA_GP0): input bias disabled
+pin 76 (SATA_GP1): input bias disabled
+pin 77 (SATA_LEDN): input bias pull up
+pin 78 (SATA_GP2): input bias pull up
+pin 79 (MF_SMB_ALERTB): input bias disabled
+pin 80 (SATA_GP3): input bias disabled
+pin 81 (MF_SMB_CLK): input bias pull up
+pin 82 (MF_SMB_DATA): input bias disabled
+pin 90 (PCIE_CLKREQ0B): input bias pull up
+pin 91 (PCIE_CLKREQ1B): input bias pull up
+pin 92 (GP_SSP_2_CLK): input bias high impedance, input bias pull down
+pin 93 (PCIE_CLKREQ2B): input bias pull up
+pin 94 (GP_SSP_2_RXD): input bias high impedance, input bias pull down
+pin 95 (PCIE_CLKREQ3B): input bias disabled
+pin 96 (GP_SSP_2_FS): input bias high impedance, input bias pull down
+pin 97 (GP_SSP_2_TXD): input bias high impedance, input bias pull down

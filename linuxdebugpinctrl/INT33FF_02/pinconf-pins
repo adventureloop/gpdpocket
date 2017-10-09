@@ -1,0 +1,26 @@
+Pin config settings per pin
+Format: pin (name): configs
+pin 0 (PMU_SLP_S3_B): input bias high impedance, input bias pull up
+pin 1 (PMU_BATLOW_B): input bias pull up
+pin 2 (SUS_STAT_B): input bias disabled
+pin 3 (PMU_SLP_S0IX_B): input bias disabled
+pin 4 (PMU_AC_PRESENT): input bias pull down
+pin 5 (PMU_PLTRST_B): input bias disabled
+pin 6 (PMU_SUSCLK): input bias disabled
+pin 7 (PMU_SLP_LAN_B): input bias disabled
+pin 8 (PMU_PWRBTN_B): input bias pull up
+pin 9 (PMU_SLP_S4_B): input bias disabled
+pin 10 (PMU_WAKE_B): input bias pull up
+pin 11 (PMU_WAKE_LAN_B): input bias high impedance, input bias pull up
+pin 15 (MF_ISH_GPIO_3): input bias disabled
+pin 16 (MF_ISH_GPIO_7): input bias pull up
+pin 17 (MF_ISH_I2C1_SCL): input bias pull up
+pin 18 (MF_ISH_GPIO_1): input bias disabled
+pin 19 (MF_ISH_GPIO_5): input bias pull up
+pin 20 (MF_ISH_GPIO_9): input bias disabled
+pin 21 (MF_ISH_GPIO_0): input bias disabled
+pin 22 (MF_ISH_GPIO_4): input bias disabled
+pin 23 (MF_ISH_GPIO_8): input bias pull up
+pin 24 (MF_ISH_GPIO_2): input bias disabled
+pin 25 (MF_ISH_GPIO_6): input bias disabled
+pin 26 (MF_ISH_I2C1_SDA): input bias pull up

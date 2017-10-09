@@ -1,0 +1,5 @@
+Requested pin control handlers their pinmux maps:
+device: INT33FF:00 current state: none
+device: INT33FF:01 current state: none
+device: INT33FF:02 current state: none
+device: INT33FF:03 current state: none

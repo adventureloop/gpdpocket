@@ -1,0 +1,61 @@
+Pin config settings per pin
+Format: pin (name): configs
+pin 0 (GPIO_DFX_0): input bias pull up
+pin 1 (GPIO_DFX_3): input bias pull down
+pin 2 (GPIO_DFX_7): input bias disabled
+pin 3 (GPIO_DFX_1): input bias pull up
+pin 4 (GPIO_DFX_5): input bias disabled
+pin 5 (GPIO_DFX_4): input bias pull up
+pin 6 (GPIO_DFX_8): input bias disabled
+pin 7 (GPIO_DFX_2): input bias disabled
+pin 8 (GPIO_DFX_6): input bias pull up
+pin 15 (GPIO_SUS0): input bias disabled
+pin 16 (SEC_GPIO_SUS10): input bias disabled
+pin 17 (GPIO_SUS3): input bias disabled
+pin 18 (GPIO_SUS7): input bias disabled
+pin 19 (GPIO_SUS1): input bias disabled
+pin 20 (GPIO_SUS5): input bias pull down
+pin 21 (SEC_GPIO_SUS11): input bias high impedance, input bias pull down
+pin 22 (GPIO_SUS4): input bias disabled
+pin 23 (SEC_GPIO_SUS8): input bias disabled
+pin 24 (GPIO_SUS2): input bias disabled
+pin 25 (GPIO_SUS6): input bias disabled
+pin 26 (CX_PREQ_B): input bias pull up
+pin 27 (SEC_GPIO_SUS9): input bias disabled
+pin 30 (TRST_B): input bias pull up, output drive open drain
+pin 31 (TCK): input bias pull up, output drive open drain
+pin 32 (PROCHOT_B): input bias pull up, output drive open drain
+pin 33 (SVIDO_DATA): input bias pull up, output drive open drain
+pin 34 (TMS): input bias pull up, output drive open drain
+pin 35 (CX_PRDY_B_2): input bias pull up, output drive open drain
+pin 36 (TDO_2): input bias pull up, output drive open drain
+pin 37 (CX_PRDY_B): input bias pull up, output drive open drain
+pin 38 (SVIDO_ALERT_B): input bias pull up, output drive open drain
+pin 39 (TDO): input bias pull up, output drive open drain
+pin 40 (SVIDO_CLK): input bias pull up, output drive open drain
+pin 41 (TDI): input bias pull up, output drive open drain
+pin 45 (GP_CAMERASB_05): input bias disabled
+pin 46 (GP_CAMERASB_02): input bias disabled
+pin 47 (GP_CAMERASB_08): input bias disabled
+pin 48 (GP_CAMERASB_00): input bias pull down
+pin 49 (GP_CAMERASB_06): input bias disabled
+pin 50 (GP_CAMERASB_10): input bias disabled
+pin 51 (GP_CAMERASB_03): input bias disabled
+pin 52 (GP_CAMERASB_09): input bias disabled
+pin 53 (GP_CAMERASB_01): input bias disabled
+pin 54 (GP_CAMERASB_07): input bias disabled
+pin 55 (GP_CAMERASB_11): input bias disabled
+pin 56 (GP_CAMERASB_04): input bias disabled
+pin 60 (PANEL0_BKLTEN): input bias disabled
+pin 61 (HV_DDI0_HPD): input bias disabled
+pin 62 (HV_DDI2_DDC_SDA): input bias high impedance, input bias pull up
+pin 63 (PANEL1_BKLTCTL): input bias disabled
+pin 64 (HV_DDI1_HPD): input bias pull up
+pin 65 (PANEL0_BKLTCTL): input bias disabled
+pin 66 (HV_DDI0_DDC_SDA): input bias disabled
+pin 67 (HV_DDI2_DDC_SCL): input bias high impedance, input bias pull up
+pin 68 (HV_DDI2_HPD): input bias disabled
+pin 69 (PANEL1_VDDEN): input bias disabled
+pin 70 (PANEL1_BKLTEN): input bias disabled
+pin 71 (HV_DDI0_DDC_SCL): input bias disabled
+pin 72 (PANEL0_VDDEN): input bias disabled
