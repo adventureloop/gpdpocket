@@ -118,7 +118,6 @@ struct chvgpio_softc {
 
 	int		sc_irq_rid;
 	struct resource *sc_irq_res;
-
 	void		*intr_handle;
 
 	const char	*sc_bank_prefix;
@@ -377,9 +376,7 @@ chvgpio_pin_get(device_t dev, uint32_t pin, unsigned int *value)
 
 	CHVGPIO_LOCK(sc);
 
-	/*
-	 * And read actual value
-	 */
+	/* Read pin value */
 	val = chvgpio_read_pad_cfg0(sc, pin);
 	if (val & CHVGPIO_PAD_CFG0_GPIORXSTATE)
 		*value = GPIO_PIN_HIGH;
@@ -401,9 +398,9 @@ chvgpio_pin_toggle(device_t dev, uint32_t pin)
 	if (chvgpio_valid_pin(sc, pin) != 0)
 		return (EINVAL);
 
-	/* Toggle the pin */
 	CHVGPIO_LOCK(sc);
 
+	/* Toggle the pin */
 	val = chvgpio_read_pad_cfg0(sc, pin);
 	val = val ^ CHVGPIO_PAD_CFG0_GPIOTXSTATE;
 	chvgpio_write_pad_cfg0(sc, pin, val);
@@ -556,9 +553,9 @@ chvgpio_intr(void *arg)
 static int
 chvgpio_detach(device_t dev)
 {
-    struct chvgpio_softc *sc;
+	struct chvgpio_softc *sc;
 	int error;
-    sc = device_get_softc(dev);
+	sc = device_get_softc(dev);
 	
 	if (sc->sc_busdev)
 		gpiobus_detach_bus(dev);
@@ -568,8 +565,6 @@ chvgpio_detach(device_t dev)
 		device_printf(sc->sc_dev, "Unable to teardown irq: error %d\n", error);
 	if ( sc->sc_irq_res != NULL)
 		bus_release_resource(dev, SYS_RES_IRQ, sc->sc_irq_rid, sc->sc_irq_res);
-
-
 	if ( sc->sc_mem_res != NULL)
 		bus_release_resource(dev, SYS_RES_MEMORY, sc->sc_mem_rid, sc->sc_mem_res);
 
@@ -594,7 +589,7 @@ static device_method_t chvgpio_methods[] = {
 	DEVMETHOD(gpio_pin_set, 	chvgpio_pin_set),
 	DEVMETHOD(gpio_pin_toggle, 	chvgpio_pin_toggle),
 
-    DEVMETHOD_END
+	DEVMETHOD_END
 };
 
 static driver_t chvgpio_driver = {
