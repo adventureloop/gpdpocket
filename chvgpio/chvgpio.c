@@ -202,7 +202,6 @@ chvgpio_pin_max(device_t dev, int *maxpin)
 static int
 chvgpio_valid_pin(struct chvgpio_softc *sc, int pin)
 {
-	device_printf(sc->sc_dev, "checking pin %d", pin);
 	if (pin < 0)
 		return EINVAL;
 	if ((pin / 15) >= sc->sc_ngroups)
@@ -225,6 +224,7 @@ chvgpio_pin_getname(device_t dev, uint32_t pin, char *name)
 	snprintf(name, GPIOMAXNAME, "%s%u", sc->sc_bank_prefix, pin);
 	name[GPIOMAXNAME - 1] = '\0';
 
+	device_printf(sc->sc_dev, "%d name %s\n", pin, name);
 	return (0);
 }
 
