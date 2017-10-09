@@ -296,19 +296,15 @@ chvgpio_pin_getflags(device_t dev, uint32_t pin, uint32_t *flags)
 static int
 chvgpio_pin_setflags(device_t dev, uint32_t pin, uint32_t flags)
 {
-#if 0
 	struct chvgpio_softc *sc;
-	uint32_t reg, val;
+	uint32_t val;
 	uint32_t allowed;
 
 	sc = device_get_softc(dev);
 	if (chvgpio_valid_pin(sc, pin) != 0)
 		return (EINVAL);
 
-	if (chvgpio_pad_is_gpio(sc, pin))
-		allowed = GPIO_PIN_INPUT | GPIO_PIN_OUTPUT;
-	else
-		allowed = 0;
+	allowed = GPIO_PIN_INPUT | GPIO_PIN_OUTPUT;
 
 	/* 
 	 * Only direction flag allowed
@@ -324,16 +320,14 @@ chvgpio_pin_setflags(device_t dev, uint32_t pin, uint32_t flags)
 
 	/* Set the GPIO mode and state */
 	CHVGPIO_LOCK(sc);
-	reg = CHVGPIO_PIN_REGISTER(sc, pin, CHVGPIO_PAD_VAL);
-	val = chvgpio_read_4(sc, reg);
-	val = val | CHVGPIO_PAD_VAL_DIR_MASK;
+	val = chvgpio_read_pad_cfg0(sc, pin);
 	if (flags & GPIO_PIN_INPUT)
-		val = val & ~CHVGPIO_PAD_VAL_I_INPUT_ENABLED;
+		val = val & CHVGPIO_PAD_CFG0_GPIOCFG_GPI;
 	if (flags & GPIO_PIN_OUTPUT)
-		val = val & ~CHVGPIO_PAD_VAL_I_OUTPUT_ENABLED;
-	chvgpio_write_4(sc, reg, val);
+		val = val & CHVGPIO_PAD_CFG0_GPIOCFG_GPO;
+	chvgpio_write_pad_cfg0(sc, pin, val);
 	CHVGPIO_UNLOCK(sc);
-#endif
+
 	return (0);
 }
 
