@@ -488,7 +488,8 @@ chvgpio_attach(device_t dev)
 	}
 
 	error = bus_setup_intr(sc->sc_dev, sc->sc_irq_res, INTR_TYPE_MISC | INTR_MPSAFE,
-		NULL, chvgpio_intr, sc, sc->intr_handle);
+		NULL, chvgpio_intr, sc, &sc->intr_handle);
+
 
 	if (error) {
 		device_printf(sc->sc_dev, "unable to setup irq: error %d\n", error);
