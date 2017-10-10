@@ -187,7 +187,7 @@ chvgpio_write_pad_cfg0(struct chvgpio_softc *sc, int pin, uint32_t val)
 {
 	bus_write_4(sc->sc_mem_res, chvgpio_pad_cfg0_offset(pin), val);
 }
-
+#if 0
 static inline int
 chvgpio_read_pad_cfg1(struct chvgpio_softc *sc, int pin)
 {
@@ -199,7 +199,7 @@ chvgpio_write_pad_cfg1(struct chvgpio_softc *sc, int pin, uint32_t val)
 {
 	bus_write_4(sc->sc_mem_res, chvgpio_pad_cfg0_offset(pin) + 4, val);
 }
-
+#endif
 static device_t
 chvgpio_get_bus(device_t dev)
 {
