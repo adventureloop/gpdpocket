@@ -54,22 +54,21 @@
 
 static MALLOC_DEFINE(M_CHVPWR, "chv-power", "CHV Power Driver");
 
-
 struct chvpower_child {
 	uint8_t address;
 	char *resource_source;
 };
 
 struct chvpower_softc {
-	device_t				sc_dev;
-	ACPI_HANDLE				sc_handle;
+	device_t		sc_dev;
+	ACPI_HANDLE		sc_handle;
 
-	uint8_t					sc_iicchild_count;
+	uint8_t			sc_iicchild_count;
 	struct chvpower_child 	sc_iicchildren[IIC_CHILD_MAX];
 
-	device_t				sc_max170xx;
-	device_t				sc_fusb3;
-	device_t				sc_pi3usb;
+	device_t		sc_max170xx;
+	device_t		sc_fusb3;
+	device_t		sc_pi3usb;
 };
 
 static char *chvpower_hids[] = {
@@ -88,7 +87,7 @@ static int
 chvpower_probe(device_t dev)
 {
 	if (acpi_disabled("chvpower") ||
-    ACPI_ID_PROBE(device_get_parent(dev), dev, chvpower_hids) == NULL)
+		ACPI_ID_PROBE(device_get_parent(dev), dev, chvpower_hids) == NULL)
 		return (ENXIO);
 
 	device_set_desc(dev, "Intel Cherry View Power Nexus");
@@ -108,7 +107,7 @@ chvpower_attach(device_t dev)
      */
 
 	struct chvpower_softc *sc;
-    device_t parent;
+	device_t parent;
 	ACPI_STATUS status;
 	device_t iicbus;
 
@@ -406,5 +405,5 @@ static devclass_t chvpower_devclass;
 DRIVER_MODULE(chvpower, acpi, chvpower_driver, chvpower_devclass, chvpower_driver_loaded, NULL);
 
 MODULE_DEPEND(chvpower, acpi, 1, 1, 1);
-//MODULE_DEPEND(chvpower, iicbus, IICBUS_MINVER, IICBUS_PREFVER, IICBUS_MAXVER);
+MODULE_DEPEND(chvpower, iicbus, IICBUS_MINVER, IICBUS_PREFVER, IICBUS_MAXVER);
 MODULE_VERSION(chvpower, 1);
