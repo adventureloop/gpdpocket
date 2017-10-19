@@ -275,6 +275,7 @@ parse_resources(ACPI_RESOURCE *res, void *context)
 		);
 		break;
 	default:
+		device_printf(dev, "not an address somehow resource of number: %x\n", res->Type);
 		break;
 	}
 	return (AE_OK);
