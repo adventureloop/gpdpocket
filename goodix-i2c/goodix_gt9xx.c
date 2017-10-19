@@ -266,35 +266,34 @@ parse_resources(ACPI_RESOURCE *res, void *context)
 				res->Data.I2cSerialBus.SlaveAddress,
 				res->Data.I2cSerialBus.ConnectionSpeed);
 				break;
-		case ACPI_RESOURCE_TYPE_GPIO:
+		}
+	case ACPI_RESOURCE_TYPE_GPIO:
 
-			device_printf(dev,"serial resource number: %x\n"
-				"rev id: %x type: %x producer consumer: %x "
-				"pin config: %x, sharable: %x, wake capable: %x "
-				"io restrict: %x, triggering: %x, polarity: %x "
-				"drive strengh: %x, debounce timeout: %x "
-				"pin table len %x, vendor table len: %x\n",
-				res->Type,
-				res->Data.Gpio.RevisionId,      
-				res->Data.Gpio.ConnectionType,  
-				res->Data.Gpio.ProducerConsumer,
-				res->Data.Gpio.PinConfig,       
-				res->Data.Gpio.Sharable,        
-				res->Data.Gpio.WakeCapable,     
-				res->Data.Gpio.IoRestriction,   
-				res->Data.Gpio.Triggering,      
-				res->Data.Gpio.Polarity,        
-				res->Data.Gpio.DriveStrength,   
-				res->Data.Gpio.DebounceTimeout, 
-				res->Data.Gpio.PinTableLength,  
-				res->Data.Gpio.VendorLength);
-				break;
-			}
+		device_printf(dev,"serial resource number: %x\n"
+			"rev id: %x type: %x producer consumer: %x "
+			"pin config: %x, sharable: %x, wake capable: %x "
+			"io restrict: %x, triggering: %x, polarity: %x "
+			"drive strengh: %x, debounce timeout: %x "
+			"pin table len %x, vendor table len: %x\n",
+			res->Type,
+			res->Data.Gpio.RevisionId,      
+			res->Data.Gpio.ConnectionType,  
+			res->Data.Gpio.ProducerConsumer,
+			res->Data.Gpio.PinConfig,       
+			res->Data.Gpio.Sharable,        
+			res->Data.Gpio.WakeCapable,     
+			res->Data.Gpio.IoRestriction,   
+			res->Data.Gpio.Triggering,      
+			res->Data.Gpio.Polarity,        
+			res->Data.Gpio.DriveStrength,   
+			res->Data.Gpio.DebounceTimeout, 
+			res->Data.Gpio.PinTableLength,  
+			res->Data.Gpio.VendorLength);
+			break;
+		}
 //ResourceSource;  
 //*PinTable;       
 //*VendorData;     
-
-	}
 	return (AE_OK);
 
 }
