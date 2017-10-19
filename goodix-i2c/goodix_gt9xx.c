@@ -234,7 +234,7 @@ parse_resources(ACPI_RESOURCE *res, void *context)
 	sc = device_get_softc(dev);                   
 
 	req = (struct link_count_request *)context;   
-	device_printf(dev, "resource of number: %x\n", res->Type);
+	device_printf(dev, "resource of number: %d\n", res->Type);
 
 	switch(res->Type)
 	{
@@ -275,7 +275,7 @@ parse_resources(ACPI_RESOURCE *res, void *context)
 		);
 		break;
 	default:
-		device_printf(dev, "not an address somehow resource of number: %x\n", res->Type);
+		device_printf(dev, "not an address somehow resource of number: %d\n", res->Type);
 		break;
 	}
 	return (AE_OK);
