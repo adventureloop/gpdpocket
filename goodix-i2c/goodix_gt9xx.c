@@ -236,6 +236,47 @@ parse_resources(ACPI_RESOURCE *res, void *context)
 	req = (struct link_count_request *)context;   
 	device_printf(dev, "resource of number: %x\n", res->Type);
 
+	switch(res->Type)
+	{
+	case ACPI_RESOURCE_TYPE_ADDRESS16:
+		device_printf(dev,
+			"granularity %d"
+			"min %d"
+			"max %d"
+			"translation offset %d"
+			"address length %d\n",
+			res->Data.Address16.Address.Granularity,      
+			res->Data.Address16.Address.Minimum,          
+			res->Data.Address16.Address.Maximum,          
+			res->Data.Address16.Address.TranslationOffset,
+			res->Data.Address16.Address.AddressLength
+		);
+		/*
+		res->Data.Address16.UINT8                           ResourceType,
+		res->Data.Address16.UINT8                           ProducerConsumer,
+		res->Data.Address16.UINT8                           Decode,
+		res->Data.Address16.UINT8                           MinAddressFixed,
+		res->Data.Address16.UINT8                           MaxAddressFixed,
+		res->Data.Address16.ACPI_RESOURCE_ATTRIBUTE         Info,
+		*/
+		break;
+	case ACPI_RESOURCE_TYPE_ADDRESS32:
+		device_printf(dev,
+			"granularity %d"
+			"min %d"
+			"max %d"
+			"translation offset %d"
+			"address length %d\n",
+			res->Data.Address32.Address.Granularity,      
+			res->Data.Address32.Address.Minimum,          
+			res->Data.Address32.Address.Maximum,          
+			res->Data.Address32.Address.TranslationOffset,
+			res->Data.Address32.Address.AddressLength
+		);
+		break;
+	default:
+		break;
+	}
 	return (AE_OK);
 
 }
