@@ -227,56 +227,73 @@ goodix_ev_report(struct goodix_softc *sc)
 static ACPI_STATUS
 parse_resources(ACPI_RESOURCE *res, void *context)
 {
-	//int type;          
+	int type;          
 	struct link_count_request *req;               
 	device_t dev = (device_t)context;             
-	struct chvpower_softc *sc;                    
-	sc = device_get_softc(dev);                   
+	struct chvpower_softc *sc;
+	sc = device_get_softc(dev);
 
 	req = (struct link_count_request *)context;   
 	device_printf(dev, "resource of number: %d\n", res->Type);
 
-	switch(res->Type)
-	{
-	case ACPI_RESOURCE_TYPE_ADDRESS16:
+	switch(res->Type) {
+	case ACPI_RESOURCE_TYPE_SERIAL_BUS:
+		device_printf(dev, "serial resource number: %x\n"
+			"rev id: %x type: %x producer consumer: %x slave mode: %x "
+			"connection sharing: %x type rev id: %x type data len: %x "
+			"vendor len: %x\n",
+			res->Type,
+			res->Data.CommonSerialBus.RevisionId,
+			res->Data.CommonSerialBus.Type,
+			res->Data.CommonSerialBus.ProducerConsumer,
+			res->Data.CommonSerialBus.SlaveMode,
+			res->Data.CommonSerialBus.ConnectionSharing,
+			res->Data.CommonSerialBus.TypeRevisionId,
+			res->Data.CommonSerialBus.TypeDataLength,
+			res->Data.CommonSerialBus.VendorLength);
+
 		device_printf(dev,
-			"granularity %d"
-			"min %d"
-			"max %d"
-			"translation offset %d"
-			"address length %d\n",
-			res->Data.Address16.Address.Granularity,      
-			res->Data.Address16.Address.Minimum,          
-			res->Data.Address16.Address.Maximum,          
-			res->Data.Address16.Address.TranslationOffset,
-			res->Data.Address16.Address.AddressLength
-		);
-		/*
-		res->Data.Address16.UINT8                           ResourceType,
-		res->Data.Address16.UINT8                           ProducerConsumer,
-		res->Data.Address16.UINT8                           Decode,
-		res->Data.Address16.UINT8                           MinAddressFixed,
-		res->Data.Address16.UINT8                           MaxAddressFixed,
-		res->Data.Address16.ACPI_RESOURCE_ATTRIBUTE         Info,
-		*/
-		break;
-	case ACPI_RESOURCE_TYPE_ADDRESS32:
-		device_printf(dev,
-			"granularity %d"
-			"min %d"
-			"max %d"
-			"translation offset %d"
-			"address length %d\n",
-			res->Data.Address32.Address.Granularity,      
-			res->Data.Address32.Address.Minimum,          
-			res->Data.Address32.Address.Maximum,          
-			res->Data.Address32.Address.TranslationOffset,
-			res->Data.Address32.Address.AddressLength
-		);
-		break;
-	default:
-		device_printf(dev, "not an address somehow resource of number: %d\n", res->Type);
-		break;
+			"resource source, index: %x, str len: %x, str:\n\t%s\n",
+			res->Data.CommonSerialBus.ResourceSource.Index,
+			res->Data.CommonSerialBus.ResourceSource.StringLength,
+			res->Data.CommonSerialBus.ResourceSource.StringPtr);
+		type = res->Data.CommonSerialBus.Type;
+		switch (type) {
+		case ACPI_RESOURCE_SERIAL_TYPE_I2C:
+			device_printf(dev, "i2c device,"
+				"access mode: %x addr: %x, connection speed %x\n",
+				res->Data.I2cSerialBus.AccessMode,
+				res->Data.I2cSerialBus.SlaveAddress,
+				res->Data.I2cSerialBus.ConnectionSpeed);
+				break;
+		case ACPI_RESOURCE_TYPE_GPIO:
+
+			device_printf(dev,"serial resource number: %x\n"
+				"rev id: %x type: %x producer consumer: %x "
+				"pin config: %x, sharable: %x, wake capable: %x "
+				"io restrict: %x, triggering: %x, polarity: %x "
+				"drive strengh: %x, debounce timeout: %x "
+				"pin table len %x, vendor table len: %x\n",
+				res->Type,
+				res->Data.Gpio.RevisionId,      
+				res->Data.Gpio.ConnectionType,  
+				res->Data.Gpio.ProducerConsumer,
+				res->Data.Gpio.PinConfig,       
+				res->Data.Gpio.Sharable,        
+				res->Data.Gpio.WakeCapable,     
+				res->Data.Gpio.IoRestriction,   
+				res->Data.Gpio.Triggering,      
+				res->Data.Gpio.Polarity,        
+				res->Data.Gpio.DriveStrength,   
+				res->Data.Gpio.DebounceTimeout, 
+				res->Data.Gpio.PinTableLength,  
+				res->Data.Gpio.VendorLength);
+				break;
+			}
+//ResourceSource;  
+//*PinTable;       
+//*VendorData;     
+
 	}
 	return (AE_OK);
 
