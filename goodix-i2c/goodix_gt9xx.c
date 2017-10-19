@@ -56,6 +56,9 @@
 struct goodix_softc {
 	device_t			sc_dev;
 	uint8_t				sc_addr;
+	
+	ACPI_HANDLE			sc_handle;
+
 
 	struct resource 	*sc_irq_res;
 	void				*sc_intrhand;
@@ -77,12 +80,23 @@ static int goodix_write(device_t, uint16_t, uint8_t *, uint8_t);
 static void goodix_intr(void *);
 static void goodix_ev_report(struct goodix_softc *);
 
+static ACPI_STATUS parse_resources(ACPI_RESOURCE *, void *); 
+
 static int
 goodix_attach(device_t dev)
 {
 	int res, rid, err;
 	uint8_t buf[5];
-	struct goodix_softc *sc = device_get_softc(dev);
+	struct goodix_softc *sc;
+	ACPI_STATUS status;
+
+	sc = device_get_softc(dev);
+	sc->sc_dev = dev;
+
+	sc->sc_handle = acpi_get_handle(dev);
+	status = AcpiWalkResources(sc->sc_handle, "_CRS", parse_resources, dev);
+
+	return (ENXIO);
 
 	res = goodix_read(dev, GOODIX_CMD, buf, 4);
 	if (res)
@@ -208,6 +222,22 @@ goodix_ev_report(struct goodix_softc *sc)
 	evdev_push_event(sc->sc_evdev, EV_ABS, ABS_Y, sc->sc_y);
 	evdev_push_event(sc->sc_evdev, EV_KEY, BTN_TOUCH, sc->sc_pen_down);
 	evdev_sync(sc->sc_evdev);
+}
+
+static ACPI_STATUS
+parse_resources(ACPI_RESOURCE *res, void *context)
+{
+	//int type;          
+	struct link_count_request *req;               
+	device_t dev = (device_t)context;             
+	struct chvpower_softc *sc;                    
+	sc = device_get_softc(dev);                   
+
+	req = (struct link_count_request *)context;   
+	device_printf(dev, "resource of number: %x\n", res->Type);
+
+	return (AE_OK);
+
 }
 
 static int
