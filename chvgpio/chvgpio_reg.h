@@ -1,33 +1,106 @@
+/*-
+ * Copyright (c) 2017 Tom Jones <tj@enoti.me>
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ *
+ */
 
-east = {
-	"PMU_SLP_S3_B",
-	"PMU_BATLOW_B",
-	"SUS_STAT_B",
-	"PMU_SLP_S0IX_B",
-	"PMU_AC_PRESENT",
-	"PMU_PLTRST_B",
-	"PMU_SUSCLK",
-	"PMU_SLP_LAN_B",
-	"PMU_PWRBTN_B",
-	"PMU_SLP_S4_B",
-	"PMU_WAKE_B",
-	"PMU_WAKE_LAN_B",
+#define CHVGPIO_INTERRUPT_STATUS		0x0300
+#define CHVGPIO_INTERRUPT_MASK			0x0380
+#define CHVGPIO_PAD_CFG0			0x4400
+#define CHVGPIO_PAD_CFG1			0x4404
 
-	"MF_ISH_GPIO_3",
-	"MF_ISH_GPIO_7",
-	"MF_ISH_I2C1_SCL",
-	"MF_ISH_GPIO_1",
-	"MF_ISH_GPIO_5",
-	"MF_ISH_GPIO_9",
-	"MF_ISH_GPIO_0",
-	"MF_ISH_GPIO_4",
-	"MF_ISH_GPIO_8",
-	"MF_ISH_GPIO_2",
-	"MF_ISH_GPIO_6",
-	"MF_ISH_I2C1_SDA",
-}
+#define CHVGPIO_PAD_CFG0_GPIORXSTATE		0x00000001
+#define CHVGPIO_PAD_CFG0_GPIOTXSTATE		0x00000002
+#define CHVGPIO_PAD_CFG0_INTSEL_MASK		0xf0000000
+#define CHVGPIO_PAD_CFG0_INTSEL_SHIFT		28
 
-north = {
+#define CHVGPIO_PAD_CFG0_GPIOCFG_SHIFT		8
+#define CHVGPIO_PAD_CFG0_GPIOCFG_MASK		(7 << CHVGPIO_PAD_CFG0_GPIOCFG_SHIFT)
+#define CHVGPIO_PAD_CFG0_GPIOCFG_GPIO		0
+#define CHVGPIO_PAD_CFG0_GPIOCFG_GPO		1
+#define CHVGPIO_PAD_CFG0_GPIOCFG_GPI		2
+#define CHVGPIO_PAD_CFG0_GPIOCFG_HIZ		3
+
+#define CHVGPIO_PAD_CFG1_INTWAKECFG_MASK	0x00000007
+#define CHVGPIO_PAD_CFG1_INTWAKECFG_FALLING	0x00000001
+#define CHVGPIO_PAD_CFG1_INTWAKECFG_RISING	0x00000002
+#define CHVGPIO_PAD_CFG1_INTWAKECFG_BOTH	0x00000003
+#define CHVGPIO_PAD_CFG1_INTWAKECFG_LEVEL	0x00000004
+#define CHVGPIO_PAD_CFG1_INVRXTX_MASK		0x000000f0
+#define CHVGPIO_PAD_CFG1_INVRXTX_RXDATA		0x00000040
+
+/*
+ * The pads for the pins are arranged in groups of maximal 15 pins.
+ * The arrays below give the number of pins per group, such that we
+ * can validate the (untrusted) pin numbers from ACPI.
+ */
+#define	E_UID		3
+#define	E_BANK_PREFIX	"eastbank"
+
+const int chv_east_pins[] = {
+	12, 12, -1
+};
+
+#define	E_PIN_GROUPS	nitems(chv_east_pins)
+
+const char *chv_east_pin_names[] = {
+		"PMU_SLP_S3_B",
+		"PMU_BATLOW_B",
+		"SUS_STAT_B",
+		"PMU_SLP_S0IX_B",
+		"PMU_AC_PRESENT",
+		"PMU_PLTRST_B",
+		"PMU_SUSCLK",
+		"PMU_SLP_LAN_B",
+		"PMU_PWRBTN_B",
+		"PMU_SLP_S4_B",
+		"PMU_WAKE_B",
+		"PMU_WAKE_LAN_B"
+		"MF_ISH_GPIO_3",
+		"MF_ISH_GPIO_7",
+		"MF_ISH_I2C1_SCL",
+		"MF_ISH_GPIO_1",
+		"MF_ISH_GPIO_5",
+		"MF_ISH_GPIO_9",
+		"MF_ISH_GPIO_0",
+		"MF_ISH_GPIO_4",
+		"MF_ISH_GPIO_8",
+		"MF_ISH_GPIO_2",
+		"MF_ISH_GPIO_6",
+		"MF_ISH_I2C1_SDA"
+};
+
+#define	N_UID		2
+#define	N_BANK_PREFIX	"northbank"
+
+const int chv_north_pins[] = {
+	9, 13, 12, 12, 13, -1
+};
+
+#define	N_PIN_GROUPS	nitems(chv_north_pins)
+
+const char *chv_north_pin_names[] = {
 	"GPIO_DFX0_PAD",
 	"GPIO_DFX3_PAD",
 	"GPIO_DFX7_PAD",
@@ -91,9 +164,19 @@ north = {
 	"PANEL1_BKLTEN_PAD",
 	"HV_DDI0_DDC_SCL_PAD",
 	"PANEL0_VDDEN_PAD",
-}
+};
 
-southeast = {
+
+#define	SE_UID		4
+#define	SE_BANK_PREFIX	"southeastbank"
+
+const int chv_southeast_pins[] = {
+	8, 12, 6, 8, 10, 11, -1
+};
+
+#define	SE_PIN_GROUPS	nitems(chv_southeast_pins)
+
+const char *chv_southeast_pin_names[] = {
 	"MF_PLT_CLK0_PAD",
 	"PWM1_PAD",
 	"MF_PLT_CLK1_PAD",
@@ -154,9 +237,18 @@ southeast = {
 	"SUSPWRDNACK_PAD",
 	"SPARE_PIN_PAD",
 	"SDMMC3_1P8_EN_PAD",
-}
+};
 
-southwest = {
+#define	SW_UID		1
+#define	SW_BANK_PREFIX	"southwestbank"
+
+const int chv_southwest_pins[] = {
+	8, 8, 8, 8, 8, 8, 8, -1
+};
+
+#define	SW_PIN_GROUPS	nitems(chv_southwest_pins)
+
+const char *chv_southwest_pin_names[] = {
 	"FST_SPI_D2_PAD",
 	"FST_SPI_D0_PAD",
 	"FST_SPI_CLK_PAD",
@@ -201,9 +293,9 @@ southwest = {
 	"PCIE_CLKREQ3B_PAD",
 	"GP_SSP_2_FS_PAD",
 	"GP_SSP_2_TXD_PAD",
-}
+};
 
-virtualgpio = {
+const char *virtualgpio[] = {
 	"VIRTUAL0_PAD",
 	"VIRTUAL1_PAD",
 	"VIRTUAL2_PAD",
@@ -212,5 +304,4 @@ virtualgpio = {
 	"VIRTUAL5_PAD",
 	"VIRTUAL6_PAD",
 	"VIRTUAL7_PAD",
-}
-
+};
