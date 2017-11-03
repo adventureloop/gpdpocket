@@ -75,6 +75,7 @@ const char *chv_east_pin_names[] = {
 		"PMU_SLP_S4_B",
 		"PMU_WAKE_B",
 		"PMU_WAKE_LAN_B"
+
 		"MF_ISH_GPIO_3",
 		"MF_ISH_GPIO_7",
 		"MF_ISH_I2C1_SCL",
@@ -259,6 +260,15 @@ const char *chv_southwest_pin_names[] = {
 	"UART2_TXD_PAD",
 	"UART2_CTS_B_PAD",
 
+	"MF_HDA_CLK"
+	"MF_HDA_RSTB",
+	"MF_HDA_SDIO",
+	"MF_HDA_SDO",
+	"MF_HDA_DOCKRSTB",
+	"MF_HDA_SYNC",
+	"MF_HDA_SDI1",
+	"MF_HDA_DOCKENB",
+
 	"I2C5_SDA_PAD",
 	"I2C4_SDA_PAD",
 	"I2C6_SDA_PAD",
@@ -276,6 +286,15 @@ const char *chv_southwest_pin_names[] = {
 	"I2C0_SCL_PAD",
 	"I2C2_SCL_PAD",
 	"I2C3_SCL_PAD",
+
+	"SATA_GP0",
+	"SATA_GP1",
+	"SATA_LEDN",
+	"SATA_GP2",
+	"MF_SMB_ALERTB",
+	"SATA_GP3",
+	"MF_SMB_CLK",
+	"MF_SMB_DATA",
 
 	"PCIE_CLKREQ0B_PAD",
 	"PCIE_CLKREQ1B_PAD",
