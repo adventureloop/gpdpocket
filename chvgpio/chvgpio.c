@@ -175,11 +175,13 @@ chvgpio_pin_getname(device_t dev, uint32_t pin, char *name)
 {
 	struct chvgpio_softc *sc;
 
+	device_printf(dev, "pins %d\n", pin);
+
 	sc = device_get_softc(dev);
 	if (chvgpio_valid_pin(sc, pin) != 0)
 		return (EINVAL);
 
-	/* Set a very simple name */
+	/* return pin name from datasheet */
 	snprintf(name, GPIOMAXNAME, "%s", sc->sc_pin_names[pin]);
 	name[GPIOMAXNAME - 1] = '\0';
 	return (0);
@@ -406,6 +408,9 @@ chvgpio_attach(device_t dev)
 		sc->sc_npins += sc->sc_pins[i];
 		sc->sc_ngroups++;
 	}
+
+	device_printf(dev, "npins %d, ngroups %d, pin_names ptr %p\n",
+		sc->sc_npins, sc->sc_ngroups, sc->sc_pin_names);
 
 	sc->sc_mem_rid = 0;
 	sc->sc_mem_res = bus_alloc_resource_any(sc->sc_dev, SYS_RES_MEMORY, 
