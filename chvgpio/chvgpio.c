@@ -161,7 +161,13 @@ chvgpio_pin_max(device_t dev, int *maxpin)
 static int
 chvgpio_valid_pin(struct chvgpio_softc *sc, int pin)
 {
+	int maxpin;
+
+	chvgpio_pin_max(sc->sc_dev, &maxpin);
+
 	if (pin < 0)
+		return EINVAL;
+	if (pin > maxpin)
 		return EINVAL;
 	if ((pin / 15) >= sc->sc_ngroups)
 		return EINVAL;
