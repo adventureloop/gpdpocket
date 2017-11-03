@@ -382,25 +382,21 @@ chvgpio_attach(device_t dev)
 
 	switch (uid) {
 	case SW_UID:
-		sc->sc_npins = SW_PIN_GROUPS;
 		sc->sc_bank_prefix = SW_BANK_PREFIX;
 		sc->sc_pins = chv_southwest_pins;
 		sc->sc_pin_names = chv_southwest_pin_names;
 		break;
 	case N_UID:
-		sc->sc_npins = N_PIN_GROUPS;
 		sc->sc_bank_prefix = N_BANK_PREFIX;
 		sc->sc_pins = chv_north_pins;
 		sc->sc_pin_names = chv_north_pin_names;
 		break;
 	case E_UID:
-		sc->sc_npins = E_PIN_GROUPS;
 		sc->sc_bank_prefix = E_BANK_PREFIX;
 		sc->sc_pins = chv_east_pins;
 		sc->sc_pin_names = chv_east_pin_names;
 		break;
 	case SE_UID:
-		sc->sc_npins = SE_PIN_GROUPS;
 		sc->sc_bank_prefix = SE_BANK_PREFIX;
 		sc->sc_pins = chv_southeast_pins;
 		sc->sc_pin_names = chv_southeast_pin_names;

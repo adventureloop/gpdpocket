@@ -62,8 +62,6 @@ const int chv_east_pins[] = {
 	12, 12, -1
 };
 
-#define	E_PIN_GROUPS	nitems(chv_east_pins)
-
 const char *chv_east_pin_names[] = {
 		"PMU_SLP_S3_B",
 		"PMU_BATLOW_B",
@@ -97,8 +95,6 @@ const char *chv_east_pin_names[] = {
 const int chv_north_pins[] = {
 	9, 13, 12, 12, 13, -1
 };
-
-#define	N_PIN_GROUPS	nitems(chv_north_pins)
 
 const char *chv_north_pin_names[] = {
 	"GPIO_DFX0_PAD",
@@ -174,8 +170,6 @@ const int chv_southeast_pins[] = {
 	8, 12, 6, 8, 10, 11, -1
 };
 
-#define	SE_PIN_GROUPS	nitems(chv_southeast_pins)
-
 const char *chv_southeast_pin_names[] = {
 	"MF_PLT_CLK0_PAD",
 	"PWM1_PAD",
@@ -245,8 +239,6 @@ const char *chv_southeast_pin_names[] = {
 const int chv_southwest_pins[] = {
 	8, 8, 8, 8, 8, 8, 8, -1
 };
-
-#define	SW_PIN_GROUPS	nitems(chv_southwest_pins)
 
 const char *chv_southwest_pin_names[] = {
 	"FST_SPI_D2_PAD",
