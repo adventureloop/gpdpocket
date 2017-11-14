@@ -78,7 +78,17 @@ setfan()
 	gpioctl -f /dev/gpioc1 -N GPIO_DFX3_PAD $2
 }
 
+siginfohandler()
+{
+	echo `date +"%Y%m%d%H%M%S"` $temp $speed
+}
+
+trap "siginfohandler" SIGINFO
+
 start
+
+temp=0
+speed="0 0"
 
 while true
 do
