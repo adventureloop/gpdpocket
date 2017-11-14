@@ -5,6 +5,7 @@
 
 src
 obj
+kernel
 
 chvpower/acpi_if.h
 chvpower/bus_if.h
