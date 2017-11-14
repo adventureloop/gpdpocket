@@ -3,6 +3,9 @@
 *.o
 .depend.*
 
+src
+obj
+
 chvpower/acpi_if.h
 chvpower/bus_if.h
 chvpower/chvpower.o
