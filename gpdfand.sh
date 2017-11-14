@@ -105,8 +105,7 @@ do
 	else 
 		speed="0 0"
 	fi
-	setfan $speed
 
-	echo `date +"%Y%m%d%H%M%S"` $temp $speed
+	setfan $speed
 	sleep $INTERVAL
 done
