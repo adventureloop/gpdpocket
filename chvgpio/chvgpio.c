@@ -123,13 +123,14 @@ chvgpio_write_pad_cfg0(struct chvgpio_softc *sc, int pin, uint32_t val)
 {
 	bus_write_4(sc->sc_mem_res, chvgpio_pad_cfg0_offset(pin), val);
 }
-#if 0
+
 static inline int
 chvgpio_read_pad_cfg1(struct chvgpio_softc *sc, int pin)
 {
 	return bus_read_4(sc->sc_mem_res, chvgpio_pad_cfg0_offset(pin) + 4);
 }
 
+#if 0
 static inline void
 chvgpio_write_pad_cfg1(struct chvgpio_softc *sc, int pin, uint32_t val)
 {
@@ -195,12 +196,14 @@ chvgpio_pin_getcaps(device_t dev, uint32_t pin, uint32_t *caps)
 		return (EINVAL);
 
 	*caps = 0;
-	if (chvgpio_valid_pin(sc, pin))
+	if (chvgpio_valid_pin(sc, pin)) this is probably wrong
 		*caps = GPIO_PIN_INPUT | GPIO_PIN_OUTPUT;
 
 	return (0);
 }
 
+
+what is the difference between caps and flags?
 static int
 chvgpio_pin_getflags(device_t dev, uint32_t pin, uint32_t *flags)
 {
@@ -224,6 +227,9 @@ chvgpio_pin_getflags(device_t dev, uint32_t pin, uint32_t *flags)
 	if (val & CHVGPIO_PAD_CFG0_GPIOCFG_GPIO || 
 		val & CHVGPIO_PAD_CFG0_GPIOCFG_GPI)
 		*flags |= GPIO_PIN_INPUT;
+
+	add flags found from cfg1 (the interupt capabilities)
+	val = chvgpio_read_pad_cfg1(sc, pin);
 
 	CHVGPIO_UNLOCK(sc);
 	return (0);
