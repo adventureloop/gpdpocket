@@ -25,13 +25,13 @@ start()
 	coretemp=`kldstat | grep coretemp`
 	chvgpio=`kldstat | grep chvgpio`
 
-	if [ -z $coretemp ]
+	if [ -z "$coretemp" ]
 	then
 		printf "coretemp kernel module not loaded\ntry: \n\t#kldload coretemp\n"
 		requirements
 	fi
 
-	if [ -z $chvgpio ]
+	if [ -z "$chvgpio" ]
 	then
 		printf "chvgpio kernel module not loaded\ntry: \n\t#kldload chvgpio\n"
 		requirements
