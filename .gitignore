@@ -51,3 +51,14 @@ chvgpio/gpio_if.h
 chvgpio/gpiobus_if.h
 chvgpio/opt_platform.h
 
+chvpwm/acpi_if.h  
+chvpwm/bus_if.h   
+chvpwm/device_if.h
+chvpwm/export_syms
+chvpwm/iicbus_if.h
+chvpwm/machine    
+chvpwm/opt_acpi.h 
+chvpwm/x86        
+chvpwm/pwm_if.h
+chvpwm/pwmbus_if.h
+chvpwm/opt_platform.h
