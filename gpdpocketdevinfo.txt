@@ -1,0 +1,390 @@
+nexus0
+  cryptosoft0
+  apic0
+      I/O memory addresses:
+          0xfec00000-0xfec0001f
+  ram0
+      I/O memory addresses:
+          0x0-0x8afff
+          0x90000-0x9dfff
+          0x100000-0x1effffff
+          0x20200000-0x7b0fffff
+          0x7b616000-0x7b636fff
+          0x7ba6f000-0x7bffffff
+          0x100000000-0x27fffffff
+  acpi0
+      Interrupt request lines:
+          0x9
+      I/O ports:
+          0x4e-0x4f
+          0x61
+          0x63
+          0x65
+          0x67
+          0x70
+          0x80-0x8f
+          0x92
+          0xb2-0xb3
+          0x400-0x47f
+          0x500-0x5fe
+          0x680-0x69f
+      I/O memory addresses:
+          0xa1a18000-0xa1a18fff
+          0xa1a1a000-0xa1a1afff
+          0xa1a1c000-0xa1a1cfff
+          0xa1a1e000-0xa1a1efff
+          0xa1a20000-0xa1a20fff
+          0xa1a22000-0xa1a22fff
+          0xa1a24000-0xa1a24fff
+          0xa1a25000-0xa1a25fff
+          0xa1a27000-0xa1a27fff
+          0xa1a29000-0xa1a29fff
+          0xa1a2b000-0xa1a2bfff
+          0xa1a2d000-0xa1a2dfff
+          0xa1a2f000-0xa1a2ffff
+          0xa1a31000-0xa1a31fff
+          0xa1a33000-0xa1a33fff
+          0xa1a35000-0xa1a35fff
+          0xa1a37000-0xa1a37fff
+          0xa1a39000-0xa1a39fff
+          0xe0000000-0xefffffff
+          0xfea00000-0xfeafffff
+          0xfed01000-0xfed01fff
+          0xfed03000-0xfed03fff
+          0xfed06000-0xfed06fff
+          0xfed08000-0xfed09fff
+          0xfed1c000-0xfed1cfff
+          0xfed80000-0xfedbffff
+          0xfee00000-0xfeefffff
+    cpu0 pnpinfo _HID=none _UID=0 at handle=\_PR_.CPU0
+      acpi_throttle0
+      acpi_perf0
+      est0
+      p4tcc0
+      cpufreq0
+    cpu1 pnpinfo _HID=none _UID=0 at handle=\_PR_.CPU1
+      acpi_throttle1
+      acpi_perf1
+      est1
+      p4tcc1
+      cpufreq1
+    cpu2 pnpinfo _HID=none _UID=0 at handle=\_PR_.CPU2
+      acpi_throttle2
+      acpi_perf2
+      est2
+      p4tcc2
+      cpufreq2
+    cpu3 pnpinfo _HID=none _UID=0 at handle=\_PR_.CPU3
+      acpi_throttle3
+      acpi_perf3
+      est3
+      p4tcc3
+      cpufreq3
+    pcib0 pnpinfo _HID=PNP0A08 _UID=0 at handle=\_SB_.PCI0
+        I/O ports:
+            0xcf8-0xcff
+      pci0
+          PCI domain 0 bus numbers:
+              0
+        hostb0 pnpinfo vendor=0x8086 device=0x2280 subvendor=0x8086 subdevice=0x7270 class=0x060000 at slot=0 function=0 dbsf=pci0:0:0:0 handle=\_SB_.PCI0.CHVC
+        vgapci0 pnpinfo vendor=0x8086 device=0x22b0 subvendor=0x8086 subdevice=0x7270 class=0x030000 at slot=2 function=0 dbsf=pci0:0:2:0 handle=\_SB_.PCI0.GFX0
+            I/O ports:
+                0xf000-0xf03f
+            I/O memory addresses:
+                0x80000000-0x9fffffff
+                0xa0000000-0xa0ffffff
+          drm0
+          drmn0
+        unknown pnpinfo vendor=0x8086 device=0x22dc subvendor=0x8086 subdevice=0x7270 class=0x118000 at slot=11 function=0 dbsf=pci0:0:11:0 handle=\_SB_.PCI0.D006
+            I/O memory addresses:
+                0xa1a3b000-0xa1a3bfff
+        xhci0 pnpinfo vendor=0x8086 device=0x22b5 subvendor=0x8086 subdevice=0x7270 class=0x0c0330 at slot=20 function=0 dbsf=pci0:0:20:0 handle=\_SB_.PCI0.XHC1
+            Interrupt request lines:
+                0x100
+            I/O memory addresses:
+                0xa1a00000-0xa1a0ffff
+          usbus0
+            uhub0
+              ukbd0 pnpinfo vendor=0x258a product=0x0111 devclass=0x00 devsubclass=0x00 devproto=0x00 sernum="" release=0x0100 mode=host intclass=0x03 ints at bus=0 hubaddr=1 port=2 devaddr=2 interface=0 ugen=ugen0.2
+              ums0 pnpinfo vendor=0x258a product=0x0111 devclass=0x00 devsubclass=0x00 devproto=0x00 sernum="" release=0x0100 mode=host intclass=0x03 ints at bus=0 hubaddr=1 port=2 devaddr=2 interface=1 ugen=ugen0.2
+              rtwn0 pnpinfo vendor=0x7392 product=0x7811 devclass=0x00 devsubclass=0x00 devproto=0x00 sernum="" release=0x0200 mode=host intclass=0xff ints at bus=0 hubaddr=1 port=4 devaddr=4 interface=0 ugen=ugen0.4
+        unknown pnpinfo vendor=0x8086 device=0x2298 subvendor=0x8086 subdevice=0x7270 class=0x108000 at slot=26 function=0 dbsf=pci0:0:26:0 handle=\_SB_.PCI0.SEC0
+            I/O memory addresses:
+                0xa1800000-0xa18fffff
+                0xa1900000-0xa19fffff
+        pcib1 pnpinfo vendor=0x8086 device=0x22c8 subvendor=0x8086 subdevice=0x7270 class=0x060400 at slot=28 function=0 dbsf=pci0:0:28:0 handle=\_SB_.PCI0.RP01
+            I/O memory addresses:
+                0xa1000000-0xa14fffff
+            PCI domain 0 bus numbers:
+                1
+          pci1
+              pcib1 bus numbers:
+                  1
+            unknown pnpinfo vendor=0x14e4 device=0x43ec subvendor=0x17f9 subdevice=0x0036 class=0x028000 at slot=0 function=0 dbsf=pci0:1:0:0 handle=\_SB_.PCI0.RP01.PXSX
+                pcib1 memory window:
+                    0xa1000000-0xa13fffff
+                    0xa1400000-0xa1407fff
+        isab0 pnpinfo vendor=0x8086 device=0x229c subvendor=0x8086 subdevice=0x7270 class=0x060100 at slot=31 function=0 dbsf=pci0:0:31:0 handle=\_SB_.PCI0.LPCB
+          isa0
+            sc0
+            vga0
+            atkbdc0
+            fdc0
+            ppc0
+            uart1
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.PCI0.ISP3.ID3C
+    unknown pnpinfo _HID=INT0800 _UID=0 at handle=\_SB_.PCI0.LPCB.FWHD
+        I/O memory addresses:
+            0xff000000-0xffffffff
+    unknown pnpinfo _HID=PNP0000 _UID=0 at handle=\_SB_.PCI0.LPCB.IPIC
+        I/O ports:
+            0x20-0x21
+            0x24-0x25
+            0x28-0x29
+            0x2c-0x2d
+            0x30-0x31
+            0x34-0x35
+            0x38-0x39
+            0x3c-0x3d
+            0xa0-0xa1
+            0xa4-0xa5
+            0xa8-0xa9
+            0xac-0xad
+            0xb0-0xb1
+            0xb4-0xb5
+            0xb8-0xb9
+            0xbc-0xbd
+            0x4d0-0x4d1
+    acpi_sysresource0 pnpinfo _HID=PNP0C02 _UID=2 at handle=\_SB_.PCI0.LPCB.LDRC
+    attimer0 pnpinfo _HID=PNP0100 _UID=0 at handle=\_SB_.PCI0.LPCB.TIMR
+        Interrupt request lines:
+            0x0
+        I/O ports:
+            0x40-0x43
+            0x50-0x53
+    uart0 pnpinfo _HID=PNP0501 _UID=1 at handle=\_SB_.PCI0.LPCB.IURT
+        Interrupt request lines:
+            0x4
+        I/O ports:
+            0x3f8-0x3ff
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.PCI0.XHC1.RHUB.HS03.WWPR
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.PCI0.XHC1.RHUB.HS13.WWPR
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.PCI0.XHC1.RHUB.SSC1.WWPR
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.PCI0.XHC1.RHUB.SSCW.WWPR
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.PCI0.XHC1.RHUB.HSC1.WWPR
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.PCI0.XHC1.RHUB.HSC3.WWPR
+    unknown pnpinfo _HID=INT3496 _UID=0 at handle=\_SB_.PCI0.OTG2 (disabled)
+    unknown pnpinfo _HID=GPTC0001 _UID=0 at handle=\_SB_.PCI0.GPTC (disabled)
+    unknown pnpinfo _HID=INT33A4 _UID=1 at handle=\_SB_.PCI0.PEPD
+    sdhci_acpi0 pnpinfo _HID=80860F14 _UID=1 at handle=\_SB_.PCI0.SDHA
+        Interrupt request lines:
+            0x2d
+        I/O memory addresses:
+            0xa1a3a000-0xa1a3afff
+      mmc0
+        mmcsd0 at rca=0x0002
+    unknown pnpinfo _HID=80860F14 _UID=2 at handle=\_SB_.PCI0.SDHB
+        I/O memory addresses:
+            0xa1a38000-0xa1a38fff
+    unknown pnpinfo _HID=BCM43241 _UID=0 at handle=\_SB_.PCI0.SDHB.BRCM (disabled)
+    unknown pnpinfo _HID=INT33BB _UID=3 at handle=\_SB_.PCI0.SDHC (disabled)
+    sdhci_acpi1 pnpinfo _HID=80860F14 _UID=3 at handle=\_SB_.PCI0.SHC1
+        Interrupt request lines:
+            0x2f
+        I/O memory addresses:
+            0xa1a36000-0xa1a36fff
+      mmc1
+    unknown pnpinfo _HID=INTL9C60 _UID=1 at handle=\_SB_.PCI0.GDM1
+        I/O memory addresses:
+            0xa1a10000-0xa1a13fff
+    unknown pnpinfo _HID=80862286 _UID=1 at handle=\_SB_.PCI0.GDM2 (disabled)
+    unknown pnpinfo _HID=INTL9C60 _UID=2 at handle=\_SB_.PCI0.GDM3
+        I/O memory addresses:
+            0xa1a14000-0xa1a17fff
+    unknown pnpinfo _HID=808622C0 _UID=2 at handle=\_SB_.PCI0.GDM4 (disabled)
+    unknown pnpinfo _HID=80862288 _UID=1 at handle=\_SB_.PCI0.PWM1 (disabled)
+    unknown pnpinfo _HID=80862289 _UID=2 at handle=\_SB_.PCI0.PWM2 (disabled)
+    unknown pnpinfo _HID=8086228A _UID=1 at handle=\_SB_.PCI0.URT1
+        I/O memory addresses:
+            0xa1a21000-0xa1a21fff
+    unknown pnpinfo _HID=BCM2E1A _UID=0 at handle=\_SB_.PCI0.URT1.BTH0 (disabled)
+    unknown pnpinfo _HID=BCM2E3A _UID=0 at handle=\_SB_.PCI0.URT1.BTH1 (disabled)
+    unknown pnpinfo _HID=BCM2E64 _UID=0 at handle=\_SB_.PCI0.URT1.BTH2 (disabled)
+    unknown pnpinfo _HID=BCM2E7B _UID=0 at handle=\_SB_.PCI0.URT1.BTH4 (disabled)
+    unknown pnpinfo _HID=INT33E1 _UID=0 at handle=\_SB_.PCI0.URT1.BTH5 (disabled)
+    unknown pnpinfo _HID=OBDA8723 _UID=0 at handle=\_SB_.PCI0.URT1.BTH7 (disabled)
+    unknown pnpinfo _HID=BCM2E7E _UID=0 at handle=\_SB_.PCI0.URT1.BTH3
+    unknown pnpinfo _HID=8086228A _UID=2 at handle=\_SB_.PCI0.URT2
+        I/O memory addresses:
+            0xa1a1f000-0xa1a1ffff
+    unknown pnpinfo _HID=BCM47521 _UID=0 at handle=\_SB_.PCI0.URT2.GPS0 (disabled)
+    unknown pnpinfo _HID=BCM4752 _UID=0 at handle=\_SB_.PCI0.URT2.GPS1 (disabled)
+    unknown pnpinfo _HID=INT33A2 _UID=0 at handle=\_SB_.PCI0.URT2.GPS2 (disabled)
+    unknown pnpinfo _HID=8086228E _UID=1 at handle=\_SB_.PCI0.SPI1
+        I/O memory addresses:
+            0xa1a1d000-0xa1a1dfff
+    unknown pnpinfo _HID=AUTH2750 _UID=0 at handle=\_SB_.PCI0.SPI1.FPNT (disabled)
+    unknown pnpinfo _HID=8086228E _UID=2 at handle=\_SB_.PCI0.SPI2
+        I/O memory addresses:
+            0xa1a1b000-0xa1a1bfff
+    unknown pnpinfo _HID=8086228E _UID=3 at handle=\_SB_.PCI0.SPI3
+        I/O memory addresses:
+            0xa1a19000-0xa1a19fff
+    unknown pnpinfo _HID=808622C1 _UID=1 at handle=\_SB_.PCI0.I2C1
+        I/O memory addresses:
+            0xa1a32000-0xa1a32fff
+    unknown pnpinfo _HID=INTCF1C _UID=1 at handle=\_SB_.PCI0.I2C1.STRA (disabled)
+    unknown pnpinfo _HID=IMPJ0003 _UID=1 at handle=\_SB_.PCI0.I2C1.IMP3 (disabled)
+    unknown pnpinfo _HID=FUSB0300 _UID=0 at handle=\_SB_.PCI0.I2C1.USTC (disabled)
+    unknown pnpinfo _HID=PI330532 _UID=0 at handle=\_SB_.PCI0.I2C1.PER1 (disabled)
+    unknown pnpinfo _HID=MAX17047 _UID=0 at handle=\_SB_.PCI0.I2C1.ANFG (disabled)
+    unknown pnpinfo _HID=SMB0349 _UID=0 at handle=\_SB_.PCI0.I2C1.ANCG (disabled)
+    unknown pnpinfo _HID=TXN27501 _UID=0 at handle=\_SB_.PCI0.I2C1.ANF1 (disabled)
+    unknown pnpinfo _HID=TXN24292 _UID=0 at handle=\_SB_.PCI0.I2C1.ANC2 (disabled)
+    unknown pnpinfo _HID=PNP0C0A _UID=1 at handle=\_SB_.PCI0.I2C1.BATC (disabled)
+    unknown pnpinfo _HID=808622C1 _UID=2 at handle=\_SB_.PCI0.I2C2
+        I/O memory addresses:
+            0xa1a30000-0xa1a30fff
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.PCI0.I2C2.CLK3
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.PCI0.I2C2.CLK4
+    unknown pnpinfo _HID=10EC5670 _UID=1 at handle=\_SB_.PCI0.I2C2.RTK1 (disabled)
+    unknown pnpinfo _HID=INT33F8 _UID=1 at handle=\_SB_.PCI0.I2C2.CAMB (disabled)
+    unknown pnpinfo _HID=10EC5645 _UID=0 at handle=\_SB_.PCI0.I2C2.RTKA
+    unknown pnpinfo _HID=10EC5640 _UID=1 at handle=\_SB_.PCI0.I2C2.RTKC (disabled)
+    unknown pnpinfo _HID=10TI3100 _UID=1 at handle=\_SB_.PCI0.I2C2.TLV1 (disabled)
+    unknown pnpinfo _HID=IMPJ0003 _UID=1 at handle=\_SB_.PCI0.I2C2.IMP3 (disabled)
+    unknown pnpinfo _HID=808622C1 _UID=3 at handle=\_SB_.PCI0.I2C3
+        I/O memory addresses:
+            0xa1a2e000-0xa1a2efff
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.PCI0.I2C3.CLK2
+    unknown pnpinfo _HID=NXP5472 _UID=1 at handle=\_SB_.PCI0.I2C3.NFC1 (disabled)
+    unknown pnpinfo _HID=INT339A _UID=1 at handle=\_SB_.PCI0.I2C3.NFC2 (disabled)
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.PCI0.I2C3.CLK1
+    unknown pnpinfo _HID=INT33F8 _UID=2 at handle=\_SB_.PCI0.I2C3.CAMC (disabled)
+    unknown pnpinfo _HID=INTCF1D _UID=1 at handle=\_SB_.PCI0.I2C3.STRB (disabled)
+    unknown pnpinfo _HID=KIOX000A _UID=1 at handle=\_SB_.PCI0.I2C3.KXJ0 (disabled)
+    unknown pnpinfo _HID=INT33FE _UID=0 at handle=\_SB_.PCI0.I2C3.TIDR (disabled)
+    unknown pnpinfo _HID=TBQ24296 _UID=0 at handle=\_SB_.PCI0.I2C3.ABAT (disabled)
+    unknown pnpinfo _HID=808622C1 _UID=4 at handle=\_SB_.PCI0.I2C4
+        I/O memory addresses:
+            0xa1a2c000-0xa1a2cfff
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.PCI0.I2C4.CLK0
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.PCI0.I2C4.CLK1
+    unknown pnpinfo _HID=INT33CF _UID=1 at handle=\_SB_.PCI0.I2C4.CA10 (disabled)
+    unknown pnpinfo _HID=INT3477 _UID=1 at handle=\_SB_.PCI0.I2C4.CAM9 (disabled)
+    unknown pnpinfo _HID=INT33BE _UID=1 at handle=\_SB_.PCI0.I2C4.CAM3 (disabled)
+    unknown pnpinfo _HID=INT33FB _UID=1 at handle=\_SB_.PCI0.I2C4.CAM4 (disabled)
+    unknown pnpinfo _HID=808622C1 _UID=5 at handle=\_SB_.PCI0.I2C5
+        I/O memory addresses:
+            0xa1a2a000-0xa1a2afff
+    unknown pnpinfo _HID=808622C1 _UID=6 at handle=\_SB_.PCI0.I2C6
+        I/O memory addresses:
+            0xa1a28000-0xa1a28fff
+    unknown pnpinfo _HID=GDIX1001 _UID=0 at handle=\_SB_.PCI0.I2C6.TCSE
+    unknown pnpinfo _HID=ATML1000 _UID=0 at handle=\_SB_.PCI0.I2C6.TCS3 (disabled)
+    unknown pnpinfo _HID=SYNP1000 _UID=0 at handle=\_SB_.PCI0.I2C6.SYN1 (disabled)
+    unknown pnpinfo _HID=808622C1 _UID=7 at handle=\_SB_.PCI0.I2C7
+        I/O memory addresses:
+            0xa1a26000-0xa1a26fff
+    unknown pnpinfo _HID=INT33F4 _UID=1 at handle=\_SB_.PCI0.I2C7.PMI1 (disabled)
+    unknown pnpinfo _HID=INT33F5 _UID=1 at handle=\_SB_.PCI0.I2C7.PMI2 (disabled)
+    unknown pnpinfo _HID=INT34D3 _UID=1 at handle=\_SB_.PCI0.I2C7.PMI5
+    unknown pnpinfo _HID=DMY0001 _UID=1 at handle=\_SB_.PCI0.I2C7.PMIF (disabled)
+    unknown pnpinfo _HID=INT33FD _UID=1 at handle=\_SB_.PCI0.I2C7.PMIC (disabled)
+    unknown pnpinfo _HID=INT33FE _UID=0 at handle=\_SB_.PCI0.I2C7.BMDR (disabled)
+    unknown pnpinfo _HID=INT33FE _UID=0 at handle=\_SB_.PCI0.I2C7.WIDR
+    unknown pnpinfo _HID=PNP0C0A _UID=1 at handle=\_SB_.PCI0.I2C7.BATC (disabled)
+    unknown pnpinfo _HID=808622D8 _UID=0 at handle=\_SB_.PCI0.IISH (disabled)
+    unknown pnpinfo _HID=808622A8 _UID=1 at handle=\_SB_.PCI0.LPEA
+        I/O memory addresses:
+            0x20000000-0x201fffff
+            0xa1600000-0xa17fffff
+            0xa1a34000-0xa1a34fff
+    unknown pnpinfo _HID=ADMA22A8 _UID=1 at handle=\_SB_.PCI0.LPEA.ADMA (disabled)
+    unknown pnpinfo _HID=HAD022A8 _UID=1 at handle=\_SB_.PCI0.HAD0 (disabled)
+    acpi_sysresource1 pnpinfo _HID=PNP0C02 _UID=3 at handle=\_SB_.PCI0.SPRC
+    unknown pnpinfo _HID=BCM4356 _UID=0 at handle=\_SB_.PCI0.BRCM (disabled)
+    unknown pnpinfo _HID=INT8260 _UID=0 at handle=\_SB_.PCI0.LNPW (disabled)
+    unknown pnpinfo _HID=INT33D5 _UID=0 at handle=\_SB_.PCI0.HIDD
+    acpi_sysresource2 pnpinfo _HID=PNP0C02 _UID=1 at handle=\_SB_.PCI0.PDRC
+    pci_link0 pnpinfo _HID=PNP0C0F _UID=1 at handle=\_SB_.LNKA
+    pci_link1 pnpinfo _HID=PNP0C0F _UID=2 at handle=\_SB_.LNKB
+    pci_link2 pnpinfo _HID=PNP0C0F _UID=3 at handle=\_SB_.LNKC
+    pci_link3 pnpinfo _HID=PNP0C0F _UID=4 at handle=\_SB_.LNKD
+    pci_link4 pnpinfo _HID=PNP0C0F _UID=5 at handle=\_SB_.LNKE
+    pci_link5 pnpinfo _HID=PNP0C0F _UID=6 at handle=\_SB_.LNKF
+    pci_link6 pnpinfo _HID=PNP0C0F _UID=7 at handle=\_SB_.LNKG
+    pci_link7 pnpinfo _HID=PNP0C0F _UID=8 at handle=\_SB_.LNKH
+    atrtc0 pnpinfo _HID=PNP0B00 _UID=0 at handle=\_SB_.RTC_
+        Interrupt request lines:
+            0x8
+    hpet0 pnpinfo _HID=PNP0103 _UID=0 at handle=\_SB_.HPET
+        Interrupt request lines:
+            0x14
+        I/O memory addresses:
+            0xfed00000-0xfed003ff
+    acpi_lid0 pnpinfo _HID=PNP0C0D _UID=0 at handle=\_SB_.LID0
+    unknown pnpinfo _HID=FAN02501 _UID=1 at handle=\_SB_.FAN0
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.USBC
+    unknown pnpinfo _HID=VIBR22A8 _UID=1 at handle=\_SB_.VIBR (disabled)
+    acpi_button0 pnpinfo _HID=PNP0C0C _UID=0 at handle=\_SB_.PWRB
+    unknown pnpinfo _HID=INT0002 _UID=1 at handle=\_SB_.GPED (disabled)
+    unknown pnpinfo _HID=INT33FF _UID=1 at handle=\_SB_.GPO0
+    unknown pnpinfo _HID=INT33FF _UID=2 at handle=\_SB_.GPO1
+    unknown pnpinfo _HID=INT33FF _UID=3 at handle=\_SB_.GPO2
+    unknown pnpinfo _HID=INT33FF _UID=4 at handle=\_SB_.GPO3
+    unknown pnpinfo _HID=INT33FF _UID=5 at handle=\_SB_.GPO4
+    unknown pnpinfo _HID=INTA4321 _UID=0 at handle=\_SB_.WLCH (disabled)
+    unknown pnpinfo _HID=INTA4322 _UID=0 at handle=\_SB_.WCH2 (disabled)
+    unknown pnpinfo _HID=INT34D0 _UID=1 at handle=\_SB_.FLDM (disabled)
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.P28X
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.P18X
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.P12X
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.P28P
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.P18P
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.P19X
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.P06X
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.P12A
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.P28T
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.P18D
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.P18T
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.P3P3
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.P12T
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.P28W
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.P18W
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.P12W
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.P33W
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.P33X
+    unknown pnpinfo _HID=none _UID=0 at handle=\_SB_.P4BW
+    unknown pnpinfo _HID=ACPI0011 _UID=0 at handle=\_SB_.BTNS
+    unknown pnpinfo _HID=8086229C _UID=1 at handle=\_SB_.TCO0 (disabled)
+    unknown pnpinfo _HID=INTCFD9 _UID=0 at handle=\_SB_.TBAD (disabled)
+    unknown pnpinfo _HID=INT33BD _UID=1 at handle=\_SB_.MBID
+    unknown pnpinfo _HID=ACPI000C _UID=0 at handle=\_SB_.PAGD
+    acpi_acad0 pnpinfo _HID=ACPI0003 _UID=0 at handle=\_SB_.ADP1
+    unknown pnpinfo _HID=MCD0001 _UID=1 at handle=\_SB_.MDM3 (disabled)
+    unknown pnpinfo _HID=MCD0001 _UID=0 at handle=\_SB_.MDM2 (disabled)
+    unknown pnpinfo _HID=MCD0001 _UID=0 at handle=\_SB_.MDM_ (disabled)
+    unknown pnpinfo _HID=MCD0001 _UID=0 at handle=\_SB_.MDM4 (disabled)
+    unknown pnpinfo _HID=MCD0001 _UID=0 at handle=\_SB_.MDM5 (disabled)
+    unknown pnpinfo _HID=MSFT0101 _UID=1 at handle=\_SB_.TPM_
+        I/O memory addresses:
+            0x7ff00000-0x7ff00fff
+    unknown pnpinfo _HID=INT3400 _UID=0 at handle=\_SB_.DPTF
+    unknown pnpinfo _HID=INT3407 _UID=0 at handle=\_SB_.TPWR
+    unknown pnpinfo _HID=INT3403 _UID=0 at handle=\_SB_.STR0
+    unknown pnpinfo _HID=INT3403 _UID=1 at handle=\_SB_.STR1
+    unknown pnpinfo _HID=INT3403 _UID=2 at handle=\_SB_.STR2
+    unknown pnpinfo _HID=INT3403 _UID=3 at handle=\_SB_.STR3 (disabled)
+    unknown pnpinfo _HID=INT3409 _UID=0 at handle=\_SB_.SAMB (disabled)
+    unknown pnpinfo _HID=INT3409 _UID=0 at handle=\_SB_.VIR1
+    unknown pnpinfo _HID=INT3406 _UID=0 at handle=\_SB_.TDSP
+    unknown pnpinfo _HID=INT3403 _UID=4 at handle=\_SB_.TCHG
+    unknown pnpinfo _HID=INT3408 _UID=0 at handle=\_SB_.WWAN (disabled)
+    unknown pnpinfo _HID=USBC000 _UID=0 at handle=\_SB_.UBTC
+        I/O memory addresses:
+            0x7b6a4000-0x7b6a4fff
+    acpi_tz0 pnpinfo _HID=none _UID=0 at handle=\_TZ_.TZ00
+    acpi_timer0 pnpinfo unknown at unknown
+        ACPI I/O ports:
+            0x408-0x40b
