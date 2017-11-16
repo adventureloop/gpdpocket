@@ -126,8 +126,28 @@ chvpwm_write_general(struct chvpwm_softc *sc, uint32_t val)
 	bus_write_4(sc->sc_mem_res, CHVPWM_CTRL_GENERAL, val);
 }
 #endif
+
+static int
+chvpwm_sysctl_freq(SYSCTL_HANDLER_ARGS)
+{
+     int error, freq;
+     struct chvpwm_softc *sc;
+//     uint32_t reg;
+
+     sc = (struct chvpwm_softc *)arg1;
+
+     error = sysctl_handle_int(oidp, &freq, sizeof(freq), req);
+     if (error != 0 || req->newptr == NULL)
+         return (error);
+
+	device_printf(sc->sc_dev, "frequency %d Hz requested", freq);
+
+     return (0);
+}
+
 static char *chvpwm_hids[] = {
-	"80862288", 
+	"80862288",
+	"80862289",
 	NULL
 };
 
@@ -199,12 +219,11 @@ static device_method_t chvpwm_methods[] = {
 	DEVMETHOD(device_probe,     	chvpwm_probe),
 	DEVMETHOD(device_attach,    	chvpwm_attach),
 	DEVMETHOD(device_detach,    	chvpwm_detach),
-
 	DEVMETHOD_END
 };
 
 static driver_t chvpwm_driver = {
-    .name = "pwm",
+    .name = "chvpwm",
     .methods = chvpwm_methods,
     .size = sizeof(struct chvpwm_softc)
 };
