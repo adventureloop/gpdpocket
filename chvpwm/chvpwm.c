@@ -86,7 +86,6 @@ struct chvpwm_softc {
 	uint32_t	sc_pwm_dutyB;
 };
 
-static void chvpwm_intr(void *);
 static int chvpwm_probe(device_t);
 static int chvpwm_attach(device_t);
 static int chvpwm_detach(device_t);
@@ -164,6 +163,12 @@ chvpwm_attach(device_t dev)
 		device_printf(dev, "can't allocate memory resource\n");
 		return (ENOMEM);
 	}
+
+	uint32_t regval;
+	regval = chvpwm_read_ctrl(sc);
+
+	device_printf(dev, "CTRL REG: %x\n", regval);
+
 #if 0
 	ctx = device_get_sysctl_ctx(sc->sc_dev);
 	tree = device_get_sysctl_tree(sc->sc_dev);
