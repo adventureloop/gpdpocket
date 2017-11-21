@@ -1,0 +1,995 @@
+diff --git a/share/man/man4/chvgpio.4 b/share/man/man4/chvgpio.4
+new file mode 100644
+index 00000000000..e5ec67bdd8c
+--- /dev/null
++++ b/share/man/man4/chvgpio.4
+@@ -0,0 +1,65 @@
++.\" Copyright (c) 2017
++.\"	Tom Jones <tj@enoti.me>  All rights reserved.
++.\"
++.\" Redistribution and use in source and binary forms, with or without
++.\" modification, are permitted provided that the following conditions
++.\" are met:
++.\" 1. Redistributions of source code must retain the above copyright
++.\"    notice, this list of conditions and the following disclaimer.
++.\" 2. Redistributions in binary form must reproduce the above copyright
++.\"    notice, this list of conditions and the following disclaimer in the
++.\"    documentation and/or other materials provided with the distribution.
++.\"
++.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
++.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
++.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
++.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
++.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
++.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
++.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
++.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
++.\" SUCH DAMAGE.
++.\"
++.\" $FreeBSD$
++.\"
++.Dd November 17, 2017
++.Dt CHVGPIO 4
++.Os
++.Sh NAME
++.Nm chvgpio
++.Nd Intel Cherry View SoC GPIO controller
++.Sh SYNOPSIS
++.Cd "device gpio"
++.Cd "device chvgpio"
++.Sh DESCRIPTION
++.Nm
++supports the GPIO controller that can be found in Intel's Cherry View SoC
++family.
++.Pp
++Cherry View SoC has 5 banks of GPIO pins, NORTH, EAST, SOUTHEAST, SOUTHWEST and
++VIRTUAL.
++All but VIRTUAL are exposed to userland as
++.Pa /dev/gpiocN ,
++where N is 0-3.
++Pins in each bank are pre-named to match names in the Intel® Atom™ Z8000
++Processor Series Vol 2
++.Sh SEE ALSO
++.Xr gpio 3 ,
++.Xr gpio 4 ,
++.Xr gpioctl 8
++.Rs
++.%T Intel® Atom™ Z8000 Processor Series Vol 1
++.Re
++.Rs
++.%T Intel® Atom™ Z8000 Processor Series Vol 2
++.Re
++.Sh HISTORY
++The
++.Nm
++manual page first appeared in
++.Fx 12 .
++.Sh AUTHORS
++This driver and man page were written by
++.An Tom Jones Aq Mt tj@enoti.me .
+diff --git a/sys/conf/files.amd64 b/sys/conf/files.amd64
+index 1707456ea07..c6df191eb1e 100644
+--- a/sys/conf/files.amd64
++++ b/sys/conf/files.amd64
+@@ -293,6 +293,7 @@ dev/fdc/fdc_acpi.c		optional	fdc
+ dev/fdc/fdc_isa.c		optional	fdc isa
+ dev/fdc/fdc_pccard.c		optional	fdc pccard
+ dev/gpio/bytgpio.c		optional	bytgpio
++dev/gpio/chvgpio.c		optional	chvgpio
+ dev/hpt27xx/hpt27xx_os_bsd.c	optional	hpt27xx
+ dev/hpt27xx/hpt27xx_osm_bsd.c	optional	hpt27xx
+ dev/hpt27xx/hpt27xx_config.c	optional	hpt27xx
+diff --git a/sys/conf/files.i386 b/sys/conf/files.i386
+index bfb4bd3deb0..3344462b11b 100644
+--- a/sys/conf/files.i386
++++ b/sys/conf/files.i386
+@@ -214,6 +214,7 @@ dev/glxiic/glxiic.c		optional glxiic
+ dev/glxsb/glxsb.c		optional glxsb
+ dev/glxsb/glxsb_hash.c		optional glxsb
+ dev/gpio/bytgpio.c		optional	bytgpio
++dev/gpio/chvgpio.c		optional	chvgpio
+ dev/hpt27xx/hpt27xx_os_bsd.c	optional hpt27xx
+ dev/hpt27xx/hpt27xx_osm_bsd.c	optional hpt27xx
+ dev/hpt27xx/hpt27xx_config.c	optional hpt27xx
+diff --git a/sys/dev/gpio/chvgpio.c b/sys/dev/gpio/chvgpio.c
+new file mode 100644
+index 00000000000..5e8668e1489
+--- /dev/null
++++ b/sys/dev/gpio/chvgpio.c
+@@ -0,0 +1,519 @@
++/*-
++ * Copyright (c) 2017 Tom Jones <tj@enoti.me>
++ * All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions
++ * are met:
++ * 1. Redistributions of source code must retain the above copyright
++ *    notice, this list of conditions and the following disclaimer.
++ * 2. Redistributions in binary form must reproduce the above copyright
++ *    notice, this list of conditions and the following disclaimer in the
++ *    documentation and/or other materials provided with the distribution.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
++ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++ * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
++ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
++ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
++ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
++ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
++ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
++ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
++ * SUCH DAMAGE.
++ *
++ */
++
++/*
++ * Copyright (c) 2016 Mark Kettenis
++ *
++ * Permission to use, copy, modify, and distribute this software for any
++ * purpose with or without fee is hereby granted, provided that the above
++ * copyright notice and this permission notice appear in all copies.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
++ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
++ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
++ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
++ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
++ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
++ */
++
++#include <sys/param.h>
++#include <sys/systm.h>
++#include <sys/bus.h>
++#include <sys/gpio.h>
++#include <sys/clock.h>
++#include <sys/kernel.h>
++#include <sys/module.h>
++#include <sys/endian.h>
++#include <sys/rman.h>
++#include <sys/types.h>
++#include <sys/malloc.h>
++
++#include <machine/bus.h>
++#include <machine/resource.h>
++
++#include <contrib/dev/acpica/include/acpi.h>
++#include <contrib/dev/acpica/include/accommon.h>
++
++#include <dev/acpica/acpivar.h>
++#include <dev/gpio/gpiobusvar.h>
++
++#include "opt_platform.h"
++#include "opt_acpi.h"
++#include "gpio_if.h"
++
++#include "chvgpio_reg.h"
++
++/*
++ *     Macros for driver mutex locking
++ */
++#define CHVGPIO_LOCK(_sc)               mtx_lock_spin(&(_sc)->sc_mtx)
++#define CHVGPIO_UNLOCK(_sc)             mtx_unlock_spin(&(_sc)->sc_mtx)
++#define CHVGPIO_LOCK_INIT(_sc) \
++	mtx_init(&_sc->sc_mtx, device_get_nameunit((_sc)->sc_dev), \
++	"chvgpio", MTX_SPIN)
++#define CHVGPIO_LOCK_DESTROY(_sc)       mtx_destroy(&(_sc)->sc_mtx)
++#define CHVGPIO_ASSERT_LOCKED(_sc)      mtx_assert(&(_sc)->sc_mtx, MA_OWNED)
++#define CHVGPIO_ASSERT_UNLOCKED(_sc) 	mtx_assert(&(_sc)->sc_mtx, MA_NOTOWNED)
++
++struct chvgpio_softc {
++	device_t 	sc_dev;
++	device_t 	sc_busdev;
++	struct mtx 	sc_mtx;
++
++	ACPI_HANDLE	sc_handle;
++
++	int		sc_mem_rid;
++	struct resource *sc_mem_res;
++
++	int		sc_irq_rid;
++	struct resource *sc_irq_res;
++	void		*intr_handle;
++
++	const char	*sc_bank_prefix;
++	const int  	*sc_pins;
++	int 		sc_npins;
++	int 		sc_ngroups;
++	const char **sc_pin_names;
++};
++
++static void chvgpio_intr(void *);
++static int chvgpio_probe(device_t);
++static int chvgpio_attach(device_t);
++static int chvgpio_detach(device_t);
++
++static inline int
++chvgpio_pad_cfg0_offset(int pin)
++{
++	return (CHVGPIO_PAD_CFG0 + 1024 * (pin / 15) + 8 * (pin % 15));
++}
++
++static inline int
++chvgpio_read_pad_cfg0(struct chvgpio_softc *sc, int pin)
++{
++	return bus_read_4(sc->sc_mem_res, chvgpio_pad_cfg0_offset(pin));
++}
++
++static inline void
++chvgpio_write_pad_cfg0(struct chvgpio_softc *sc, int pin, uint32_t val)
++{
++	bus_write_4(sc->sc_mem_res, chvgpio_pad_cfg0_offset(pin), val);
++}
++
++static inline int
++chvgpio_read_pad_cfg1(struct chvgpio_softc *sc, int pin)
++{
++	return bus_read_4(sc->sc_mem_res, chvgpio_pad_cfg0_offset(pin) + 4);
++}
++
++static device_t
++chvgpio_get_bus(device_t dev)
++{
++	struct chvgpio_softc *sc;
++
++	sc = device_get_softc(dev);
++
++	return (sc->sc_busdev);
++}
++
++static int
++chvgpio_pin_max(device_t dev, int *maxpin)
++{
++	struct chvgpio_softc *sc;
++
++	sc = device_get_softc(dev);
++
++	*maxpin = sc->sc_npins - 1;
++
++	return (0);
++}
++
++static int
++chvgpio_valid_pin(struct chvgpio_softc *sc, int pin)
++{
++	if (pin < 0)
++		return EINVAL;
++	if ((pin / 15) >= sc->sc_ngroups)
++		return EINVAL;
++	if ((pin % 15) >= sc->sc_pins[pin / 15])
++		return EINVAL;
++	return (0);
++}
++
++static int
++chvgpio_pin_getname(device_t dev, uint32_t pin, char *name)
++{
++	struct chvgpio_softc *sc;
++
++	sc = device_get_softc(dev);
++	if (chvgpio_valid_pin(sc, pin) != 0)
++		return (EINVAL);
++
++	/* return pin name from datasheet */
++	snprintf(name, GPIOMAXNAME, "%s", sc->sc_pin_names[pin]);
++	name[GPIOMAXNAME - 1] = '\0';
++	return (0);
++}
++
++static int
++chvgpio_pin_getcaps(device_t dev, uint32_t pin, uint32_t *caps)
++{
++	struct chvgpio_softc *sc;
++
++	sc = device_get_softc(dev);
++	if (chvgpio_valid_pin(sc, pin) != 0)
++		return (EINVAL);
++
++	*caps = 0;
++	if (chvgpio_valid_pin(sc, pin))
++		*caps = GPIO_PIN_INPUT | GPIO_PIN_OUTPUT;
++
++	return (0);
++}
++
++static int
++chvgpio_pin_getflags(device_t dev, uint32_t pin, uint32_t *flags)
++{
++	struct chvgpio_softc *sc;
++	uint32_t val;
++
++	sc = device_get_softc(dev);
++	if (chvgpio_valid_pin(sc, pin) != 0)
++		return (EINVAL);
++
++	*flags = 0;
++
++	/* Get the current pin state */
++	CHVGPIO_LOCK(sc);
++	val = chvgpio_read_pad_cfg0(sc, pin);
++
++	if (val & CHVGPIO_PAD_CFG0_GPIOCFG_GPIO ||
++		val & CHVGPIO_PAD_CFG0_GPIOCFG_GPO)
++		*flags |= GPIO_PIN_OUTPUT;
++
++	if (val & CHVGPIO_PAD_CFG0_GPIOCFG_GPIO ||
++		val & CHVGPIO_PAD_CFG0_GPIOCFG_GPI)
++		*flags |= GPIO_PIN_INPUT;
++
++	val = chvgpio_read_pad_cfg1(sc, pin);
++
++	CHVGPIO_UNLOCK(sc);
++	return (0);
++}
++
++static int
++chvgpio_pin_setflags(device_t dev, uint32_t pin, uint32_t flags)
++{
++	struct chvgpio_softc *sc;
++	uint32_t val;
++	uint32_t allowed;
++
++	sc = device_get_softc(dev);
++	if (chvgpio_valid_pin(sc, pin) != 0)
++		return (EINVAL);
++
++	allowed = GPIO_PIN_INPUT | GPIO_PIN_OUTPUT;
++
++	/*
++	 * Only direction flag allowed
++	 */
++	if (flags & ~allowed)
++		return (EINVAL);
++
++	/*
++	 * Not both directions simultaneously
++	 */
++	if ((flags & allowed) == allowed)
++		return (EINVAL);
++
++	/* Set the GPIO mode and state */
++	CHVGPIO_LOCK(sc);
++	val = chvgpio_read_pad_cfg0(sc, pin);
++	if (flags & GPIO_PIN_INPUT)
++		val = val & CHVGPIO_PAD_CFG0_GPIOCFG_GPI;
++	if (flags & GPIO_PIN_OUTPUT)
++		val = val & CHVGPIO_PAD_CFG0_GPIOCFG_GPO;
++	chvgpio_write_pad_cfg0(sc, pin, val);
++	CHVGPIO_UNLOCK(sc);
++
++	return (0);
++}
++
++static int
++chvgpio_pin_set(device_t dev, uint32_t pin, unsigned int value)
++{
++	struct chvgpio_softc *sc;
++	uint32_t val;
++
++	sc = device_get_softc(dev);
++	if (chvgpio_valid_pin(sc, pin) != 0)
++		return (EINVAL);
++
++	CHVGPIO_LOCK(sc);
++	val = chvgpio_read_pad_cfg0(sc, pin);
++	if (value == GPIO_PIN_LOW)
++		val = val & ~CHVGPIO_PAD_CFG0_GPIOTXSTATE;
++	else
++		val = val | CHVGPIO_PAD_CFG0_GPIOTXSTATE;
++	chvgpio_write_pad_cfg0(sc, pin, val);
++	CHVGPIO_UNLOCK(sc);
++
++	return (0);
++}
++
++static int
++chvgpio_pin_get(device_t dev, uint32_t pin, unsigned int *value)
++{
++	struct chvgpio_softc *sc;
++	uint32_t val;
++
++	sc = device_get_softc(dev);
++	if (chvgpio_valid_pin(sc, pin) != 0)
++		return (EINVAL);
++
++	CHVGPIO_LOCK(sc);
++
++	/* Read pin value */
++	val = chvgpio_read_pad_cfg0(sc, pin);
++	if (val & CHVGPIO_PAD_CFG0_GPIORXSTATE)
++		*value = GPIO_PIN_HIGH;
++	else
++		*value = GPIO_PIN_LOW;
++
++	CHVGPIO_UNLOCK(sc);
++
++	return (0);
++}
++
++static int
++chvgpio_pin_toggle(device_t dev, uint32_t pin)
++{
++	struct chvgpio_softc *sc;
++	uint32_t val;
++
++	sc = device_get_softc(dev);
++	if (chvgpio_valid_pin(sc, pin) != 0)
++		return (EINVAL);
++
++	CHVGPIO_LOCK(sc);
++
++	/* Toggle the pin */
++	val = chvgpio_read_pad_cfg0(sc, pin);
++	val = val ^ CHVGPIO_PAD_CFG0_GPIOTXSTATE;
++	chvgpio_write_pad_cfg0(sc, pin, val);
++
++	CHVGPIO_UNLOCK(sc);
++
++	return (0);
++}
++
++static char *chvgpio_hids[] = {
++	"INT33FF",
++	NULL
++};
++
++static int
++chvgpio_probe(device_t dev)
++{
++    if (acpi_disabled("chvgpio") ||
++    ACPI_ID_PROBE(device_get_parent(dev), dev, chvgpio_hids) == NULL)
++        return (ENXIO);
++
++    device_set_desc(dev, "Intel Cherry View GPIO");
++    return (0);
++}
++
++static int
++chvgpio_attach(device_t dev)
++{
++	struct chvgpio_softc *sc;
++	ACPI_STATUS status;
++	int uid;
++	int i;
++	int error;
++
++	sc = device_get_softc(dev);
++	sc->sc_dev = dev;
++	sc->sc_handle = acpi_get_handle(dev);
++
++	status = acpi_GetInteger(sc->sc_handle, "_UID", &uid);
++	if (ACPI_FAILURE(status)) {
++		device_printf(dev, "failed to read _UID\n");
++		return (ENXIO);
++	}
++
++	CHVGPIO_LOCK_INIT(sc);
++
++	switch (uid) {
++	case SW_UID:
++		sc->sc_bank_prefix = SW_BANK_PREFIX;
++		sc->sc_pins = chv_southwest_pins;
++		sc->sc_pin_names = chv_southwest_pin_names;
++		break;
++	case N_UID:
++		sc->sc_bank_prefix = N_BANK_PREFIX;
++		sc->sc_pins = chv_north_pins;
++		sc->sc_pin_names = chv_north_pin_names;
++		break;
++	case E_UID:
++		sc->sc_bank_prefix = E_BANK_PREFIX;
++		sc->sc_pins = chv_east_pins;
++		sc->sc_pin_names = chv_east_pin_names;
++		break;
++	case SE_UID:
++		sc->sc_bank_prefix = SE_BANK_PREFIX;
++		sc->sc_pins = chv_southeast_pins;
++		sc->sc_pin_names = chv_southeast_pin_names;
++		break;
++	default:
++		device_printf(dev, "invalid _UID value: %d\n", uid);
++		return (ENXIO);
++	}
++
++	for (i = 0; sc->sc_pins[i] >= 0; i++) {
++		sc->sc_npins += sc->sc_pins[i];
++		sc->sc_ngroups++;
++	}
++
++	sc->sc_mem_rid = 0;
++	sc->sc_mem_res = bus_alloc_resource_any(sc->sc_dev, SYS_RES_MEMORY,
++		&sc->sc_mem_rid, RF_ACTIVE);
++	if (sc->sc_mem_res == NULL) {
++		CHVGPIO_LOCK_DESTROY(sc);
++		device_printf(dev, "can't allocate memory resource\n");
++		return (ENOMEM);
++	}
++
++	sc->sc_irq_res = bus_alloc_resource_any(dev, SYS_RES_IRQ,
++		&sc->sc_irq_rid, RF_ACTIVE);
++
++	if (!sc->sc_irq_res) {
++		CHVGPIO_LOCK_DESTROY(sc);
++		bus_release_resource(dev, SYS_RES_MEMORY,
++			sc->sc_mem_rid, sc->sc_mem_res);
++		device_printf(dev, "can't allocate irq resource\n");
++		return (ENOMEM);
++	}
++
++	error = bus_setup_intr(sc->sc_dev, sc->sc_irq_res, INTR_TYPE_MISC | INTR_MPSAFE,
++		NULL, chvgpio_intr, sc, &sc->intr_handle);
++
++
++	if (error) {
++		device_printf(sc->sc_dev, "unable to setup irq: error %d\n", error);
++		CHVGPIO_LOCK_DESTROY(sc);
++		bus_release_resource(dev, SYS_RES_MEMORY,
++			sc->sc_mem_rid, sc->sc_mem_res);
++		bus_release_resource(dev, SYS_RES_IRQ,
++			sc->sc_irq_rid, sc->sc_irq_res);
++		return (ENXIO);
++	}
++
++	/* Mask and ack all interrupts. */
++	bus_write_4(sc->sc_mem_res, CHVGPIO_INTERRUPT_MASK, 0);
++	bus_write_4(sc->sc_mem_res, CHVGPIO_INTERRUPT_STATUS, 0xffff);
++
++	sc->sc_busdev = gpiobus_attach_bus(dev);
++	if (sc->sc_busdev == NULL) {
++		CHVGPIO_LOCK_DESTROY(sc);
++		bus_release_resource(dev, SYS_RES_MEMORY,
++			sc->sc_mem_rid, sc->sc_mem_res);
++		bus_release_resource(dev, SYS_RES_IRQ,
++			sc->sc_irq_rid, sc->sc_irq_res);
++		return (ENXIO);
++	}
++
++	return (0);
++}
++
++static void
++chvgpio_intr(void *arg)
++{
++	struct chvgpio_softc *sc = arg;
++	uint32_t reg;
++	int line;
++
++	reg = bus_read_4(sc->sc_mem_res, CHVGPIO_INTERRUPT_STATUS);
++	for (line = 0; line < 16; line++) {
++		if ((reg & (1 << line)) == 0)
++			continue;
++		bus_write_4(sc->sc_mem_res, CHVGPIO_INTERRUPT_STATUS, 1 << line);
++	}
++}
++
++static int
++chvgpio_detach(device_t dev)
++{
++	struct chvgpio_softc *sc;
++	sc = device_get_softc(dev);
++
++	if (sc->sc_busdev)
++		gpiobus_detach_bus(dev);
++
++	if (sc->intr_handle != NULL)
++	    bus_teardown_intr(sc->sc_dev, sc->sc_irq_res, sc->intr_handle);
++	if (sc->sc_irq_res != NULL)
++		bus_release_resource(dev, SYS_RES_IRQ, sc->sc_irq_rid, sc->sc_irq_res);
++	if (sc->sc_mem_res != NULL)
++		bus_release_resource(dev, SYS_RES_MEMORY, sc->sc_mem_rid, sc->sc_mem_res);
++
++	CHVGPIO_LOCK_DESTROY(sc);
++
++    return (0);
++}
++
++static device_method_t chvgpio_methods[] = {
++	DEVMETHOD(device_probe,     	chvgpio_probe),
++	DEVMETHOD(device_attach,    	chvgpio_attach),
++	DEVMETHOD(device_detach,    	chvgpio_detach),
++
++	/* GPIO protocol */
++	DEVMETHOD(gpio_get_bus, 	chvgpio_get_bus),
++	DEVMETHOD(gpio_pin_max, 	chvgpio_pin_max),
++	DEVMETHOD(gpio_pin_getname, 	chvgpio_pin_getname),
++	DEVMETHOD(gpio_pin_getflags,	chvgpio_pin_getflags),
++	DEVMETHOD(gpio_pin_getcaps, 	chvgpio_pin_getcaps),
++	DEVMETHOD(gpio_pin_setflags,	chvgpio_pin_setflags),
++	DEVMETHOD(gpio_pin_get, 	chvgpio_pin_get),
++	DEVMETHOD(gpio_pin_set, 	chvgpio_pin_set),
++	DEVMETHOD(gpio_pin_toggle, 	chvgpio_pin_toggle),
++
++	DEVMETHOD_END
++};
++
++static driver_t chvgpio_driver = {
++    .name = "gpio",
++    .methods = chvgpio_methods,
++    .size = sizeof(struct chvgpio_softc)
++};
++
++static devclass_t chvgpio_devclass;
++DRIVER_MODULE(chvgpio, acpi, chvgpio_driver, chvgpio_devclass, NULL , NULL);
++MODULE_DEPEND(chvgpio, acpi, 1, 1, 1);
++MODULE_DEPEND(chvgpio, gpiobus, 1, 1, 1);
++
++MODULE_VERSION(chvgpio, 1);
+diff --git a/sys/dev/gpio/chvgpio_reg.h b/sys/dev/gpio/chvgpio_reg.h
+new file mode 100644
+index 00000000000..9041c410b4d
+--- /dev/null
++++ b/sys/dev/gpio/chvgpio_reg.h
+@@ -0,0 +1,335 @@
++/*-
++ * Copyright (c) 2017 Tom Jones <tj@enoti.me>
++ * All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions
++ * are met:
++ * 1. Redistributions of source code must retain the above copyright
++ *    notice, this list of conditions and the following disclaimer.
++ * 2. Redistributions in binary form must reproduce the above copyright
++ *    notice, this list of conditions and the following disclaimer in the
++ *    documentation and/or other materials provided with the distribution.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
++ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++ * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
++ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
++ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
++ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
++ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
++ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
++ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
++ * SUCH DAMAGE.
++ *
++ */
++
++/*
++ * Copyright (c) 2016 Mark Kettenis
++ *
++ * Permission to use, copy, modify, and distribute this software for any
++ * purpose with or without fee is hereby granted, provided that the above
++ * copyright notice and this permission notice appear in all copies.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
++ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
++ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
++ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
++ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
++ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
++ */
++
++
++#define CHVGPIO_INTERRUPT_STATUS		0x0300
++#define CHVGPIO_INTERRUPT_MASK			0x0380
++#define CHVGPIO_PAD_CFG0			0x4400
++#define CHVGPIO_PAD_CFG1			0x4404
++
++#define CHVGPIO_PAD_CFG0_GPIORXSTATE		0x00000001
++#define CHVGPIO_PAD_CFG0_GPIOTXSTATE		0x00000002
++#define CHVGPIO_PAD_CFG0_INTSEL_MASK		0xf0000000
++#define CHVGPIO_PAD_CFG0_INTSEL_SHIFT		28
++
++#define CHVGPIO_PAD_CFG0_GPIOCFG_SHIFT		8
++#define CHVGPIO_PAD_CFG0_GPIOCFG_MASK		(7 << CHVGPIO_PAD_CFG0_GPIOCFG_SHIFT)
++#define CHVGPIO_PAD_CFG0_GPIOCFG_GPIO		0
++#define CHVGPIO_PAD_CFG0_GPIOCFG_GPO		1
++#define CHVGPIO_PAD_CFG0_GPIOCFG_GPI		2
++#define CHVGPIO_PAD_CFG0_GPIOCFG_HIZ		3
++
++#define CHVGPIO_PAD_CFG1_INTWAKECFG_MASK	0x00000007
++#define CHVGPIO_PAD_CFG1_INTWAKECFG_FALLING	0x00000001
++#define CHVGPIO_PAD_CFG1_INTWAKECFG_RISING	0x00000002
++#define CHVGPIO_PAD_CFG1_INTWAKECFG_BOTH	0x00000003
++#define CHVGPIO_PAD_CFG1_INTWAKECFG_LEVEL	0x00000004
++#define CHVGPIO_PAD_CFG1_INVRXTX_MASK		0x000000f0
++#define CHVGPIO_PAD_CFG1_INVRXTX_RXDATA		0x00000040
++
++/*
++ * The pads for the pins are arranged in groups of maximal 15 pins.
++ * The arrays below give the number of pins per group, such that we
++ * can validate the (untrusted) pin numbers from ACPI.
++ */
++#define	E_UID		3
++#define	E_BANK_PREFIX	"eastbank"
++
++const int chv_east_pins[] = {
++	12, 12, -1
++};
++
++const char *chv_east_pin_names[] = {
++		"PMU_SLP_S3_B",
++		"PMU_BATLOW_B",
++		"SUS_STAT_B",
++		"PMU_SLP_S0IX_B",
++		"PMU_AC_PRESENT",
++		"PMU_PLTRST_B",
++		"PMU_SUSCLK",
++		"PMU_SLP_LAN_B",
++		"PMU_PWRBTN_B",
++		"PMU_SLP_S4_B",
++		"PMU_WAKE_B",
++		"PMU_WAKE_LAN_B"
++
++		"MF_ISH_GPIO_3",
++		"MF_ISH_GPIO_7",
++		"MF_ISH_I2C1_SCL",
++		"MF_ISH_GPIO_1",
++		"MF_ISH_GPIO_5",
++		"MF_ISH_GPIO_9",
++		"MF_ISH_GPIO_0",
++		"MF_ISH_GPIO_4",
++		"MF_ISH_GPIO_8",
++		"MF_ISH_GPIO_2",
++		"MF_ISH_GPIO_6",
++		"MF_ISH_I2C1_SDA"
++};
++
++#define	N_UID		2
++#define	N_BANK_PREFIX	"northbank"
++
++const int chv_north_pins[] = {
++	9, 13, 12, 12, 13, -1
++};
++
++const char *chv_north_pin_names[] = {
++	"GPIO_DFX0_PAD",
++	"GPIO_DFX3_PAD",
++	"GPIO_DFX7_PAD",
++	"GPIO_DFX1_PAD",
++	"GPIO_DFX5_PAD",
++	"GPIO_DFX4_PAD",
++	"GPIO_DFX8_PAD",
++	"GPIO_DFX2_PAD",
++	"GPIO_DFX6_PAD",
++
++	"GPIO_SUS0_PAD",
++	"SEC_GPIO_SUS10_PAD",
++	"GPIO_SUS3_PAD",
++	"GPIO_SUS7_PAD",
++	"GPIO_SUS1_PAD",
++	"GPIO_SUS5_PAD",
++	"SEC_GPIO_SUS11_PAD",
++	"GPIO_SUS4_PAD",
++	"SEC_GPIO_SUS8_PAD",
++	"GPIO_SUS2_PAD",
++	"GPIO_SUS6_PAD",
++	"CX_PREQ_B_PAD",
++	"SEC_GPIO_SUS9_PAD",
++
++	"TRST_B_PAD",
++	"TCK_PAD",
++	"PROCHOT_B_PAD",
++	"SVID0_DATA_PAD",
++	"TMS_PAD",
++	"CX_PRDY_B_2_PAD",
++	"TDO_2_PAD",
++	"CX_PRDY_B_PAD",
++	"SVID0_ALERT_B_PAD",
++	"TDO_PAD",
++	"SVID0_CLK_PAD",
++	"TDI_PAD",
++
++	"GP_CAMERASB05_PAD",
++	"GP_CAMERASB02_PAD",
++	"GP_CAMERASB08_PAD",
++	"GP_CAMERASB00_PAD",
++	"GP_CAMERASB06_PAD",
++	"GP_CAMERASB10_PAD",
++	"GP_CAMERASB03_PAD",
++	"GP_CAMERASB09_PAD",
++	"GP_CAMERASB01_PAD",
++	"GP_CAMERASB07_PAD",
++	"GP_CAMERASB11_PAD",
++	"GP_CAMERASB04_PAD",
++
++	"PANEL0_BKLTEN_PAD",
++	"HV_DDI0_HPD_PAD",
++	"HV_DDI2_DDC_SDA_PAD",
++	"PANEL1_BKLTCTL_PAD",
++	"HV_DDI1_HPD_PAD",
++	"PANEL0_BKLTCTL_PAD",
++	"HV_DDI0_DDC_SDA_PAD",
++	"HV_DDI2_DDC_SCL_PAD",
++	"HV_DDI2_HPD_PAD",
++	"PANEL1_VDDEN_PAD",
++	"PANEL1_BKLTEN_PAD",
++	"HV_DDI0_DDC_SCL_PAD",
++	"PANEL0_VDDEN_PAD",
++};
++
++
++#define	SE_UID		4
++#define	SE_BANK_PREFIX	"southeastbank"
++
++const int chv_southeast_pins[] = {
++	8, 12, 6, 8, 10, 11, -1
++};
++
++const char *chv_southeast_pin_names[] = {
++	"MF_PLT_CLK0_PAD",
++	"PWM1_PAD",
++	"MF_PLT_CLK1_PAD",
++	"MF_PLT_CLK4_PAD",
++	"MF_PLT_CLK3_PAD",
++	"PWM0_PAD",
++	"MF_PLT_CLK5_PAD",
++	"MF_PLT_CLK2_PAD",
++
++	"SDMMC2_D3_CD_B_PAD",
++	"SDMMC1_CLK_PAD",
++	"SDMMC1_D0_PAD",
++	"SDMMC2_D1_PAD",
++	"SDMMC2_CLK_PAD",
++	"SDMMC1_D2_PAD",
++	"SDMMC2_D2_PAD",
++	"SDMMC2_CMD_PAD",
++	"SDMMC1_CMD_PAD",
++	"SDMMC1_D1_PAD",
++	"SDMMC2_D0_PAD",
++	"SDMMC1_D3_CD_B_PAD",
++
++	"SDMMC3_D1_PAD",
++	"SDMMC3_CLK_PAD",
++	"SDMMC3_D3_PAD",
++	"SDMMC3_D2_PAD",
++	"SDMMC3_CMD_PAD",
++	"SDMMC3_D0_PAD",
++
++	"MF_LPC_AD2_PAD",
++	"LPC_CLKRUNB_PAD",
++	"MF_LPC_AD0_PAD",
++	"LPC_FRAMEB_PAD",
++	"MF_LPC_CLKOUT1_PAD",
++	"MF_LPC_AD3_PAD",
++	"MF_LPC_CLKOUT0_PAD",
++	"MF_LPC_AD1_PAD",
++
++	"SPI1_MISO_PAD",
++	"SPI1_CS0_B_PAD",
++	"SPI1_CLK_PAD",
++	"MMC1_D6_PAD",
++	"SPI1_MOSI_PAD",
++	"MMC1_D5_PAD",
++	"SPI1_CS1_B_PAD",
++	"MMC1_D4_SD_WE_PAD",
++	"MMC1_D7_PAD",
++	"MMC1_RCLK_PAD",
++
++	"USB_OC1_B_PAD",
++	"PMU_RESETBUTTON_B_PAD",
++	"GPIO_ALERT_PAD",
++	"SDMMC3_PWR_EN_B_PAD",
++	"ILB_SERIRQ_PAD",
++	"USB_OC0_B_PAD",
++	"SDMMC3_CD_B_PAD",
++	"SPKR_PAD",
++	"SUSPWRDNACK_PAD",
++	"SPARE_PIN_PAD",
++	"SDMMC3_1P8_EN_PAD",
++};
++
++#define	SW_UID		1
++#define	SW_BANK_PREFIX	"southwestbank"
++
++const int chv_southwest_pins[] = {
++	8, 8, 8, 8, 8, 8, 8, -1
++};
++
++const char *chv_southwest_pin_names[] = {
++	"FST_SPI_D2_PAD",
++	"FST_SPI_D0_PAD",
++	"FST_SPI_CLK_PAD",
++	"FST_SPI_D3_PAD",
++	"FST_SPI_CS1_B_PAD",
++	"FST_SPI_D1_PAD",
++	"FST_SPI_CS0_B_PAD",
++	"FST_SPI_CS2_B_PAD",
++
++	"UART1_RTS_B_PAD",
++	"UART1_RXD_PAD",
++	"UART2_RXD_PAD",
++	"UART1_CTS_B_PAD",
++	"UART2_RTS_B_PAD",
++	"UART1_TXD_PAD",
++	"UART2_TXD_PAD",
++	"UART2_CTS_B_PAD",
++
++	"MF_HDA_CLK"
++	"MF_HDA_RSTB",
++	"MF_HDA_SDIO",
++	"MF_HDA_SDO",
++	"MF_HDA_DOCKRSTB",
++	"MF_HDA_SYNC",
++	"MF_HDA_SDI1",
++	"MF_HDA_DOCKENB",
++
++	"I2C5_SDA_PAD",
++	"I2C4_SDA_PAD",
++	"I2C6_SDA_PAD",
++	"I2C5_SCL_PAD",
++	"I2C_NFC_SDA_PAD",
++	"I2C4_SCL_PAD",
++	"I2C6_SCL_PAD",
++	"I2C_NFC_SCL_PAD",
++
++	"I2C1_SDA_PAD",
++	"I2C0_SDA_PAD",
++	"I2C2_SDA_PAD",
++	"I2C1_SCL_PAD",
++	"I2C3_SDA_PAD",
++	"I2C0_SCL_PAD",
++	"I2C2_SCL_PAD",
++	"I2C3_SCL_PAD",
++
++	"SATA_GP0",
++	"SATA_GP1",
++	"SATA_LEDN",
++	"SATA_GP2",
++	"MF_SMB_ALERTB",
++	"SATA_GP3",
++	"MF_SMB_CLK",
++	"MF_SMB_DATA",
++
++	"PCIE_CLKREQ0B_PAD",
++	"PCIE_CLKREQ1B_PAD",
++	"GP_SSP_2_CLK_PAD",
++	"PCIE_CLKREQ2B_PAD",
++	"GP_SSP_2_RXD_PAD",
++	"PCIE_CLKREQ3B_PAD",
++	"GP_SSP_2_FS_PAD",
++	"GP_SSP_2_TXD_PAD",
++};
++
++const char *virtualgpio[] = {
++	"VIRTUAL0_PAD",
++	"VIRTUAL1_PAD",
++	"VIRTUAL2_PAD",
++	"VIRTUAL3_PAD",
++	"VIRTUAL4_PAD",
++	"VIRTUAL5_PAD",
++	"VIRTUAL6_PAD",
++	"VIRTUAL7_PAD",
++};
+diff --git a/sys/modules/Makefile b/sys/modules/Makefile
+index 7d90d5ab444..bdf93a91294 100644
+--- a/sys/modules/Makefile
++++ b/sys/modules/Makefile
+@@ -73,6 +73,7 @@ SUBDIR=	\
+ 	bwn \
+ 	bwn_pci \
+ 	${_bytgpio} \
++	${_chvgpio} \
+ 	cam \
+ 	${_cardbus} \
+ 	${_carp} \
+@@ -636,6 +637,7 @@ _amdtemp=	amdtemp
+ _arcmsr=	arcmsr
+ _asmc=		asmc
+ _bytgpio=	bytgpio
++_chvgpio=	chvgpio
+ _ciss=		ciss
+ _chromebook_platform=	chromebook_platform
+ _cmx=		cmx
+diff --git a/sys/modules/chvgpio/Makefile b/sys/modules/chvgpio/Makefile
+new file mode 100644
+index 00000000000..063c6b334aa
+--- /dev/null
++++ b/sys/modules/chvgpio/Makefile
+@@ -0,0 +1,8 @@
++# $FreeBSD$
++
++.PATH:	${SRCTOP}/sys/dev/gpio
++KMOD=	chvgpio
++SRCS=	chvgpio.c
++SRCS+=	acpi_if.h device_if.h bus_if.h gpio_if.h opt_acpi.h opt_platform.h
++
++.include <bsd.kmod.mk>
