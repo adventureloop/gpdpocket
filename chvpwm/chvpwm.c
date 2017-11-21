@@ -148,6 +148,9 @@ chvpwm_sysctl_freq(SYSCTL_HANDLER_ARGS)
 static char *chvpwm_hids[] = {
 	"80862288",
 	"80862289",
+
+"80860F09",
+"80865AC8"
 	NULL
 };
 
