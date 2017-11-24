@@ -75,7 +75,7 @@
 #define CHVGPIO_UNLOCK(_sc)             mtx_unlock_spin(&(_sc)->sc_mtx)
 #define CHVGPIO_LOCK_INIT(_sc) \
 	mtx_init(&_sc->sc_mtx, device_get_nameunit((_sc)->sc_dev), \
-	"chvgpio", MTX_SPIN)                      
+	"chvgpio", MTX_SPIN)
 #define CHVGPIO_LOCK_DESTROY(_sc)       mtx_destroy(&(_sc)->sc_mtx)
 #define CHVGPIO_ASSERT_LOCKED(_sc)      mtx_assert(&(_sc)->sc_mtx, MA_OWNED)
 #define CHVGPIO_ASSERT_UNLOCKED(_sc) 	mtx_assert(&(_sc)->sc_mtx, MA_NOTOWNED)
@@ -130,13 +130,6 @@ chvgpio_read_pad_cfg1(struct chvgpio_softc *sc, int pin)
 	return bus_read_4(sc->sc_mem_res, chvgpio_pad_cfg0_offset(pin) + 4);
 }
 
-#if 0
-static inline void
-chvgpio_write_pad_cfg1(struct chvgpio_softc *sc, int pin, uint32_t val)
-{
-	bus_write_4(sc->sc_mem_res, chvgpio_pad_cfg0_offset(pin) + 4, val);
-}
-#endif
 static device_t
 chvgpio_get_bus(device_t dev)
 {
@@ -147,7 +140,7 @@ chvgpio_get_bus(device_t dev)
 	return (sc->sc_busdev);
 }
 
-static int 
+static int
 chvgpio_pin_max(device_t dev, int *maxpin)
 {
 	struct chvgpio_softc *sc;
@@ -171,7 +164,7 @@ chvgpio_valid_pin(struct chvgpio_softc *sc, int pin)
 	return (0);
 }
 
-static int 
+static int
 chvgpio_pin_getname(device_t dev, uint32_t pin, char *name)
 {
 	struct chvgpio_softc *sc;
@@ -186,7 +179,7 @@ chvgpio_pin_getname(device_t dev, uint32_t pin, char *name)
 	return (0);
 }
 
-static int 
+static int
 chvgpio_pin_getcaps(device_t dev, uint32_t pin, uint32_t *caps)
 {
 	struct chvgpio_softc *sc;
@@ -196,14 +189,12 @@ chvgpio_pin_getcaps(device_t dev, uint32_t pin, uint32_t *caps)
 		return (EINVAL);
 
 	*caps = 0;
-	if (chvgpio_valid_pin(sc, pin)) this is probably wrong
+	if (chvgpio_valid_pin(sc, pin))
 		*caps = GPIO_PIN_INPUT | GPIO_PIN_OUTPUT;
 
 	return (0);
 }
 
-
-what is the difference between caps and flags?
 static int
 chvgpio_pin_getflags(device_t dev, uint32_t pin, uint32_t *flags)
 {
@@ -220,15 +211,14 @@ chvgpio_pin_getflags(device_t dev, uint32_t pin, uint32_t *flags)
 	CHVGPIO_LOCK(sc);
 	val = chvgpio_read_pad_cfg0(sc, pin);
 
-	if (val & CHVGPIO_PAD_CFG0_GPIOCFG_GPIO || 
+	if (val & CHVGPIO_PAD_CFG0_GPIOCFG_GPIO ||
 		val & CHVGPIO_PAD_CFG0_GPIOCFG_GPO)
 		*flags |= GPIO_PIN_OUTPUT;
 
-	if (val & CHVGPIO_PAD_CFG0_GPIOCFG_GPIO || 
+	if (val & CHVGPIO_PAD_CFG0_GPIOCFG_GPIO ||
 		val & CHVGPIO_PAD_CFG0_GPIOCFG_GPI)
 		*flags |= GPIO_PIN_INPUT;
 
-	add flags found from cfg1 (the interupt capabilities)
 	val = chvgpio_read_pad_cfg1(sc, pin);
 
 	CHVGPIO_UNLOCK(sc);
@@ -248,13 +238,13 @@ chvgpio_pin_setflags(device_t dev, uint32_t pin, uint32_t flags)
 
 	allowed = GPIO_PIN_INPUT | GPIO_PIN_OUTPUT;
 
-	/* 
+	/*
 	 * Only direction flag allowed
 	 */
 	if (flags & ~allowed)
 		return (EINVAL);
 
-	/* 
+	/*
 	 * Not both directions simultaneously
 	 */
 	if ((flags & allowed) == allowed)
@@ -403,14 +393,14 @@ chvgpio_attach(device_t dev)
 		device_printf(dev, "invalid _UID value: %d\n", uid);
 		return (ENXIO);
 	}
-	
+
 	for (i = 0; sc->sc_pins[i] >= 0; i++) {
 		sc->sc_npins += sc->sc_pins[i];
 		sc->sc_ngroups++;
 	}
 
 	sc->sc_mem_rid = 0;
-	sc->sc_mem_res = bus_alloc_resource_any(sc->sc_dev, SYS_RES_MEMORY, 
+	sc->sc_mem_res = bus_alloc_resource_any(sc->sc_dev, SYS_RES_MEMORY,
 		&sc->sc_mem_rid, RF_ACTIVE);
 	if (sc->sc_mem_res == NULL) {
 		CHVGPIO_LOCK_DESTROY(sc);
@@ -418,12 +408,12 @@ chvgpio_attach(device_t dev)
 		return (ENOMEM);
 	}
 
-	sc->sc_irq_res = bus_alloc_resource_any(dev, SYS_RES_IRQ, 
+	sc->sc_irq_res = bus_alloc_resource_any(dev, SYS_RES_IRQ,
 		&sc->sc_irq_rid, RF_ACTIVE);
 
 	if (!sc->sc_irq_res) {
 		CHVGPIO_LOCK_DESTROY(sc);
-		bus_release_resource(dev, SYS_RES_MEMORY, 
+		bus_release_resource(dev, SYS_RES_MEMORY,
 			sc->sc_mem_rid, sc->sc_mem_res);
 		device_printf(dev, "can't allocate irq resource\n");
 		return (ENOMEM);
@@ -436,9 +426,9 @@ chvgpio_attach(device_t dev)
 	if (error) {
 		device_printf(sc->sc_dev, "unable to setup irq: error %d\n", error);
 		CHVGPIO_LOCK_DESTROY(sc);
-		bus_release_resource(dev, SYS_RES_MEMORY, 
+		bus_release_resource(dev, SYS_RES_MEMORY,
 			sc->sc_mem_rid, sc->sc_mem_res);
-		bus_release_resource(dev, SYS_RES_IRQ, 
+		bus_release_resource(dev, SYS_RES_IRQ,
 			sc->sc_irq_rid, sc->sc_irq_res);
 		return (ENXIO);
 	}
@@ -450,9 +440,9 @@ chvgpio_attach(device_t dev)
 	sc->sc_busdev = gpiobus_attach_bus(dev);
 	if (sc->sc_busdev == NULL) {
 		CHVGPIO_LOCK_DESTROY(sc);
-		bus_release_resource(dev, SYS_RES_MEMORY, 
+		bus_release_resource(dev, SYS_RES_MEMORY,
 			sc->sc_mem_rid, sc->sc_mem_res);
-		bus_release_resource(dev, SYS_RES_IRQ, 
+		bus_release_resource(dev, SYS_RES_IRQ,
 			sc->sc_irq_rid, sc->sc_irq_res);
 		return (ENXIO);
 	}
@@ -480,7 +470,7 @@ chvgpio_detach(device_t dev)
 {
 	struct chvgpio_softc *sc;
 	sc = device_get_softc(dev);
-	
+
 	if (sc->sc_busdev)
 		gpiobus_detach_bus(dev);
 
@@ -512,7 +502,7 @@ static device_method_t chvgpio_methods[] = {
 	DEVMETHOD(gpio_pin_set, 	chvgpio_pin_set),
 	DEVMETHOD(gpio_pin_toggle, 	chvgpio_pin_toggle),
 
-    	DEVMETHOD_END
+	DEVMETHOD_END
 };
 
 static driver_t chvgpio_driver = {
