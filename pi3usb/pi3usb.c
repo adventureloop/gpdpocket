@@ -45,7 +45,7 @@ struct pi3usb_softc {
 	uint8_t				sc_addr;
 };
 
-#define PI3USB_SADDR	0xA4 // datasheet disagrees with acpi
+#define PI3USB_SADDR	0x54 // datasheet disagrees with acpi
 
 static int pi3usb_probe(device_t);
 static int pi3usb_attach(device_t);
