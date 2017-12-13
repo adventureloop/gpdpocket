@@ -98,7 +98,7 @@ pi3usb_attach(device_t dev)
 	uint8_t config = 0;
 
 	sc->sc_dev = dev;
-	sc->sc_addr = PI3USB_SADDR;
+	sc->sc_addr = PI3USB_SADDR << 1;
 
 	if ((rv = pi3usb_read(dev, &config)) != 0)	
 		device_printf(dev, "read config failed rv: %d errno: %d\n", rv, iic2errno(rv));
