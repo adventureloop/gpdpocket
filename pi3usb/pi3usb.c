@@ -33,6 +33,7 @@
 #include <sys/module.h>
 #include <sys/endian.h>
 #include <sys/rman.h>
+#include <sys/sysctl.h>
 
 #include <machine/bus.h>
 #include <machine/resource.h>
@@ -43,15 +44,43 @@
 struct pi3usb_softc {
 	device_t			sc_dev;
 	uint8_t				sc_addr;
+	uint8_t				sc_config;
+
 };
 
 #define PI3USB_SADDR	0x54 // datasheet disagrees with acpi
+
+#define PI3USB_CFG_OPEN	0x00
+#define PI3USB_CFG_4DPI	0x02
+#define PI3USB_CFG_4DPIS	0x03
+#define PI3USB_CFG_USB3	0x04
+#define PI3USB_CFG_USB3S	0x05
+#define PI3USB_CFG_USB32DPI	0x06
+#define PI3USB_CFG_USB32DPIS	0x07
+
+#define	CAST_PTR_INT(X) (*((int*)(X)))
 
 static int pi3usb_probe(device_t);
 static int pi3usb_attach(device_t);
 static int pi3usb_detach(device_t);
 static int pi3usb_read(device_t, uint8_t *);
 static int pi3usb_write(device_t, uint8_t);
+
+#if 0
+static int
+pi3usb_sysctl(SYSCTL_HANDLER_ARGS)
+{
+	struct pi3usb_softc *sc;
+
+	sc = (struct pi3usb_softc *)arg1;
+
+	if (req->newptr != NULL && CAST_PTR_INT(req->newptr) > 7)
+		return (EINVAL);
+
+	device_printf(sc->sc_dev, "debug req val %d\n", CAST_PTR_INT(req->newptr));
+	return (sysctl_handle_int(oidp, arg1, arg2, req));
+}
+#endif
 
 static int
 pi3usb_probe(device_t dev)
@@ -64,7 +93,6 @@ pi3usb_probe(device_t dev)
 static int
 pi3usb_attach(device_t dev)
 {
-	device_printf(dev, "attach\n");
 	struct pi3usb_softc *sc = device_get_softc(dev);
 	int rv; 
 	uint8_t config = 0;
@@ -73,9 +101,11 @@ pi3usb_attach(device_t dev)
 	sc->sc_addr = PI3USB_SADDR;
 
 	if ((rv = pi3usb_read(dev, &config)) != 0)	
-		device_printf(dev, "read config failed: %d %d\n", rv, iic2errno(rv));
-	else
-		device_printf(dev, "config: %x\n", rv);
+		device_printf(dev, "read config failed rv: %d errno: %d\n", rv, iic2errno(rv));
+	else {
+		device_printf(dev, "default config: %x\n", config);
+		sc->sc_config = config;
+	}
 
 	return (0);
 }
