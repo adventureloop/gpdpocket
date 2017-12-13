@@ -123,7 +123,7 @@ chvpower_attach(device_t dev)
 
     parent = device_get_parent(dev);
 
-#define MAX170XX 0
+#define MAX170XX 1
 #if MAX170XX
 	/* 
 	 * The String in the child acpi is missing an underscore (\_SB. vs \/_SB_)
@@ -175,7 +175,7 @@ chvpower_attach(device_t dev)
 			device_printf(dev, "failed to add child fusb3\n");
 	}
 #endif
-#define PI3USB 1
+#define PI3USB 0
 #if PI3USB
 	/* 
 	 * The String in the child acpi is missing an underscore (\_SB. vs \/_SB_)
