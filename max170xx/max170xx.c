@@ -76,7 +76,7 @@ max170xx_attach(device_t dev)
 	int rv;
 
 	sc->sc_dev = dev;
-	sc->sc_addr = MAX170xx_SADDR;
+	sc->sc_addr = MAX170xx_SADDR << 1;
 
 	uint16_t status = 0;
 	uint16_t temp = 0;
