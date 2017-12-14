@@ -67,6 +67,20 @@ static int max170xx_write(device_t, uint8_t, uint16_t );
 
 static void max170xx_dumpreg(device_t);
 
+static int
+max170xx_remaining(device_t dev)
+{
+	uint16_t socvf = 0;
+	
+	max170xx_read(dev, MAX170xx_SOCVF, &socvf);
+
+//	remain = (socvf >> 8);
+//	remain = ((uint32_t)remain * 100) / 0xFF;
+//	remain = ( ((socvf >> 8) * 100) + (((socvf & 0x00FF) *100)/256) )/1000;
+
+	return ( ((socvf >> 8) * 100) + (((socvf & 0x00FF) *100)/256) )/1000;
+}
+
 void 
 max170xx_dumpreg(device_t dev) 
 {
@@ -123,11 +137,7 @@ max170xx_dumpreg(device_t dev)
 		"\016BR"
 	);
 
-	remain = (socvf >> 8);
-	remain = ((uint32_t)remain * 100) / 0xFF;
-
-	remain = ( ((socvf >> 8) * 100) + (((socvf & 0x00FF) *100)/256) )/1000;
-
+	remain = max170xx_remaining(dev);	
 	device_printf(dev, "battery %d%%\n", remain);
 }
 
@@ -211,21 +221,21 @@ max170xx_write(device_t dev, uint8_t reg, uint16_t val)
 }
 
 static int
-max170xx_get_bif(device_t dev, struct acpi_bif *bifp)
+max170xx_get_bif(device_t dev, struct acpi_bif *bif)
 {
     struct max170xx_softc *sc;
 
     sc = device_get_softc(dev);
 
-    bifp->units = ACPI_BIF_UNITS_MA;	//ACPI_BIF_UNITS_MW
-    bifp->dcap = 0;		//design cap
-    bifp->lfcap = 0;	//last full cap
-    bifp->btech = 0;	//battery technology
-    bifp->dvol = 0;		//design voltage
-    bifp->wcap = 0;		//warn cap
-    bifp->lcap = 0;		// low cap
-    bifp->gra1 = 0;		//granularity 1 (warn to low)
-    bifp->gra2 = 0;		//granularity 1 (full to warn)
+    bif->units = ACPI_BIF_UNITS_MA;	//ACPI_BIF_UNITS_MW
+    bif->dcap = 0;		//design cap
+    bif->lfcap = 0;	//last full cap
+    bif->btech = 0;	//battery technology
+    bif->dvol = 0;		//design voltage
+    bif->wcap = 0;		//warn cap
+    bif->lcap = 0;		// low cap
+    bif->gra1 = 0;		//granularity 1 (warn to low)
+    bif->gra2 = 0;		//granularity 1 (full to warn)
 /*
     strncpy(bifp->model, sc->bif.model, sizeof(sc->bif.model));
     strncpy(bifp->serial, sc->bif.serial, sizeof(sc->bif.serial));
@@ -236,16 +246,16 @@ max170xx_get_bif(device_t dev, struct acpi_bif *bifp)
 }
 
 static int
-max170xx_get_bst(device_t dev, struct acpi_bst *bstp)
+max170xx_get_bst(device_t dev, struct acpi_bst *bst)
 {
     struct acpi_cmbat_softc *sc;
 
     sc = device_get_softc(dev);
 
-    bstp->state = ACPI_BATT_STAT_NOT_PRESENT;
-	bstp->rate = 0;
-	bstp->cap = 0;
-	bstp->volt = 0;
+    bst->state = ACPI_BATT_STAT_NOT_PRESENT;
+	bst->rate = 0;
+	bst->cap = max170xx_remaining(dev);
+	bst->volt = 0;
 
     return (0);
 }
