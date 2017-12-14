@@ -40,6 +40,11 @@
 #include <dev/iicbus/iicbus.h>
 #include <dev/iicbus/iiconf.h>
 
+#include <contrib/dev/acpica/include/acpi.h>
+
+#include <dev/acpica/acpivar.h>
+#include <dev/acpica/acpiio.h>
+
 struct max170xx_softc {
 	device_t			sc_dev;
 	uint8_t				sc_addr;
@@ -206,39 +211,64 @@ max170xx_write(device_t dev, uint8_t reg, uint16_t val)
 }
 
 static int
-max170xx_driver_loaded(struct module *m, int what, void *arg)
+max170xx_get_bif(device_t dev, struct acpi_bif *bifp)
 {
-	int err = 0;
+    struct max170xx_softc *sc;
 
-	switch (what) {
-	case MOD_LOAD:
-		uprintf("max170xx fuel guage KLD loaded.\n");
-		break;
-	case MOD_UNLOAD:
-		uprintf("max170xx fuel guage KLD unloaded.\n");
-		break;
-	default:
-		err = EOPNOTSUPP;
-		break;
-	}
-	return(err);
+    sc = device_get_softc(dev);
+
+    bifp->units = ACPI_BIF_UNITS_MA;	//ACPI_BIF_UNITS_MW
+    bifp->dcap = 0;		//design cap
+    bifp->lfcap = 0;	//last full cap
+    bifp->btech = 0;	//battery technology
+    bifp->dvol = 0;		//design voltage
+    bifp->wcap = 0;		//warn cap
+    bifp->lcap = 0;		// low cap
+    bifp->gra1 = 0;		//granularity 1 (warn to low)
+    bifp->gra2 = 0;		//granularity 1 (full to warn)
+/*
+    strncpy(bifp->model, sc->bif.model, sizeof(sc->bif.model));
+    strncpy(bifp->serial, sc->bif.serial, sizeof(sc->bif.serial));
+    strncpy(bifp->type, sc->bif.type, sizeof(sc->bif.type));
+    strncpy(bifp->oeminfo, sc->bif.oeminfo, sizeof(sc->bif.oeminfo));
+*/
+    return (0);
+}
+
+static int
+max170xx_get_bst(device_t dev, struct acpi_bst *bstp)
+{
+    struct acpi_cmbat_softc *sc;
+
+    sc = device_get_softc(dev);
+
+    bstp->state = ACPI_BATT_STAT_NOT_PRESENT;
+	bstp->rate = 0;
+	bstp->cap = 0;
+	bstp->volt = 0;
+
+    return (0);
 }
 
 static device_method_t max170xx_methods[] = {
 	DEVMETHOD(device_probe,		max170xx_probe),
 	DEVMETHOD(device_attach,	max170xx_attach),
 	DEVMETHOD(device_detach,	max170xx_detach),
+
+	/* ACPI battery interface */                        
+	DEVMETHOD(acpi_batt_get_status, max170xx_get_bst),
+	DEVMETHOD(acpi_batt_get_info, max170xx_get_bif),  
 	DEVMETHOD_END
 };
 
 static driver_t max170xx_driver = {
-	.name = "max170xx",
+	.name = "battery",
 	.methods = max170xx_methods,
 	.size = sizeof(struct max170xx_softc)
 };
 
 static devclass_t max170xx_devclass;
-DRIVER_MODULE(max170xx, iicbus, max170xx_driver, max170xx_devclass, max170xx_driver_loaded, NULL);
+DRIVER_MODULE(max170xx, iicbus, max170xx_driver, max170xx_devclass, NULL , NULL);
 
 MODULE_DEPEND(max170xx, iicbus, IICBUS_MINVER, IICBUS_PREFVER, IICBUS_MAXVER);
 MODULE_VERSION(max170xx, 1);
