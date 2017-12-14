@@ -50,7 +50,7 @@ struct max170xx_softc {
 #define	MAX170xx_STATUS	0x00
 #define	MAX170xx_TEMP	0x08
 #define MAX170xx_SOCAV	0x0E	//state of charge
-#define	MAX170xx_TTE	0x11
+#define	MAX170xx_TTE	0x11	//time to empty
 #define	MAX170xx_CONFIG 0x1D
 #define	MAX170xx_SOCVF	0xFF	//State Of Charge
 
@@ -78,13 +78,14 @@ max170xx_attach(device_t dev)
 	sc->sc_dev = dev;
 	sc->sc_addr = MAX170xx_SADDR << 1;
 
-	uint16_t status = 0;
-	uint16_t temp = 0;
-	uint16_t tte = 0;
-	uint16_t config = 0;
-	uint16_t socvf = 0;
-	uint16_t socav = 0;
-	uint8_t remain = 0;
+	uint16_t status = 0;	//POR 0x0002
+	uint16_t temp = 0;		//POR 0x1600
+	uint16_t tte = 0;		//POR 0x0000
+	uint16_t config = 0;	//POR 0x2530
+	uint16_t socvf = 0;		//POR 0x0000
+	uint16_t socav = 0;		//POR 0x3200
+
+	uint8_t remain = 0;		
 
 	rv = max170xx_read(dev, MAX170xx_STATUS, &status);
 	if ( rv != 0) {
