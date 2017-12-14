@@ -60,6 +60,72 @@ static int max170xx_detach(device_t);
 static int max170xx_read(device_t, uint8_t, uint16_t *);
 static int max170xx_write(device_t, uint8_t, uint16_t );
 
+static void max170xx_dumpreg(device_t);
+
+void 
+max170xx_dumpreg(device_t dev) 
+{
+	uint16_t status = 0;	//POR 0x0002
+	uint16_t temp = 0;		//POR 0x1600
+	uint16_t tte = 0;		//POR 0x0000
+	uint16_t config = 0;	//POR 0x2530
+	uint16_t socvf = 0;		//POR 0x0000
+	uint16_t socav = 0;		//POR 0x3200
+
+	uint8_t remain = 0;		
+
+	max170xx_read(dev, MAX170xx_STATUS, &status);
+	max170xx_read(dev, MAX170xx_TEMP, &temp);
+	max170xx_read(dev, MAX170xx_SOCAV, &socav);
+	max170xx_read(dev, MAX170xx_TTE, &tte);
+	max170xx_read(dev, MAX170xx_CONFIG, &config);
+	max170xx_read(dev, MAX170xx_SOCVF, &socvf);
+
+	device_printf(dev, "fuel guage read: STATUS: %x TEMP: %x SOCKAV: %x "
+		"TTE: %x CONFIG: %x SOCVF: %x\n", 
+		status, temp, socav, tte, config, socvf);
+
+	device_printf(dev, "\tstatus %b\n", status,
+		"\10"
+		"\001BER"	// Enable alert on battery removal
+		"\002BEI" 	//Enable alert on battery insertion
+		"\003AEN"	//Alert on fuel guage outputs
+		"\004FTHRM"	//force thermistor bias switch
+		"\005ETHRM"
+		"\006ALSH"
+		"\007I2CSH"
+		"\008SHDN"
+		"\009TEX"
+		"\010TEN"
+		"\011AINSH"
+		"\012ALRTp"
+		"\013VS"
+		"\014TS"
+		"\015SS"
+	);
+
+	device_printf(dev, "\tconfig %b\n", config,
+		"\10"
+		"\002POR"
+		"\004BST"
+		"\009VMN"
+		"\010TMN"
+		"\011SMN"
+		"\012BI"
+		"\013VMX"
+		"\014TMX"
+		"\015SMX"
+		"\016BR"
+	);
+
+	remain = (socvf >> 8);
+	remain = ((uint32_t)remain * 100) / 0xFF;
+
+	remain = ( ((socvf >> 8) * 100) + (((socvf & 0x00FF) *100)/256) )/1000;
+
+	device_printf(dev, "battery %d%%\n", remain);
+}
+
 static int
 max170xx_probe(device_t dev)
 {
@@ -79,33 +145,13 @@ max170xx_attach(device_t dev)
 	sc->sc_addr = MAX170xx_SADDR << 1;
 
 	uint16_t status = 0;	//POR 0x0002
-	uint16_t temp = 0;		//POR 0x1600
-	uint16_t tte = 0;		//POR 0x0000
-	uint16_t config = 0;	//POR 0x2530
-	uint16_t socvf = 0;		//POR 0x0000
-	uint16_t socav = 0;		//POR 0x3200
-
-	uint8_t remain = 0;		
-
 	rv = max170xx_read(dev, MAX170xx_STATUS, &status);
 	if ( rv != 0) {
 		device_printf(dev, "first read failed code: %d %d\n", rv, iic2errno(rv));
 		return ENXIO;
 	}
-	max170xx_read(dev, MAX170xx_TEMP, &temp);
-	max170xx_read(dev, MAX170xx_SOCAV, &socav);
-	max170xx_read(dev, MAX170xx_TTE, &tte);
-	max170xx_read(dev, MAX170xx_CONFIG, &config);
-	max170xx_read(dev, MAX170xx_SOCVF, &socvf);
 
-	device_printf(dev, "fuel guage read: STATUS: %x TEMP: %x SOCKAV: %x "
-		"TTE: %x CONFIG: %x SOCVF: %x\n", 
-		status, temp, socav, tte, config, socvf);
-
-	remain = (socvf >> 8);
-	remain = ((uint32_t)remain * 100) / 0xFF;
-
-	device_printf(dev, "battery %d%%\n", remain);
+	max170xx_dumpreg(dev);
 
 	return (0);
 }
