@@ -22,6 +22,8 @@ max170xx/bus_if.h
 max170xx/device_if.h
 max170xx/export_syms
 max170xx/iicbus_if.h
+max170xx/acpi_if.h 
+max170xx/opt_acpi.h
 max170xx/machine
 max170xx/x86
 
