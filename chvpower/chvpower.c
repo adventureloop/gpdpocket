@@ -130,7 +130,6 @@ chvpower_attach(device_t dev)
 	 * compensate for this manually, free the alloced string and replace it 
 	 * with the correct one.
 	 */
-	device_printf(dev, "loading max170xx\n");
 	free(sc->sc_iicchildren[1].resource_source, M_CHVPWR);
 	sc->sc_iicchildren[1].resource_source = "\\_SB_.PCI0.I2C1";
 
@@ -138,16 +137,14 @@ chvpower_attach(device_t dev)
 		sc->sc_iicchildren[1].resource_source);
 
 	if (iicbus != NULL) {
-		device_printf(dev, "BUS_ADD_CHILD\n");
 		device_t child = BUS_ADD_CHILD(iicbus, 0, "max170xx_acpi", -1);
 		if (child != NULL) {
 			//iicbus_set_addr(child, sc->sc_iicchildren[1].address << 1);
 			sc->sc_max170xx = child;
 			bus_generic_attach(iicbus);
-			device_printf(dev, "added max170xx child\n");
 		} else
 			device_printf(dev, "failed to add child max170xx\n");
-	}
+	} 
 #endif
 #define FUSB3 0
 #if FUSB3
