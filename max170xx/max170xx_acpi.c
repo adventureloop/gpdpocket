@@ -54,7 +54,6 @@ static int max170xx_acpi_detach(device_t);
 static int
 max170xx_acpi_probe(device_t dev)
 {
-	device_printf(dev, "probe");
 	device_set_desc(dev, "Maxim max170xx Fuel Guage");
 	return (0);
 }
@@ -62,7 +61,6 @@ max170xx_acpi_probe(device_t dev)
 static int
 max170xx_acpi_attach(device_t dev)
 {
-	device_printf(dev, "attach");
 	struct max170xx_softc *sc = device_get_softc(dev);
 	int error;
 
