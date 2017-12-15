@@ -214,19 +214,20 @@ max170xx_get_bif(device_t dev, struct acpi_bif *bif)
     sc = device_get_softc(dev);
 
     bif->units = ACPI_BIF_UNITS_MA;	//ACPI_BIF_UNITS_MW
-    bif->dcap = 0;		//design cap
-    bif->lfcap = 0;	//last full cap
-    bif->btech = 0;	//battery technology
-    bif->dvol = 0;		//design voltage
+    bif->dcap = 7000;		//design cap
+    bif->lfcap = 7000;	//last full cap
+    bif->btech = 1;	//battery technology
+    bif->dvol = 10000;		//design voltage
     bif->wcap = 0;		//warn cap
     bif->lcap = 0;		// low cap
-    bif->gra1 = 0;		//granularity 1 (warn to low)
-    bif->gra2 = 0;		//granularity 1 (full to warn)
+    bif->gra1 = 70;		//granularity 1 (warn to low)
+    bif->gra2 = 70;		//granularity 1 (full to warn)
+	// this way handy https://docs.microsoft.com/en-us/windows-hardware/design/device-experiences/acpi-battery-and-power-subsystem-firmware-implementation
 /*
-    strncpy(bifp->model, sc->bif.model, sizeof(sc->bif.model));
-    strncpy(bifp->serial, sc->bif.serial, sizeof(sc->bif.serial));
-    strncpy(bifp->type, sc->bif.type, sizeof(sc->bif.type));
-    strncpy(bifp->oeminfo, sc->bif.oeminfo, sizeof(sc->bif.oeminfo));
+    strncpy(bifp->model, sc->bif.model, sizeof(sc->bif.model));		// max17047
+    strncpy(bifp->serial, sc->bif.serial, sizeof(sc->bif.serial));	// version
+    strncpy(bifp->type, sc->bif.type, sizeof(sc->bif.type));		// can be null
+    strncpy(bifp->oeminfo, sc->bif.oeminfo, sizeof(sc->bif.oeminfo));	// can be null
 */
     return (0);
 }
@@ -245,9 +246,9 @@ max170xx_get_bst(device_t dev, struct acpi_bst *bst)
  * ACPI_BATT_STAT_NOT_PRESENT;
  */
     bst->state = ACPI_BATT_STAT_DISCHARG;
-	bst->rate = 0;
+	bst->rate = 1;
 	bst->cap = max170xx_remaining(dev);
-	bst->volt = 0;
+	bst->volt = 1;
 
     return (0);
 }
