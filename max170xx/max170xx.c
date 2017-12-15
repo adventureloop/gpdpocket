@@ -66,11 +66,6 @@ max170xx_remaining(device_t dev)
 	uint16_t socvf = 0;
 	
 	max170xx_read(dev, MAX170xx_SOCVF, &socvf);
-
-//	remain = (socvf >> 8);
-//	remain = ((uint32_t)remain * 100) / 0xFF;
-//	remain = ( ((socvf >> 8) * 100) + (((socvf & 0x00FF) *100)/256) )/1000;
-
 	return ( ((socvf >> 8) * 100) + (((socvf & 0x00FF) *100)/256) )/100;
 }
 
@@ -243,7 +238,13 @@ max170xx_get_bst(device_t dev, struct acpi_bst *bst)
 
     sc = device_get_softc(dev);
 
-    bst->state = ACPI_BATT_STAT_NOT_PRESENT;
+/* 
+ * ACPI_BATT_STAT_DISCHARG     0x0001
+ * ACPI_BATT_STAT_CHARGING     0x0002
+ * ACPI_BATT_STAT_CRITICAL     0x0004
+ * ACPI_BATT_STAT_NOT_PRESENT;
+ */
+    bst->state = ACPI_BATT_STAT_DISCHARG;
 	bst->rate = 0;
 	bst->cap = max170xx_remaining(dev);
 	bst->volt = 0;
