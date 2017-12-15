@@ -71,7 +71,7 @@ max170xx_remaining(device_t dev)
 //	remain = ((uint32_t)remain * 100) / 0xFF;
 //	remain = ( ((socvf >> 8) * 100) + (((socvf & 0x00FF) *100)/256) )/1000;
 
-	return ( ((socvf >> 8) * 100) + (((socvf & 0x00FF) *100)/256) )/1000;
+	return ( ((socvf >> 8) * 100) + (((socvf & 0x00FF) *100)/256) )/100;
 }
 
 void 
