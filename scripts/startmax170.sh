@@ -9,7 +9,7 @@ chvpower=`kldstat | grep chvpower`
 
 if [ -z "$ig4" ]
 then
-	kldunload ig4
+	kldload ig4
 fi
 
 if [ ! -z "$max170" ]
