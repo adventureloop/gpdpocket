@@ -36,13 +36,7 @@ struct max170xx_softc {
 	uint8_t				sc_addr;
 };
 
-int max170xx_attach(struct max170xx_softc *);
+int max170xx_attach(device_t);
 int max170xx_detach(device_t);
 
-/*
-static int max170xx_read(device_t, uint8_t, uint16_t *);
-static int max170xx_write(device_t, uint8_t, uint16_t );
-
-static void max170xx_dumpreg(device_t);
-*/
 #endif 	/* MAX170XX_H */

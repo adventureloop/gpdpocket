@@ -64,7 +64,9 @@ max170xx_acpi_attach(device_t dev)
 	struct max170xx_softc *sc = device_get_softc(dev);
 	int error;
 
-	error = max170xx_attach(sc);
+	sc->sc_dev = dev;
+
+	error = max170xx_attach(dev);
 	if (error)
 		max170xx_detach(dev);
 

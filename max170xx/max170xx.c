@@ -143,14 +143,14 @@ max170xx_probe(device_t dev)
 }
 
 int
-max170xx_attach(struct max170xx_softc *sc)
+max170xx_attach(device_t dev)
 {
-	//struct max170xx_softc *sc = device_get_softc(dev);
+	struct max170xx_softc *sc = device_get_softc(dev);
 	int rv;
 
-	//sc->sc_dev = dev;
-	//sc->sc_addr = MAX170xx_SADDR << 1;
-/*
+	sc->sc_dev = dev;
+	sc->sc_addr = MAX170xx_SADDR << 1;
+
 	uint16_t status = 0;	//POR 0x0002
 	rv = max170xx_read(sc->sc_dev, MAX170xx_STATUS, &status);
 	if ( rv != 0) {
@@ -159,7 +159,7 @@ max170xx_attach(struct max170xx_softc *sc)
 	}
 
 	max170xx_dumpreg(sc->sc_dev);
-*/
+
 	return (0);
 }
 
