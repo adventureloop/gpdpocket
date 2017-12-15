@@ -97,8 +97,6 @@ chvpower_probe(device_t dev)
 static int
 chvpower_attach(device_t dev)
 {
-	device_printf(dev, "chvpower attach\n");
-
     /*
      * TODO:
      * look here:
@@ -142,6 +140,11 @@ chvpower_attach(device_t dev)
 			//iicbus_set_addr(child, sc->sc_iicchildren[1].address << 1);
 			sc->sc_max170xx = child;
 			bus_generic_attach(iicbus);
+
+			if (acpi_battery_register(dev) != 0) {              
+				device_printf(dev, "cannot register battery\n");
+				return (ENXIO);                                 
+			}                                                   
 		} else
 			device_printf(dev, "failed to add child max170xx\n");
 	} 
