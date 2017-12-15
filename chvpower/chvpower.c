@@ -138,7 +138,7 @@ chvpower_attach(device_t dev)
 		sc->sc_iicchildren[1].resource_source);
 
 	if (iicbus != NULL) {
-		device_t child = BUS_ADD_CHILD(iicbus, 0, "max170xx", -1);
+		device_t child = BUS_ADD_CHILD(iicbus, 0, "max170xx_acpi", -1);
 		if (child != NULL) {
 			//iicbus_set_addr(child, sc->sc_iicchildren[1].address << 1);
 			sc->sc_max170xx = child;

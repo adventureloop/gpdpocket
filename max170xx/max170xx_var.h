@@ -27,14 +27,17 @@
 
 #ifndef MAX170XX_H
 #define MAX170XX_H
+
+#include <dev/acpica/acpivar.h>
+#include <dev/acpica/acpiio.h>
+
 struct max170xx_softc {
 	device_t			sc_dev;
 	uint8_t				sc_addr;
 };
 
-static int max170xx_probe(device_t);
-static int max170xx_attach(device_t);
-static int max170xx_detach(device_t);
+int max170xx_attach(struct max170xx_softc *);
+int max170xx_detach(device_t);
 
 /*
 static int max170xx_read(device_t, uint8_t, uint16_t *);
