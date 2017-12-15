@@ -2,8 +2,15 @@
 
 git pull
 
+
+ig4=`kldstat | grep ig4`
 max170=`kldstat | grep max170xx`
 chvpower=`kldstat | grep chvpower`
+
+if [ -z "$ig4" ]
+then
+	kldunload ig4
+fi
 
 if [ ! -z "$max170" ]
 then
