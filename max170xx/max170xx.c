@@ -45,10 +45,7 @@
 #include <dev/acpica/acpivar.h>
 #include <dev/acpica/acpiio.h>
 
-struct max170xx_softc {
-	device_t			sc_dev;
-	uint8_t				sc_addr;
-};
+#include "max170xx_var.h"
 
 #define MAX170xx_SADDR	0x36
 
@@ -59,12 +56,8 @@ struct max170xx_softc {
 #define	MAX170xx_CONFIG 0x1D
 #define	MAX170xx_SOCVF	0xFF	//State Of Charge
 
-static int max170xx_probe(device_t);
-static int max170xx_attach(device_t);
-static int max170xx_detach(device_t);
 static int max170xx_read(device_t, uint8_t, uint16_t *);
 static int max170xx_write(device_t, uint8_t, uint16_t );
-
 static void max170xx_dumpreg(device_t);
 
 static int
@@ -272,7 +265,7 @@ static device_method_t max170xx_methods[] = {
 };
 
 static driver_t max170xx_driver = {
-	.name = "not-battery",
+	.name = "battery",
 	.methods = max170xx_methods,
 	.size = sizeof(struct max170xx_softc)
 };
