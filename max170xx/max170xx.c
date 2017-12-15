@@ -145,6 +145,7 @@ max170xx_probe(device_t dev)
 int
 max170xx_attach(device_t dev)
 {
+	device_printf(dev, "attach");
 	struct max170xx_softc *sc = device_get_softc(dev);
 	int rv;
 
