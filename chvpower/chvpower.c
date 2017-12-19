@@ -49,8 +49,6 @@
 #include <dev/iicbus/iicbus.h>
 #include <dev/iicbus/iiconf.h>
 
-#include "../max170xx/max170xx_var.h"
-
 #define IIC_CHILD_MAX 4
 #define DEBUG 0
 
@@ -380,7 +378,7 @@ chvpower_get_bst(device_t dev, struct acpi_bst *bst)
 	struct chvpower_softc *sc;
 	sc = device_get_softc(dev);
 
-	return max170xx_get_bst(sc->sc_max170xx, bst);
+	return ACPI_BATT_GET_STATUS(sc->sc_max170xx, bst);
 }
 
 static int 
@@ -388,8 +386,7 @@ chvpower_get_bif(device_t dev, struct acpi_bif *bif)
 {
 	struct chvpower_softc *sc;
 	sc = device_get_softc(dev);
-
-	return max170xx_get_bif(sc->sc_max170xx, bif);
+	return ACPI_BATT_GET_INFO(sc->sc_max170xx, bif);
 }
 
 static device_method_t chvpower_methods[] = {
