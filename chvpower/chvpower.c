@@ -156,11 +156,13 @@ chvpower_attach(device_t dev)
 	batt_dc = devclass_find("battery");         
 	maxunit = devclass_get_maxunit(batt_dc);    
 
+	device_printf(dev, "maxunit %d devclass  %p\n", maxunit, batt_dc);
+
 	battdev = devclass_get_device(batt_dc, 0);      
-	device_printf(battdev, " batt dev 0\n");
+	device_printf(battdev, " batt dev 0 %p\n", battdev);
 
 	battdev = devclass_get_device(batt_dc, 1);      
-	device_printf(battdev, " batt dev 1\n");
+	device_printf(battdev, " batt dev 1 %p\n", battdev);
 
 #endif
 #define FUSB3 0
