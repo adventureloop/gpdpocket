@@ -149,7 +149,7 @@ chvpower_attach(device_t dev)
 			sc->sc_max170xx = child;
 			bus_generic_attach(iicbus);
 
-			if (acpi_battery_register(dev) != 0) {              
+			if (acpi_battery_register(dev) != 0) {	//this wrong
 				device_printf(dev, "cannot register battery\n");
 				return (ENXIO);                                 
 			}                                                   
@@ -165,6 +165,12 @@ chvpower_attach(device_t dev)
 
 	battdev = devclass_get_device(batt_dc, 1);      
 	device_printf(battdev, " batt dev 1 %p\n", battdev);
+
+	batt_dc = device_get_devclass(dev);
+	device_printf(dev, " dev classs is %s\n", devclass_get_name(batt_dc));
+
+	batt_dc = device_get_devclass(sc->sc_max170xx);
+	device_printf(sc->sc_max170xx, " dev classs is %s\n", devclass_get_name(batt_dc));
 
 #endif
 #define FUSB3 0

@@ -154,6 +154,14 @@ max170xx_attach(device_t dev)
 
 	max170xx_dumpreg(sc->sc_dev);
 
+	devclass_t maxdc;
+	maxdc = device_get_devclass(dev);
+
+	if (maxdc == NULL)
+		device_printf(dev, " dev classs is null\n");
+	else
+		device_printf(dev, " dev classs is %s\n", devclass_get_name(maxdc));
+
 	return (0);
 }
 
