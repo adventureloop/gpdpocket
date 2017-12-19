@@ -148,6 +148,19 @@ chvpower_attach(device_t dev)
 		} else
 			device_printf(dev, "failed to add child max170xx\n");
 	} 
+
+	int maxunit;                 
+	device_t battdev;                               
+	devclass_t batt_dc;                         
+											 
+	batt_dc = devclass_find("battery");         
+	maxunit = devclass_get_maxunit(batt_dc);    
+	battdev = devclass_get_device(batt_dc, maxunit-1);      
+
+	device_printf(dev, " max batt unit %d\n", maxunit);
+	device_printf(battdev, " batt dev \n");
+
+
 #endif
 #define FUSB3 0
 #if FUSB3
