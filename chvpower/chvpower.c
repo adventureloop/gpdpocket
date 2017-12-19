@@ -157,7 +157,7 @@ chvpower_attach(device_t dev)
 	maxunit = devclass_get_maxunit(batt_dc);    
 	battdev = devclass_get_device(batt_dc, maxunit-1);      
 
-	device_printf(dev, " max batt unit %d\n", maxunit);
+	device_printf(dev, " max batt unit %d devclass %p dev %p \n", maxunit, batt_dc, battdev);
 	device_printf(battdev, " batt dev \n");
 
 
