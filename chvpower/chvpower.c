@@ -127,6 +127,7 @@ chvpower_attach(device_t dev)
 											 
 	batt_dc = devclass_find("battery");         
 	maxunit = devclass_get_maxunit(batt_dc);    
+	device_printf(dev, "maxunit %d devclass  %p\n", maxunit, batt_dc);
 
 #define MAX170XX 1
 #if MAX170XX
@@ -156,9 +157,7 @@ chvpower_attach(device_t dev)
 			device_printf(dev, "failed to add child max170xx\n");
 	} 
 
-	batt_dc = devclass_find("battery");         
 	maxunit = devclass_get_maxunit(batt_dc);    
-
 	device_printf(dev, "maxunit %d devclass  %p\n", maxunit, batt_dc);
 
 	battdev = devclass_get_device(batt_dc, 0);      
