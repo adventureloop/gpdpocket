@@ -256,6 +256,7 @@ max170xx_get_bst(device_t dev, struct acpi_bst *bst)
 
 static device_method_t max170xx_methods[] = {
 	DEVMETHOD(device_probe,		max170xx_probe),
+	DEVMETHOD(device_attach,		max170xx_attach),
 
 	/* ACPI battery interface */                        
 	DEVMETHOD(acpi_batt_get_status, max170xx_get_bst),
