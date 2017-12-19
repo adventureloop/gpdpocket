@@ -132,6 +132,7 @@ max170xx_dumpreg(device_t dev)
 static int
 max170xx_probe(device_t dev)
 {
+	device_printf(dev, "probe\n");
 	device_set_desc(dev, "Maxim max170xx Fuel Guage");
 	return (0);
 }
@@ -139,6 +140,7 @@ max170xx_probe(device_t dev)
 int
 max170xx_attach(device_t dev)
 {
+	device_printf(dev, "attach\n");
 	struct max170xx_softc *sc = device_get_softc(dev);
 	int rv;
 
@@ -153,15 +155,6 @@ max170xx_attach(device_t dev)
 	}
 
 	max170xx_dumpreg(sc->sc_dev);
-
-	devclass_t maxdc;
-	maxdc = device_get_devclass(dev);
-
-	if (maxdc == NULL)
-		device_printf(dev, " dev classs is null\n");
-	else
-		device_printf(dev, " dev classs is %s\n", devclass_get_name(maxdc));
-
 	return (0);
 }
 
