@@ -49,6 +49,8 @@
 #include <dev/iicbus/iicbus.h>
 #include <dev/iicbus/iiconf.h>
 
+#include "../max170xx/max170xx_var.h"
+
 #define IIC_CHILD_MAX 4
 #define DEBUG 0
 
@@ -121,14 +123,6 @@ chvpower_attach(device_t dev)
 
     parent = device_get_parent(dev);
 
-	int maxunit;                 
-	device_t battdev;                               
-	devclass_t batt_dc;                         
-											 
-	batt_dc = devclass_find("battery");         
-	maxunit = devclass_get_maxunit(batt_dc);    
-	device_printf(dev, "maxunit %d devclass  %p\n", maxunit, batt_dc);
-
 #define MAX170XX 1
 #if MAX170XX
 	/* 
@@ -143,35 +137,20 @@ chvpower_attach(device_t dev)
 		sc->sc_iicchildren[1].resource_source);
 
 	if (iicbus != NULL) {
-		device_t child = BUS_ADD_CHILD(iicbus, 0, "max170xx_acpi", -1);
+		//device_t child = BUS_ADD_CHILD(iicbus, 0, "max170xx_acpi", -1);
+		device_t child = BUS_ADD_CHILD(iicbus, 0, "max170xx", -1);
 		if (child != NULL) {
 			//iicbus_set_addr(child, sc->sc_iicchildren[1].address << 1);
 			sc->sc_max170xx = child;
 			bus_generic_attach(iicbus);
 
-			if (acpi_battery_register(dev) != 0) {	//this wrong
+			if (acpi_battery_register(dev) != 0) {
 				device_printf(dev, "cannot register battery\n");
 				return (ENXIO);                                 
 			}                                                   
 		} else
 			device_printf(dev, "failed to add child max170xx\n");
 	} 
-
-	maxunit = devclass_get_maxunit(batt_dc);    
-	device_printf(dev, "maxunit %d devclass  %p\n", maxunit, batt_dc);
-
-	battdev = devclass_get_device(batt_dc, 0);      
-	device_printf(battdev, " batt dev 0 %p\n", battdev);
-
-	battdev = devclass_get_device(batt_dc, 1);      
-	device_printf(battdev, " batt dev 1 %p\n", battdev);
-
-	batt_dc = device_get_devclass(dev);
-	device_printf(dev, " dev classs is %s\n", devclass_get_name(batt_dc));
-
-	batt_dc = device_get_devclass(sc->sc_max170xx);
-	device_printf(sc->sc_max170xx, " dev classs is %s\n", devclass_get_name(batt_dc));
-
 #endif
 #define FUSB3 0
 #if FUSB3
@@ -395,40 +374,45 @@ chvpower_detach(device_t dev)
 	return (0);
 }
 
-static int
-chvpower_driver_loaded(struct module *m, int what, void *arg)
+static int 
+chvpower_get_bst(device_t dev, struct acpi_bst *bst)
 {
-	int err = 0;
+	struct chvpower_softc *sc;
+	sc = device_get_softc(dev);
 
-	switch (what) {
-	case MOD_LOAD:
-		uprintf("chvpower KLD loaded.\n");
-		break;
-	case MOD_UNLOAD:
-		uprintf("chvpower KLD unloaded.\n");
-		break;
-	default:
-		err = EOPNOTSUPP;
-		break;
-	}
-	return(err);
+	return max170xx_get_bst(sc->sc_max170xx, bst);
+}
+
+static int 
+chvpower_get_bif(device_t dev, struct acpi_bif *bif)
+{
+	struct chvpower_softc *sc;
+	sc = device_get_softc(dev);
+
+	return max170xx_get_bif(sc->sc_max170xx, bif);
 }
 
 static device_method_t chvpower_methods[] = {
 	DEVMETHOD(device_probe,		chvpower_probe),
 	DEVMETHOD(device_attach,	chvpower_attach),
 	DEVMETHOD(device_detach,	chvpower_detach),
+
+	/* ACPI battery interface */
+	DEVMETHOD(acpi_batt_get_status, chvpower_get_bst),
+	DEVMETHOD(acpi_batt_get_info, chvpower_get_bif),
+
 	DEVMETHOD_END
 };
 
 static driver_t chvpower_driver = {
-	.name = "chvpower",
+//	.name = "chvpower",
+	.name = "battery",
 	.methods = chvpower_methods,
 	.size = sizeof(struct chvpower_softc)
 };
 
 static devclass_t chvpower_devclass;
-DRIVER_MODULE(chvpower, acpi, chvpower_driver, chvpower_devclass, chvpower_driver_loaded, NULL);
+DRIVER_MODULE(chvpower, acpi, chvpower_driver, chvpower_devclass, NULL, NULL);
 
 MODULE_DEPEND(chvpower, acpi, 1, 1, 1);
 MODULE_DEPEND(chvpower, iicbus, IICBUS_MINVER, IICBUS_PREFVER, IICBUS_MAXVER);

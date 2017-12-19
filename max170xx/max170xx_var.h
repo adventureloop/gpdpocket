@@ -39,4 +39,7 @@ struct max170xx_softc {
 int max170xx_attach(device_t);
 int max170xx_detach(device_t);
 
+int max170xx_get_bst(device_t, struct acpi_bst *);
+int max170xx_get_bif(device_t, struct acpi_bif *);
+
 #endif 	/* MAX170XX_H */

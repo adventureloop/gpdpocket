@@ -214,7 +214,7 @@ max170xx_write(device_t dev, uint8_t reg, uint16_t val)
 	return (iicbus_transfer(dev, msg, 2));
 }
 
-static int
+int
 max170xx_get_bif(device_t dev, struct acpi_bif *bif)
 {
     struct max170xx_softc *sc;
@@ -240,7 +240,7 @@ max170xx_get_bif(device_t dev, struct acpi_bif *bif)
     return (0);
 }
 
-static int
+int
 max170xx_get_bst(device_t dev, struct acpi_bst *bst)
 {
     struct acpi_cmbat_softc *sc;
@@ -271,7 +271,7 @@ static device_method_t max170xx_methods[] = {
 };
 
 static driver_t max170xx_driver = {
-	.name = "battery",
+	.name = "max170xx",
 	.methods = max170xx_methods,
 	.size = sizeof(struct max170xx_softc)
 };
