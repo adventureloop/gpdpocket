@@ -49,12 +49,20 @@
 
 #define MAX170xx_SADDR	0x36
 
-#define	MAX170xx_STATUS	0x00
-#define	MAX170xx_TEMP	0x08
-#define MAX170xx_SOCAV	0x0E	//state of charge
-#define	MAX170xx_TTE	0x11	//time to empty
-#define	MAX170xx_CONFIG 0x1D
-#define	MAX170xx_SOCVF	0xFF	//State Of Charge
+#define	MAX170xx_REG_STATUS	0x00
+#define MAX170xx_REG_SALRT_TH	0x03	//
+#define	MAX170xx_REG_TEMP	0x08	// MSB +1C
+#define MAX170xx_REG_VCELL	0x09	// 0.625mV per div bottom 3 bits don't cate
+#define MAX170xx_REG_FULLCAP	0x10	// calculated full cap in uVh
+#define MAX170xx_REG_SOCAV	0x0E	//state of charge
+#define	MAX170xx_REG_TTE	0x11	//time to empty
+#define MAX170xx_REG_DESIGNCAP	0x18	// design capacity in uVh
+//#define MAX170xx_REG_AVGVCELL	0x19
+#define	MAX170xx_REG_CONFIG 0x1D
+#define	MAX170xx_REG_REMCAP	0x1F	//remaining capacity in uVh
+#define MAX170xx_REG_VERSION	0x21	//
+#define MAX170xx_REG_VFOCV	0xFB	//raw open-circuit volt- age output of the voltage fuel gauge
+#define	MAX170xx_REG_SOCVF	0xFF	//State Of Charge
 
 static int max170xx_read(device_t, uint8_t, uint16_t *);
 static int max170xx_write(device_t, uint8_t, uint16_t );
@@ -65,34 +73,17 @@ max170xx_remaining(device_t dev)
 {
 	uint16_t socvf = 0;
 	
-	max170xx_read(dev, MAX170xx_SOCVF, &socvf);
+	max170xx_read(dev, MAX170xx_REG_SOCVF, &socvf);
 	return ( ((socvf >> 8) * 100) + (((socvf & 0x00FF) *100)/256) )/100;
 }
 
 void 
 max170xx_dumpreg(device_t dev) 
 {
-	uint16_t status = 0;	//POR 0x0002
-	uint16_t temp = 0;		//POR 0x1600
-	uint16_t tte = 0;		//POR 0x0000
-	uint16_t config = 0;	//POR 0x2530
-	uint16_t socvf = 0;		//POR 0x0000
-	uint16_t socav = 0;		//POR 0x3200
+	uint16_t reg = 0;
 
-	uint8_t remain = 0;		
-
-	max170xx_read(dev, MAX170xx_STATUS, &status);
-	max170xx_read(dev, MAX170xx_TEMP, &temp);
-	max170xx_read(dev, MAX170xx_SOCAV, &socav);
-	max170xx_read(dev, MAX170xx_TTE, &tte);
-	max170xx_read(dev, MAX170xx_CONFIG, &config);
-	max170xx_read(dev, MAX170xx_SOCVF, &socvf);
-
-	device_printf(dev, "fuel guage read: STATUS: %x TEMP: %x SOCKAV: %x "
-		"TTE: %x CONFIG: %x SOCVF: %x\n", 
-		status, temp, socav, tte, config, socvf);
-
-	device_printf(dev, "\tstatus %b\n", status,
+	max170xx_read(dev, MAX170xx_REG_STATUS, &reg);
+	device_printf(dev, "\tstatus %b\n", reg,
 		"\10"
 		"\001BER"	// Enable alert on battery removal
 		"\002BEI" 	//Enable alert on battery insertion
@@ -111,7 +102,8 @@ max170xx_dumpreg(device_t dev)
 		"\015SS"
 	);
 
-	device_printf(dev, "\tconfig %b\n", config,
+	max170xx_read(dev, MAX170xx_REG_CONFIG, &reg);
+	device_printf(dev, "\tconfig %b\n", reg,
 		"\10"
 		"\002POR"
 		"\004BST"
@@ -125,8 +117,43 @@ max170xx_dumpreg(device_t dev)
 		"\016BR"
 	);
 
-	remain = max170xx_remaining(dev);	
-	device_printf(dev, "battery %d%%\n", remain);
+	max170xx_read(dev, MAX170xx_REG_TEMP, &reg);
+	device_printf(dev, "MAX170xx_REG_TEMP %d\n", reg);
+
+	max170xx_read(dev, MAX170xx_REG_SALRT_TH, &reg);
+	device_printf(dev, "MAX170xx_REG_SALRT_TH %d\n", reg);
+
+	max170xx_read(dev, MAX170xx_REG_TEMP, &reg);
+	device_printf(dev, "MAX170xx_REG_TEMP %d\n", reg);
+
+	max170xx_read(dev, MAX170xx_REG_VCELL, &reg);
+	device_printf(dev, "MAX170xx_REG_VCELL %d\n", reg);
+
+	max170xx_read(dev, MAX170xx_REG_FULLCAP, &reg);
+	device_printf(dev, "MAX170xx_REG_FULLCAP %d\n", reg);
+
+	max170xx_read(dev, MAX170xx_REG_SOCAV, &reg);
+	device_printf(dev, "MAX170xx_REG_SOCAV %d\n", reg);
+
+	max170xx_read(dev, MAX170xx_REG_TTE, &reg);
+	device_printf(dev, "MAX170xx_REG_TTE %d\n", reg);
+
+	max170xx_read(dev, MAX170xx_REG_DESIGNCAP, &reg);
+	device_printf(dev, "MAX170xx_REG_DESIGNCA %d\n", reg);
+
+	max170xx_read(dev, MAX170xx_REG_REMCAP, &reg);
+	device_printf(dev, "MAX170xx_REG_REMCAP %d\n", reg);
+
+	max170xx_read(dev, MAX170xx_REG_VERSION, &reg);
+	device_printf(dev, "MAX170xx_REG_VERSION, %d\n", reg);
+
+	max170xx_read(dev, MAX170xx_REG_VFOCV, &reg);
+	device_printf(dev, "MAX170xx_REG_VFOCV %d\n", reg);
+
+	max170xx_read(dev, MAX170xx_REG_SOCVF, &reg);
+	device_printf(dev, "MAX170xx_REG_SOCVF %d\n", reg);
+
+	device_printf(dev, "battery %d%%\n", max170xx_remaining(dev));	
 }
 
 static int
@@ -148,7 +175,7 @@ max170xx_attach(device_t dev)
 	sc->sc_addr = MAX170xx_SADDR << 1;
 
 	uint16_t status = 0;	//POR 0x0002
-	rv = max170xx_read(sc->sc_dev, MAX170xx_STATUS, &status);
+	rv = max170xx_read(sc->sc_dev, MAX170xx_REG_STATUS, &status);
 	if ( rv != 0) {
 		device_printf(sc->sc_dev, "first read failed code: %d %d\n", rv, iic2errno(rv));
 		return ENXIO;
