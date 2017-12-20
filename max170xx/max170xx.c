@@ -118,42 +118,42 @@ max170xx_dumpreg(device_t dev)
 	);
 
 	max170xx_read(dev, MAX170xx_REG_TEMP, &reg);
-	device_printf(dev, "MAX170xx_REG_TEMP %d\n", reg);
+	device_printf(dev, "MAX170xx_REG_TEMP %02x\n", reg);
 
 	max170xx_read(dev, MAX170xx_REG_SALRT_TH, &reg);
-	device_printf(dev, "MAX170xx_REG_SALRT_TH %d\n", reg);
+	device_printf(dev, "MAX170xx_REG_SALRT_TH %02x\n", reg);
 
 	max170xx_read(dev, MAX170xx_REG_TEMP, &reg);
-	device_printf(dev, "MAX170xx_REG_TEMP %d\n", reg);
+	device_printf(dev, "MAX170xx_REG_TEMP %02x\n", reg);
 
 	max170xx_read(dev, MAX170xx_REG_VCELL, &reg);
-	device_printf(dev, "MAX170xx_REG_VCELL %d\n", reg);
+	device_printf(dev, "MAX170xx_REG_VCELL %02x\n", reg);
 
 	max170xx_read(dev, MAX170xx_REG_FULLCAP, &reg);
-	device_printf(dev, "MAX170xx_REG_FULLCAP %d\n", reg);
+	device_printf(dev, "MAX170xx_REG_FULLCAP %02x\n", reg);
 
 	max170xx_read(dev, MAX170xx_REG_SOCAV, &reg);
-	device_printf(dev, "MAX170xx_REG_SOCAV %d\n", reg);
+	device_printf(dev, "MAX170xx_REG_SOCAV %02x\n", reg);
 
 	max170xx_read(dev, MAX170xx_REG_TTE, &reg);
-	device_printf(dev, "MAX170xx_REG_TTE %d\n", reg);
+	device_printf(dev, "MAX170xx_REG_TTE %02x\n", reg);
 
 	max170xx_read(dev, MAX170xx_REG_DESIGNCAP, &reg);
-	device_printf(dev, "MAX170xx_REG_DESIGNCA %d\n", reg);
+	device_printf(dev, "MAX170xx_REG_DESIGNCA %02x\n", reg);
 
 	max170xx_read(dev, MAX170xx_REG_REMCAP, &reg);
-	device_printf(dev, "MAX170xx_REG_REMCAP %d\n", reg);
+	device_printf(dev, "MAX170xx_REG_REMCAP %02x\n", reg);
 
 	max170xx_read(dev, MAX170xx_REG_VERSION, &reg);
-	device_printf(dev, "MAX170xx_REG_VERSION, %d\n", reg);
+	device_printf(dev, "MAX170xx_REG_VERSION, %02x\n", reg);
 
 	max170xx_read(dev, MAX170xx_REG_VFOCV, &reg);
-	device_printf(dev, "MAX170xx_REG_VFOCV %d\n", reg);
+	device_printf(dev, "MAX170xx_REG_VFOCV %02x\n", reg);
 
 	max170xx_read(dev, MAX170xx_REG_SOCVF, &reg);
-	device_printf(dev, "MAX170xx_REG_SOCVF %d\n", reg);
+	device_printf(dev, "MAX170xx_REG_SOCVF %02x\n", reg);
 
-	device_printf(dev, "battery %d%%\n", max170xx_remaining(dev));	
+	device_printf(dev, "battery %02x%%\n", max170xx_remaining(dev));	
 }
 
 static int
