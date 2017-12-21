@@ -117,9 +117,6 @@ max170xx_dumpreg(device_t dev)
 		"\016BR"
 	);
 
-	max170xx_read(dev, MAX170xx_REG_TEMP, &reg);
-	device_printf(dev, "MAX170xx_REG_TEMP %02x\n", reg);
-
 	max170xx_read(dev, MAX170xx_REG_SALRT_TH, &reg);
 	device_printf(dev, "MAX170xx_REG_SALRT_TH %02x\n", reg);
 
@@ -139,7 +136,7 @@ max170xx_dumpreg(device_t dev)
 	device_printf(dev, "MAX170xx_REG_TTE %02x\n", reg);
 
 	max170xx_read(dev, MAX170xx_REG_DESIGNCAP, &reg);
-	device_printf(dev, "MAX170xx_REG_DESIGNCA %02x\n", reg);
+	device_printf(dev, "MAX170xx_REG_DESIGNCAP %02x\n", reg);
 
 	max170xx_read(dev, MAX170xx_REG_REMCAP, &reg);
 	device_printf(dev, "MAX170xx_REG_REMCAP %02x\n", reg);
@@ -170,6 +167,9 @@ max170xx_attach(device_t dev)
 	device_printf(dev, "attach\n");
 	struct max170xx_softc *sc = device_get_softc(dev);
 	int rv;
+	uint16_t designcap, lastfullcap, designvolt;
+	designcap = lastfullcap = designvolt = 0;
+
 
 	sc->sc_dev = dev;
 	sc->sc_addr = MAX170xx_SADDR << 1;
@@ -182,6 +182,27 @@ max170xx_attach(device_t dev)
 	}
 
 	max170xx_dumpreg(sc->sc_dev);
+
+
+	rv = max170xx_read(sc->sc_dev, MAX170xx_REG_DESIGNCAP, &designcap);
+	rv = max170xx_read(sc->sc_dev, MAX170xx_REG_REMCAP, &lastfullcap);
+	rv = max170xx_read(sc->sc_dev, MAX170xx_REG_VCELL, &designvolt);
+
+    sc->sc_bif.units = ACPI_BIF_UNITS_MA;	//ACPI_BIF_UNITS_MW
+    sc->sc_bif.dcap = designcap;
+    sc->sc_bif.lfcap = lastfullcap;
+    sc->sc_bif.btech = 1;		//battery technology
+    sc->sc_bif.dvol = designvolt;
+    sc->sc_bif.wcap = lastfullcap*100/95;
+    sc->sc_bif.lcap = lastfullcap*100/80;
+    sc->sc_bif.gra1 = 70;		//granularity 1 (warn to low)
+    sc->sc_bif.gra2 = 70;		//granularity 1 (full to warn)
+
+    //sc->sc_bif.model = "max17042 Fuel Guage";
+    //sc->sc_bif.serial = "default";
+    //sc->sc_bif.type = "fuel guage";
+    //sc->sc_bif.oeminfo = "null";
+
 	return (0);
 }
 
@@ -241,30 +262,35 @@ max170xx_get_bif(device_t dev, struct acpi_bif *bif)
 
     sc = device_get_softc(dev);
 
-    bif->units = ACPI_BIF_UNITS_MA;	//ACPI_BIF_UNITS_MW
-    bif->dcap = 7000;		//design cap
-    bif->lfcap = 7000;	//last full cap
-    bif->btech = 1;	//battery technology
-    bif->dvol = 10000;		//design voltage
-    bif->wcap = 0;		//warn cap
-    bif->lcap = 0;		// low cap
-    bif->gra1 = 70;		//granularity 1 (warn to low)
-    bif->gra2 = 70;		//granularity 1 (full to warn)
-	// this way handy https://docs.microsoft.com/en-us/windows-hardware/design/device-experiences/acpi-battery-and-power-subsystem-firmware-implementation
-/*
-    strncpy(bifp->model, sc->bif.model, sizeof(sc->bif.model));		// max17047
-    strncpy(bifp->serial, sc->bif.serial, sizeof(sc->bif.serial));	// version
-    strncpy(bifp->type, sc->bif.type, sizeof(sc->bif.type));		// can be null
-    strncpy(bifp->oeminfo, sc->bif.oeminfo, sizeof(sc->bif.oeminfo));	// can be null
-*/
+
+	/*                  
+	 * Just copy the data.  The only value that should change is the
+	 * last-full capacity, so we only update when we get a notify that says
+	 * the info has changed. 
+	 */                 
+
+	bif->units = sc->sc_bif.units;
+	bif->dcap = sc->sc_bif.dcap;
+	bif->lfcap = sc->sc_bif.lfcap;
+	bif->btech = sc->sc_bif.btech;
+	bif->dvol = sc->sc_bif.dvol;
+	bif->wcap = sc->sc_bif.wcap;
+	bif->lcap = sc->sc_bif.lcap;
+	bif->gra1 = sc->sc_bif.gra1;
+	bif->gra2 = sc->sc_bif.gra2;
+	strncpy(bif->model, sc->sc_bif.model, sizeof(sc->sc_bif.model));
+	strncpy(bif->serial, sc->sc_bif.serial, sizeof(sc->sc_bif.serial));
+	strncpy(bif->type, sc->sc_bif.type, sizeof(sc->sc_bif.type));
+	strncpy(bif->oeminfo, sc->sc_bif.oeminfo, sizeof(sc->sc_bif.oeminfo));
+
     return (0);
 }
 
 int
 max170xx_get_bst(device_t dev, struct acpi_bst *bst)
 {
-    struct acpi_cmbat_softc *sc;
-
+    struct max170xx_softc *sc;
+	uint16_t remcap;//, volt, rate;
     sc = device_get_softc(dev);
 
 /* 
@@ -273,10 +299,21 @@ max170xx_get_bst(device_t dev, struct acpi_bst *bst)
  * ACPI_BATT_STAT_CRITICAL     0x0004
  * ACPI_BATT_STAT_NOT_PRESENT;
  */
+
+/* 
+ * The value is stored in terms of μVh and must be divided by the application
+ * sense-resistor value to determine remaining capacity in mAh 
+ */
+	max170xx_read(dev, MAX170xx_REG_REMCAP, &remcap);
+
+
+	//max170xx_read(dev, MAX170xx_REG_REMCAP, &volt);
+	//max170xx_read(dev, MAX170xx_REG_REMCAP, &rate);
+
     bst->state = ACPI_BATT_STAT_DISCHARG;
-	bst->rate = 1;
-	bst->cap = max170xx_remaining(dev);
-	bst->volt = 1;
+	//bst->rate = rate;
+	bst->cap = remcap / sc->sc_rsns;
+	//bst->volt = volt;
 
     return (0);
 }

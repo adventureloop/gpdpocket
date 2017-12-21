@@ -32,8 +32,13 @@
 #include <dev/acpica/acpiio.h>
 
 struct max170xx_softc {
-	device_t			sc_dev;
-	uint8_t				sc_addr;
+	device_t		sc_dev;
+	uint8_t			sc_addr;
+
+	uint32_t		sc_rsns;		/* sense resistor in micro ohms*/
+
+	struct acpi_bif	sc_bif;
+	struct acpi_bst	sc_bst;
 };
 
 int max170xx_attach(device_t);
