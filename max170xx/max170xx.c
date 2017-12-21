@@ -124,7 +124,7 @@ max170xx_dumpreg(device_t dev)
 	device_printf(dev, "MAX170xx_REG_TEMP %02x\n", reg);
 
 	max170xx_read(dev, MAX170xx_REG_VCELL, &reg);
-	device_printf(dev, "MAX170xx_REG_VCELL %02x\n", reg);
+	device_printf(dev, "MAX170xx_REG_VCELL %02x %02x\n", reg, (reg>>3) * 1000/625);
 
 	max170xx_read(dev, MAX170xx_REG_FULLCAP, &reg);
 	device_printf(dev, "MAX170xx_REG_FULLCAP %02x\n", reg);
@@ -173,7 +173,7 @@ max170xx_attach(device_t dev)
 
 	sc->sc_dev = dev;
 	sc->sc_addr = MAX170xx_SADDR << 1;
-	sc->sc_rsns = 10000;	// 0.01 ohms in micro ohms
+	sc->sc_rsns = 10;	// datasheet reccomends 0.01 ohms default sense resistor value (10 milliohms)
 
 	uint16_t status = 0;	//POR 0x0002
 	rv = max170xx_read(sc->sc_dev, MAX170xx_REG_STATUS, &status);
@@ -192,8 +192,8 @@ max170xx_attach(device_t dev)
     sc->sc_bif.units = ACPI_BIF_UNITS_MA;	//ACPI_BIF_UNITS_MW
     sc->sc_bif.dcap = designcap;
     sc->sc_bif.lfcap = lastfullcap;
-    sc->sc_bif.btech = 1;		//battery technology
-    sc->sc_bif.dvol = designvolt;
+    sc->sc_bif.btech = 1;		// rechargable battery
+    sc->sc_bif.dvol = (designvolt>>3)*1000/625;
     sc->sc_bif.wcap = lastfullcap*100/95;
     sc->sc_bif.lcap = lastfullcap*100/80;
     sc->sc_bif.gra1 = 70;		//granularity 1 (warn to low)
