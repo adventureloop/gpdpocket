@@ -55,5 +55,6 @@ main()
 	} else {
 		printf("%d %%\n", ( ((socvf >> 8) * 100) + (((socvf & 0x00FF) *100)/256) )/100); 
 	}
+	close(fd);
 	return (0);
 }
