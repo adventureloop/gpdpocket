@@ -278,11 +278,12 @@ max170xx_get_bif(device_t dev, struct acpi_bif *bif)
 	bif->lcap = sc->sc_bif.lcap;
 	bif->gra1 = sc->sc_bif.gra1;
 	bif->gra2 = sc->sc_bif.gra2;
+/*
 	strncpy(bif->model, sc->sc_bif.model, sizeof(sc->sc_bif.model));
 	strncpy(bif->serial, sc->sc_bif.serial, sizeof(sc->sc_bif.serial));
 	strncpy(bif->type, sc->sc_bif.type, sizeof(sc->sc_bif.type));
 	strncpy(bif->oeminfo, sc->sc_bif.oeminfo, sizeof(sc->sc_bif.oeminfo));
-
+*/
     return (0);
 }
 
