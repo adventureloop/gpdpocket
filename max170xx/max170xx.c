@@ -173,6 +173,7 @@ max170xx_attach(device_t dev)
 
 	sc->sc_dev = dev;
 	sc->sc_addr = MAX170xx_SADDR << 1;
+	sc->sc_rsns = 10000;	// 0.01 ohms in micro ohms
 
 	uint16_t status = 0;	//POR 0x0002
 	rv = max170xx_read(sc->sc_dev, MAX170xx_REG_STATUS, &status);
