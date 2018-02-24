@@ -188,7 +188,7 @@ max170xx_attach(device_t dev)
 	rv = max170xx_read(sc->sc_dev, MAX170xx_REG_FULLCAP, &lastfullcap);
 	rv = max170xx_read(sc->sc_dev, MAX170xx_REG_VCELL, &designvolt);
 
-	sc->sc_bif.units = ACPI_BIF_UNITS_MA;	//ACPI_BIF_UNITS_MW
+	sc->sc_bif.units = ACPI_BIF_UNITS_MW;	//ACPI_BIF_UNITS_MW
 	sc->sc_bif.dcap = designcap;
 	sc->sc_bif.lfcap = lastfullcap;
 	sc->sc_bif.btech = 1;		// rechargable battery
