@@ -184,25 +184,24 @@ max170xx_attach(device_t dev)
 
 	max170xx_dumpreg(sc->sc_dev);
 
-
 	rv = max170xx_read(sc->sc_dev, MAX170xx_REG_DESIGNCAP, &designcap);
-	rv = max170xx_read(sc->sc_dev, MAX170xx_REG_REMCAP, &lastfullcap);
+	rv = max170xx_read(sc->sc_dev, MAX170xx_REG_FULLCAP, &lastfullcap);
 	rv = max170xx_read(sc->sc_dev, MAX170xx_REG_VCELL, &designvolt);
 
-    sc->sc_bif.units = ACPI_BIF_UNITS_MA;	//ACPI_BIF_UNITS_MW
-    sc->sc_bif.dcap = designcap;
-    sc->sc_bif.lfcap = lastfullcap;
-    sc->sc_bif.btech = 1;		// rechargable battery
-    sc->sc_bif.dvol = (designvolt>>3)*1000/625;
-    sc->sc_bif.wcap = lastfullcap*100/95;
-    sc->sc_bif.lcap = lastfullcap*100/80;
-    sc->sc_bif.gra1 = 70;		//granularity 1 (warn to low)
-    sc->sc_bif.gra2 = 70;		//granularity 1 (full to warn)
+	sc->sc_bif.units = ACPI_BIF_UNITS_MA;	//ACPI_BIF_UNITS_MW
+	sc->sc_bif.dcap = designcap;
+	sc->sc_bif.lfcap = lastfullcap;
+	sc->sc_bif.btech = 1;		// rechargable battery
+	sc->sc_bif.dvol = ((uint32_t)designvolt>>3)*1000/625;
+	sc->sc_bif.wcap = (uint32_t)lastfullcap*100/95;
+	sc->sc_bif.lcap = (uint32_t)lastfullcap*100/80;
+	sc->sc_bif.gra1 = 70;		//granularity 1 (warn to low)
+	sc->sc_bif.gra2 = 70;		//granularity 1 (full to warn)
 
-    //sc->sc_bif.model = "max17042 Fuel Guage";
-    //sc->sc_bif.serial = "default";
-    //sc->sc_bif.type = "fuel guage";
-    //sc->sc_bif.oeminfo = "null";
+	//sc->sc_bif.model = "max17042 Fuel Guage";
+	//sc->sc_bif.serial = "default";
+	//sc->sc_bif.type = "fuel guage";
+	//sc->sc_bif.oeminfo = "null";
 
 	return (0);
 }
@@ -262,7 +261,6 @@ max170xx_get_bif(device_t dev, struct acpi_bif *bif)
     struct max170xx_softc *sc;
 
     sc = device_get_softc(dev);
-
 
 	/*                  
 	 * Just copy the data.  The only value that should change is the
