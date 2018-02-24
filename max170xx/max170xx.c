@@ -300,10 +300,11 @@ max170xx_get_bst(device_t dev, struct acpi_bst *bst)
  * ACPI_BATT_STAT_NOT_PRESENT;
  */
 
-/* 
- * The value is stored in terms of μVh and must be divided by the application
- * sense-resistor value to determine remaining capacity in mAh 
- */
+	/* 
+	 * The value is stored in terms of μVh and must be divided by the
+	 * application sense-resistor value to determine remaining capacity in
+	 * mAh 
+	 */
 	max170xx_read(dev, MAX170xx_REG_REMCAP, &remcap);
 
 
@@ -311,8 +312,9 @@ max170xx_get_bst(device_t dev, struct acpi_bst *bst)
 	//max170xx_read(dev, MAX170xx_REG_REMCAP, &rate);
 
     bst->state = ACPI_BATT_STAT_DISCHARG;
+	bst->cap = remcap;
 	//bst->rate = rate;
-	bst->cap = remcap / sc->sc_rsns;
+	//bst->cap = remcap / sc->sc_rsns;
 	//bst->volt = volt;
 
     return (0);
