@@ -305,8 +305,8 @@ max170xx_get_bst(device_t dev, struct acpi_bst *bst)
 	bst->state = ACPI_BATT_STAT_DISCHARG;
 	bst->cap = remcap;
 	//bst->cap = remcap / sc->sc_rsns;
-	bst->rate = rate;
-	bst->volt = volt;
+	bst->rate = ((uint32_t)rate * 15625)/10000;		/* 1.5625uV/rsense per lsb */
+	bst->volt = (((uint32_t)volt >> 3) * 625)/1000;	/* 0.625mV per lsb */
 
     return (0);
 }
