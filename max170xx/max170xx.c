@@ -50,17 +50,18 @@
 #define MAX170xx_SADDR	0x36
 
 #define	MAX170xx_REG_STATUS	0x00
-#define MAX170xx_REG_SALRT_TH	0x03	//
+#define MAX170xx_REG_SALRT_TH	0x03
 #define	MAX170xx_REG_TEMP	0x08	// MSB +1C
 #define MAX170xx_REG_VCELL	0x09	// 0.625mV per div bottom 3 bits don't cate
 #define MAX170xx_REG_FULLCAP	0x10	// calculated full cap in uVh
-#define MAX170xx_REG_SOCAV	0x0E	//state of charge
-#define	MAX170xx_REG_TTE	0x11	//time to empty
+#define MAX170xx_REG_AVG_CUR	0x0B	// average current
+#define MAX170xx_REG_SOCAV	0x0E	// state of charge
+#define	MAX170xx_REG_TTE	0x11	// time to empty
 #define MAX170xx_REG_DESIGNCAP	0x18	// design capacity in uVh
-//#define MAX170xx_REG_AVGVCELL	0x19
-#define	MAX170xx_REG_CONFIG 0x1D
+#define MAX170xx_REG_AVG_VOLT	0x19	// average voltage
+#define	MAX170xx_REG_CONFIG 	0x1D
 #define	MAX170xx_REG_REMCAP	0x1F	//remaining capacity in uVh
-#define MAX170xx_REG_VERSION	0x21	//
+#define MAX170xx_REG_VERSION	0x21
 #define MAX170xx_REG_VFOCV	0xFB	//raw open-circuit volt- age output of the voltage fuel gauge
 #define	MAX170xx_REG_SOCVF	0xFF	//State Of Charge
 
@@ -164,21 +165,21 @@ max170xx_probe(device_t dev)
 int
 max170xx_attach(device_t dev)
 {
-	device_printf(dev, "attach\n");
 	struct max170xx_softc *sc = device_get_softc(dev);
 	int rv;
-	uint16_t designcap, lastfullcap, designvolt;
+	uint16_t status, designcap, lastfullcap, designvolt;
 	designcap = lastfullcap = designvolt = 0;
-
 
 	sc->sc_dev = dev;
 	sc->sc_addr = MAX170xx_SADDR << 1;
-	sc->sc_rsns = 10;	// datasheet reccomends 0.01 ohms default sense resistor value (10 milliohms)
 
-	uint16_t status = 0;	//POR 0x0002
+	/* datasheet reccomends 0.01 ohms default sense resistor value */
+	sc->sc_rsns = 10; 
+	status = 0;	//POR 0x0002
 	rv = max170xx_read(sc->sc_dev, MAX170xx_REG_STATUS, &status);
-	if ( rv != 0) {
-		device_printf(sc->sc_dev, "first read failed code: %d %d\n", rv, iic2errno(rv));
+	if (rv != 0) {
+		device_printf(sc->sc_dev, "first read failed code: %d %d\n",
+			rv, iic2errno(rv));
 		return ENXIO;
 	}
 
@@ -188,7 +189,7 @@ max170xx_attach(device_t dev)
 	rv = max170xx_read(sc->sc_dev, MAX170xx_REG_FULLCAP, &lastfullcap);
 	rv = max170xx_read(sc->sc_dev, MAX170xx_REG_VCELL, &designvolt);
 
-	sc->sc_bif.units = ACPI_BIF_UNITS_MW;	//ACPI_BIF_UNITS_MW
+	sc->sc_bif.units = ACPI_BIF_UNITS_MW;
 	sc->sc_bif.dcap = designcap;
 	sc->sc_bif.lfcap = lastfullcap;
 	sc->sc_bif.btech = 1;		// rechargable battery
@@ -258,9 +259,8 @@ max170xx_write(device_t dev, uint8_t reg, uint16_t val)
 int
 max170xx_get_bif(device_t dev, struct acpi_bif *bif)
 {
-    struct max170xx_softc *sc;
-
-    sc = device_get_softc(dev);
+	struct max170xx_softc *sc;
+	sc = device_get_softc(dev);
 
 	/*                  
 	 * Just copy the data.  The only value that should change is the
@@ -289,16 +289,9 @@ max170xx_get_bif(device_t dev, struct acpi_bif *bif)
 int
 max170xx_get_bst(device_t dev, struct acpi_bst *bst)
 {
-    struct max170xx_softc *sc;
-	uint16_t remcap;//, volt, rate;
-    sc = device_get_softc(dev);
-
-/* 
- * ACPI_BATT_STAT_DISCHARG     0x0001
- * ACPI_BATT_STAT_CHARGING     0x0002
- * ACPI_BATT_STAT_CRITICAL     0x0004
- * ACPI_BATT_STAT_NOT_PRESENT;
- */
+	struct max170xx_softc *sc;
+	uint16_t remcap , volt, rate;
+	sc = device_get_softc(dev);
 
 	/* 
 	 * The value is stored in terms of μVh and must be divided by the
@@ -306,23 +299,21 @@ max170xx_get_bst(device_t dev, struct acpi_bst *bst)
 	 * mAh 
 	 */
 	max170xx_read(dev, MAX170xx_REG_REMCAP, &remcap);
+	max170xx_read(dev, MAX170xx_REG_AVG_VOLT, &volt);
+	max170xx_read(dev, MAX170xx_REG_AVG_CUR, &rate);
 
-
-	//max170xx_read(dev, MAX170xx_REG_REMCAP, &volt);
-	//max170xx_read(dev, MAX170xx_REG_REMCAP, &rate);
-
-    bst->state = ACPI_BATT_STAT_DISCHARG;
+	bst->state = ACPI_BATT_STAT_DISCHARG;
 	bst->cap = remcap;
-	//bst->rate = rate;
 	//bst->cap = remcap / sc->sc_rsns;
-	//bst->volt = volt;
+	bst->rate = rate;
+	bst->volt = volt;
 
     return (0);
 }
 
 static device_method_t max170xx_methods[] = {
 	DEVMETHOD(device_probe,		max170xx_probe),
-	DEVMETHOD(device_attach,		max170xx_attach),
+	DEVMETHOD(device_attach,	max170xx_attach),
 
 	/* ACPI battery interface */                        
 	DEVMETHOD(acpi_batt_get_status, max170xx_get_bst),
