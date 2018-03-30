@@ -1,28 +1,23 @@
 diff --git a/sys/dev/acpica/acpi_battery.c b/sys/dev/acpica/acpi_battery.c
-index 3d7d94ab1c2..ef5f24a2c19 100644
+index 3d7d94ab1c2..ef40a8114f6 100644
 --- a/sys/dev/acpica/acpi_battery.c
 +++ b/sys/dev/acpica/acpi_battery.c
-@@ -173,11 +173,22 @@ acpi_battery_get_battinfo(device_t dev, struct acpi_battinfo *battinfo)
- 	 * acpi_BatteryIsPresent() is not enough because smart batteries only
- 	 * return that the device is present.
+@@ -169,14 +169,11 @@ acpi_battery_get_battinfo(device_t dev, struct acpi_battinfo *battinfo)
+ 	    dev_idx = i;
+ 
+ 	/*
+-	 * Be sure we can get various info from the battery.  Note that
+-	 * acpi_BatteryIsPresent() is not enough because smart batteries only
+-	 * return that the device is present.
++	 * Be sure we can get various info from the battery.
  	 */
-+	/*
- 	if (!acpi_BatteryIsPresent(batt_dev) ||
- 	    ACPI_BATT_GET_STATUS(batt_dev, &bst[i]) != 0 ||
- 	    ACPI_BATT_GET_INFO(batt_dev, bif) != 0)
- 	    continue;
--
-+*/
-+	if (!acpi_BatteryIsPresent(batt_dev) ) {
-+		if ( ACPI_BATT_GET_STATUS(batt_dev, &bst[i]) != 0 ||
-+			ACPI_BATT_GET_INFO(batt_dev, bif) != 0)
-+			continue;
-+	} else {
-+		if ( ACPI_BATT_GET_STATUS(batt_dev, &bst[i]) != 0 ||
-+			ACPI_BATT_GET_INFO(batt_dev, bif) != 0)
-+			continue;
-+	}
-+		
+-	if (!acpi_BatteryIsPresent(batt_dev) ||
+-	    ACPI_BATT_GET_STATUS(batt_dev, &bst[i]) != 0 ||
+-	    ACPI_BATT_GET_INFO(batt_dev, bif) != 0)
+-	    continue;
++	if (ACPI_BATT_GET_STATUS(batt_dev, &bst[i]) != 0 ||
++		ACPI_BATT_GET_INFO(batt_dev, bif) != 0)
++		continue;
+ 
  	/* If a battery is not installed, we sometimes get strange values. */
  	if (!acpi_battery_bst_valid(&bst[i]) ||
- 	    !acpi_battery_bif_valid(bif))
