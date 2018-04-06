@@ -65,6 +65,7 @@ static int pi3usb_attach(device_t);
 static int pi3usb_detach(device_t);
 static int pi3usb_read(device_t, uint8_t *);
 static int pi3usb_write(device_t, uint8_t);
+static int pi3usb_sysctl(SYSCTL_HANDLER_ARGS);
 
 #if 0
 static int
@@ -85,15 +86,55 @@ pi3usb_sysctl(SYSCTL_HANDLER_ARGS)
 static int
 pi3usb_probe(device_t dev)
 {
-	device_printf(dev, "probe\n");
 	device_set_desc(dev, "pi3usb USB Type-C Mux");
 	return (0);
+}
+
+#define PI3USB_CONF_4LANEDPI		3
+#define PI3USB_CONF_4LANEDPI_SWAP	4
+#define PI3USB_CONF_USB3		5
+#define PI3USB_CONF_USB3_SWAP		6
+#define PI3USB_CONF_2LANEDPIUSB3	7
+#define PI3USB_CONF_2LANEDPIUSB3_SWAP	8
+
+static void
+pi3usb_print_config(device_t dev, uint8_t config)
+{
+	if (config > 8) {
+		device_printf(dev, "invalid config\n");
+		return;
+	}
+	switch (config) {
+	case PI3USB_CONF_4LANEDPI:
+		device_printf(dev, "PI3USB_CONF_4LANEDPI\n");
+		break;
+	case PI3USB_CONF_4LANEDPI_SWAP:
+		device_printf(dev, "PI3USB_CONF_4LANEDPI_SWAP\n");
+		break;
+	case PI3USB_CONF_USB3:
+		device_printf(dev, "PI3USB_CONF_USB3\n");
+		break;
+	case PI3USB_CONF_USB3_SWAP:
+		device_printf(dev, "PI3USB_CONF_USB3_SWAP\n");
+		break;
+	case PI3USB_CONF_2LANEDPIUSB3:
+		device_printf(dev, "PI3USB_CONF_2LANEDPIUSB3\n");
+		break;
+	case PI3USB_CONF_2LANEDPIUSB3_SWAP:
+		device_printf(dev, "PI3USB_CONF_2LANEDPIUSB3_SWAP\n");
+		break;
+	default:
+		device_printf(dev, "PI3USB_CONF_OPEN\n");
+		break;
+	}
 }
 
 static int
 pi3usb_attach(device_t dev)
 {
 	struct pi3usb_softc *sc = device_get_softc(dev);
+	struct sysctl_ctx_list *sysctl_ctx;
+	struct sysctl_oid *sysctl_tree;
 	int rv; 
 	uint8_t config = 0;
 
@@ -104,8 +145,19 @@ pi3usb_attach(device_t dev)
 		device_printf(dev, "read config failed rv: %d errno: %d\n", rv, iic2errno(rv));
 	else {
 		device_printf(dev, "default config: %x\n", config);
+		pi3usb_print_config(dev, config);
 		sc->sc_config = config;
 	}
+
+	sysctl_ctx = device_get_sysctl_ctx(dev);
+	sysctl_tree = device_get_sysctl_tree(dev);
+
+	SYSCTL_ADD_PROC(sysctl_ctx,
+		SYSCTL_CHILDREN(sysctl_tree), OID_AUTO,
+		    "mux", CTLTYPE_INT | CTLFLAG_RW,
+		    sc, 0, pi3usb_sysctl, "I",
+		    "USB-C MUX config");
+
 
 	return (0);
 }
@@ -113,6 +165,28 @@ pi3usb_attach(device_t dev)
 static int
 pi3usb_detach(device_t dev)
 {
+	return (0);
+}
+
+static int
+pi3usb_sysctl(SYSCTL_HANDLER_ARGS)
+{
+	struct pi3usb_softc *sc;
+	int value;
+
+	sc = (struct pi3usb_softc *)oidp->oid_arg1;
+
+	if (req->newptr != NULL ) {
+		value = CAST_PTR_INT(req->newptr);
+		if (value <= 0 || value > 8)
+			return (EINVAL);
+
+		pi3usb_write(sc->sc_dev, sc->sc_config);
+	} else {
+		value = sc->sc_config;
+		SYSCTL_OUT(req, &value, sizeof(value));
+	}
+
 	return (0);
 }
 
@@ -135,7 +209,6 @@ pi3usb_read(device_t dev, uint8_t *val)
 	*val = buf[1];
 
 	return (rv);
-	
 }
 
 static int 
