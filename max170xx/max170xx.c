@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2017 Tom Jones <tj@enoti.me>
+ * Copyright (c) 2018 Tom Jones <tj@enoti.me>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -157,7 +157,6 @@ max170xx_dumpreg(device_t dev)
 static int
 max170xx_probe(device_t dev)
 {
-	device_printf(dev, "probe\n");
 	device_set_desc(dev, "Maxim max170xx Fuel Guage");
 	return (0);
 }
@@ -305,8 +304,8 @@ max170xx_get_bst(device_t dev, struct acpi_bst *bst)
 	bst->state = ACPI_BATT_STAT_DISCHARG;
 	bst->cap = remcap;
 	//bst->cap = remcap / sc->sc_rsns;
-	bst->rate = (((uint32_t)rate * 15625)/10000)/sc->sc_rsns;		/* 1.5625uV/rsense per lsb */
 	bst->volt = (((uint32_t)volt >> 3) * 625)/1000;	/* 0.625mV per lsb */
+	bst->rate = (((uint32_t)rate * 15625)/10000)/sc->sc_rsns; /* 1.5625uV/rsense per lsb */
 
     return (0);
 }
