@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2017 Tom Jones <tj@enoti.me>
+ * Copyright (c) 2018 Tom Jones <tj@enoti.me>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -231,25 +231,6 @@ pi3usb_write(device_t dev, uint8_t val)
 	return (iicbus_transfer(dev, msg, 1));
 }
 
-static int
-pi3usb_driver_loaded(struct module *m, int what, void *arg)
-{
-	int err = 0;
-
-	switch (what) {
-	case MOD_LOAD:
-		uprintf("pi3usb KLD loaded.\n");
-		break;
-	case MOD_UNLOAD:
-		uprintf("pi3usb KLD unloaded.\n");
-		break;
-	default:
-		err = EOPNOTSUPP;
-		break;
-	}
-	return(err);
-}
-
 static device_method_t pi3usb_methods[] = {
 	DEVMETHOD(device_probe,		pi3usb_probe),
 	DEVMETHOD(device_attach,	pi3usb_attach),
@@ -264,7 +245,7 @@ static driver_t pi3usb_driver = {
 };
 
 static devclass_t pi3usb_devclass;
-DRIVER_MODULE(pi3usb, iicbus, pi3usb_driver, pi3usb_devclass, pi3usb_driver_loaded, NULL);
+DRIVER_MODULE(pi3usb, iicbus, pi3usb_driver, pi3usb_devclass, NULL, NULL);
 
 MODULE_DEPEND(pi3usb, iicbus, IICBUS_MINVER, IICBUS_PREFVER, IICBUS_MAXVER);
 MODULE_VERSION(pi3usb, 1);
