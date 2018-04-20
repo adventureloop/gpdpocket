@@ -78,7 +78,7 @@ static int chvpower_attach(device_t);
 static int chvpower_detach(device_t);
 
 static ACPI_STATUS acpi_collect_i2c_resources(ACPI_RESOURCE *, void *);
-static device_t iicbus_for_acpi_resource_source(device_t, device_t , const char *);
+static device_t iicbus_for_acpi_resource_source(device_t, device_t, const char *, const char *);
 
 static int
 chvpower_probe(device_t dev)
@@ -119,7 +119,7 @@ chvpower_attach(device_t dev)
 	free(sc->sc_iicchildren[1].resource_source, M_CHVPWR);
 	sc->sc_iicchildren[1].resource_source = "\\_SB_.PCI0.I2C1";
 
-	iicbus = iicbus_for_acpi_resource_source(dev, parent,
+	iicbus = iicbus_for_acpi_resource_source(dev, parent, "ig4iic_acpi",
 		sc->sc_iicchildren[1].resource_source);
 
 	if (iicbus != NULL) {
@@ -140,28 +140,27 @@ chvpower_attach(device_t dev)
 }
 
 static device_t
-iicbus_for_acpi_resource_source(device_t dev, device_t acpi, const char *name)
+iicbus_for_acpi_resource_source(device_t dev, device_t acpidev,
+	const char *iicdevname, const char *name)
 {
 	int unit;
 	devclass_t dc;
 	dc = devclass_find("iicbus");
-	if (dc == NULL) {
-		device_printf(dev, "devclas_find returned NULL\n");
+	if (dc == NULL)
 		return NULL;
-	}
 
 	for (unit = 0; unit < devclass_get_maxunit(dc); unit++) {
-		device_t ig4iic = device_find_child(acpi, "ig4iic_acpi", unit);
-		if (ig4iic == NULL) {
+		device_t iicdev = device_find_child(acpidev, iicdevname, unit);
+		if (iicdev == NULL) {
 			continue;
 		}
 
-		device_t iicbus = device_find_child(ig4iic, "iicbus", -1);
+		device_t iicbus = device_find_child(iicdev, "iicbus", -1);
 		if (iicbus == NULL) {
 			continue;
 		}
 
-		ACPI_HANDLE handle = acpi_get_handle(ig4iic);
+		ACPI_HANDLE handle = acpi_get_handle(iicdev);
 		if (handle == NULL) {
 			continue;
 		}
