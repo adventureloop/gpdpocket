@@ -111,8 +111,6 @@ chvpower_attach(device_t dev)
 
     parent = device_get_parent(dev);
 
-#define MAX170XX 1
-#if MAX170XX
 	/* 
 	 * The String in the child acpi is missing an underscore (\_SB. vs \/_SB_)
 	 * compensate for this manually, free the alloced string and replace it 
@@ -138,7 +136,6 @@ chvpower_attach(device_t dev)
 		} else
 			device_printf(dev, "failed to add child max170xx\n");
 	} 
-#endif
 	return (0);
 }
 
@@ -219,10 +216,8 @@ chvpower_detach(device_t dev)
 	struct chvpower_softc *sc;
 	sc = device_get_softc(dev);
 
-#if MAX170XX
 	if (sc->sc_max170xx)
 		device_delete_child(device_get_parent(sc->sc_max170xx), sc->sc_max170xx);
-#endif
 #if 0
 	for (child = 0; child < IIC_CHILD_MAX; child++) {
 		if (child == 0)		//HACK TODO REMOVE
