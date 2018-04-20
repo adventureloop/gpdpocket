@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2017 Tom Jones <tj@enoti.me>
+ * Copyright (c) 2018 Tom Jones <tj@enoti.me>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -97,13 +97,6 @@ chvpower_probe(device_t dev)
 static int
 chvpower_attach(device_t dev)
 {
-    /*
-     * TODO:
-     * look here:
-     * https://github.com/freebsd/freebsd/blob/2df1b01611ffde3f1ce1630866cf76f4de49c7a6/sys/dev/chromebook_platform/chromebook_platform.c#L57
-     *
-     */
-
 	struct chvpower_softc *sc;
 	device_t parent;
 	ACPI_STATUS status;
@@ -135,7 +128,6 @@ chvpower_attach(device_t dev)
 		sc->sc_iicchildren[1].resource_source);
 
 	if (iicbus != NULL) {
-		//device_t child = BUS_ADD_CHILD(iicbus, 0, "max170xx_acpi", -1);
 		device_t child = BUS_ADD_CHILD(iicbus, 0, "max170xx", -1);
 		if (child != NULL) {
 			//iicbus_set_addr(child, sc->sc_iicchildren[1].address << 1);
@@ -143,7 +135,7 @@ chvpower_attach(device_t dev)
 			bus_generic_attach(iicbus);
 
 			if (acpi_battery_register(dev) != 0) {
-				device_printf(dev, "cannot register battery\n");
+				device_printf(dev, "failed to register battery\n");
 				return (ENXIO);                                 
 			}                                                   
 		} else
@@ -402,7 +394,6 @@ static device_method_t chvpower_methods[] = {
 };
 
 static driver_t chvpower_driver = {
-//	.name = "chvpower",
 	.name = "battery",
 	.methods = chvpower_methods,
 	.size = sizeof(struct chvpower_softc)
