@@ -51,7 +51,7 @@
 
 #define IIC_CHILD_MAX 4
 
-static MALLOC_DEFINE(M_CHVPWR, "chv-power", "CHV Power Driver");
+static MALLOC_DEFINE(M_CHVPWR, "chv-power", "CherryView Power Driver");
 
 struct chvpower_child {
 	uint8_t address;
@@ -199,7 +199,7 @@ chvpower_attach(device_t dev)
 }
 
 static device_t
-iicbus_for_acpi_resource_source(device_t dev, device_t bus, const char *name)
+iicbus_for_acpi_resource_source(device_t dev, device_t acpi, const char *name)
 {
 	int unit;
 	devclass_t dc;
@@ -210,7 +210,7 @@ iicbus_for_acpi_resource_source(device_t dev, device_t bus, const char *name)
 	}
 
 	for (unit = 0; unit < devclass_get_maxunit(dc); unit++) {
-		device_t ig4iic = device_find_child(bus, "ig4iic_acpi", unit);
+		device_t ig4iic = device_find_child(acpi, "ig4iic_acpi", unit);
 		if (ig4iic == NULL) {
 			continue;
 		}
