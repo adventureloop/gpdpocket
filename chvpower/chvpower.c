@@ -66,7 +66,6 @@ struct chvpower_softc {
 	struct chvpower_child 	sc_iicchildren[IIC_CHILD_MAX];
 
 	device_t		sc_max170xx;
-	device_t		sc_fusb3;
 };
 
 static char *chvpower_hids[] = {
@@ -139,34 +138,6 @@ chvpower_attach(device_t dev)
 		} else
 			device_printf(dev, "failed to add child max170xx\n");
 	} 
-#endif
-#define FUSB3 0
-#if FUSB3
-	/*
-	 * FUSB seems to require an irq, deal with that hassle.
-	 */
-
-	/* 
-	 * The String in the child acpi is missing an underscore (\_SB. vs \/_SB_)
-	 * compensate for this manually, free the alloced string and replace it 
-	 * with the correct one.
-	 */
-	free(sc->sc_iicchildren[2].resource_source, M_CHVPWR);
-	sc->sc_iicchildren[2].resource_source = "\\_SB_.PCI0.I2C1";
-
-	iicbus = iicbus_for_acpi_resource_source(dev, parent,
-		sc->sc_iicchildren[2].resource_source);
-
-	if (iicbus != NULL) {
-		device_t child = BUS_ADD_CHILD(iicbus, 0, "fusb3", -1);
-		if (child != NULL) {
-			iicbus_set_addr(child, sc->sc_iicchildren[2].address);
-			sc->sc_fusb3 = child;
-			bus_generic_attach(iicbus);
-			device_printf(dev, "added fusb3 child\n");
-		} else
-			device_printf(dev, "failed to add child fusb3\n");
-	}
 #endif
 	return (0);
 }
@@ -251,10 +222,6 @@ chvpower_detach(device_t dev)
 #if MAX170XX
 	if (sc->sc_max170xx)
 		device_delete_child(device_get_parent(sc->sc_max170xx), sc->sc_max170xx);
-#endif
-#if FUSB3
-	if (sc->sc_fusb3)
-		device_delete_child(device_get_parent(sc->sc_fusb3), sc->sc_fusb3);
 #endif
 #if 0
 	for (child = 0; child < IIC_CHILD_MAX; child++) {
