@@ -256,10 +256,6 @@ chvpower_detach(device_t dev)
 	if (sc->sc_fusb3)
 		device_delete_child(device_get_parent(sc->sc_fusb3), sc->sc_fusb3);
 #endif
-#if PI3USB
-	if (sc->sc_pi3usb)
-		device_delete_child(device_get_parent(sc->sc_pi3usb), sc->sc_pi3usb);
-#endif
 #if 0
 	for (child = 0; child < IIC_CHILD_MAX; child++) {
 		if (child == 0)		//HACK TODO REMOVE
