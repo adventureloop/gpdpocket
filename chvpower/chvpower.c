@@ -210,13 +210,13 @@ acpi_collect_i2c_resources(ACPI_RESOURCE *res, void *context)
 static int
 chvpower_detach(device_t dev)
 {
-//	int child; 
+	int child;
 	struct chvpower_softc *sc;
 	sc = device_get_softc(dev);
 
 	if (sc->sc_max170xx)
 		device_delete_child(device_get_parent(sc->sc_max170xx), sc->sc_max170xx);
-#if 0
+
 	for (child = 0; child < IIC_CHILD_MAX; child++) {
 		if (child == 0)		//HACK TODO REMOVE
 			continue;
@@ -225,7 +225,6 @@ chvpower_detach(device_t dev)
 			sc->sc_iicchildren[child].resource_source = NULL;
 		}
 	}
-#endif
 	return (0);
 }
 
