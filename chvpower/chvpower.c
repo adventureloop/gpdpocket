@@ -103,8 +103,7 @@ chvpower_attach(device_t dev)
 	sc->sc_dev = dev;
 	sc->sc_handle = acpi_get_handle(dev);
 
-	status = AcpiWalkResources(sc->sc_handle, "_CRS", 
-		acpi_collect_i2c_resources, dev);
+	status = AcpiWalkResources(sc->sc_handle, "_CRS", acpi_collect_i2c_resources, dev);
 
 	if (sc->sc_iicchild_count != 4)
 		return (ENXIO);
@@ -125,7 +124,7 @@ chvpower_attach(device_t dev)
 	if (iicbus != NULL) {
 		device_t child = BUS_ADD_CHILD(iicbus, 0, "max170xx", -1);
 		if (child != NULL) {
-			//iicbus_set_addr(child, sc->sc_iicchildren[1].address << 1);
+			iicbus_set_addr(child, sc->sc_iicchildren[1].address << 1);
 			sc->sc_max170xx = child;
 			bus_generic_attach(iicbus);
 
@@ -134,7 +133,7 @@ chvpower_attach(device_t dev)
 				return (ENXIO);                                 
 			}                                                   
 		} else
-			device_printf(dev, "failed to add child max170xx\n");
+			device_printf(dev, "failed to add max170xx child\n");
 	} 
 	return (0);
 }

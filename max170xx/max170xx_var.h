@@ -33,7 +33,6 @@
 
 struct max170xx_softc {
 	device_t		sc_dev;
-	uint8_t			sc_addr;
 
 	uint32_t		sc_rsns;		/* sense resistor in micro ohms*/
 

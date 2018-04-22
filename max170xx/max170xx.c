@@ -47,8 +47,6 @@
 
 #include "max170xx_var.h"
 
-#define MAX170xx_SADDR	0x36
-
 #define	MAX170xx_REG_STATUS	0x00
 #define MAX170xx_REG_SALRT_TH	0x03
 #define	MAX170xx_REG_TEMP	0x08	// MSB +1C
@@ -75,7 +73,7 @@ max170xx_remaining(device_t dev)
 	uint16_t socvf = 0;
 	
 	max170xx_read(dev, MAX170xx_REG_SOCVF, &socvf);
-	return ( ((socvf >> 8) * 100) + (((socvf & 0x00FF) *100)/256) )/100;
+	return (((socvf >> 8) * 100) + (((socvf & 0x00FF) *100)/256) )/100;
 }
 
 void 
@@ -86,10 +84,10 @@ max170xx_dumpreg(device_t dev)
 	max170xx_read(dev, MAX170xx_REG_STATUS, &reg);
 	device_printf(dev, "\tstatus %b\n", reg,
 		"\10"
-		"\001BER"	// Enable alert on battery removal
-		"\002BEI" 	//Enable alert on battery insertion
-		"\003AEN"	//Alert on fuel guage outputs
-		"\004FTHRM"	//force thermistor bias switch
+		"\001BER"
+		"\002BEI"
+		"\003AEN"
+		"\004FTHRM"
 		"\005ETHRM"
 		"\006ALSH"
 		"\007I2CSH"
@@ -170,14 +168,13 @@ max170xx_attach(device_t dev)
 	designcap = lastfullcap = designvolt = 0;
 
 	sc->sc_dev = dev;
-	sc->sc_addr = MAX170xx_SADDR << 1;
 
 	/* datasheet reccomends 0.01 ohms default sense resistor value */
 	sc->sc_rsns = 10; 
-	status = 0;	//POR 0x0002
+	status = 0;
 	rv = max170xx_read(sc->sc_dev, MAX170xx_REG_STATUS, &status);
 	if (rv != 0) {
-		device_printf(sc->sc_dev, "first read failed code: %d %d\n",
+		device_printf(sc->sc_dev, "failed to read status %d %d\n",
 			rv, iic2errno(rv));
 		return ENXIO;
 	}
@@ -217,15 +214,16 @@ max170xx_read(device_t dev, uint8_t reg, uint16_t *val)
 {
 	struct max170xx_softc *sc;
 	struct iic_msg msg[2];
+	uint16_t addr = iicbus_get_addr(dev);
 
 	sc = device_get_softc(dev);
 
-	msg[0].slave = sc->sc_addr;
+	msg[0].slave = addr;
 	msg[0].flags = IIC_M_WR | IIC_M_NOSTOP;
 	msg[0].len = 1;
 	msg[0].buf = &reg;
 
-	msg[1].slave = sc->sc_addr;
+	msg[1].slave = addr;
 	msg[1].flags = IIC_M_RD;
 	msg[1].len = sizeof(uint16_t);
 	msg[1].buf = (uint8_t *)val;
@@ -238,16 +236,17 @@ max170xx_write(device_t dev, uint8_t reg, uint16_t val)
 {
 	struct max170xx_softc *sc;
 	struct iic_msg msg[2];
+	uint16_t addr = iicbus_get_addr(dev);
 
 	sc = device_get_softc(dev);
 	reg = htobe16(reg);
 
-	msg[0].slave = sc->sc_addr;
+	msg[0].slave = addr;
 	msg[0].flags = IIC_M_WR | IIC_M_NOSTOP;
 	msg[0].len = 1;
 	msg[0].buf = &reg;
 
-	msg[1].slave = sc->sc_addr;		
+	msg[1].slave = addr;		
 	msg[1].flags = IIC_M_WR;
 	msg[1].len = sizeof(uint16_t);
 	msg[1].buf = (uint8_t *)&val;
