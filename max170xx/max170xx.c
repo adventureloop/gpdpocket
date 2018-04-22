@@ -188,7 +188,8 @@ max170xx_attach(device_t dev)
 		return ENXIO;
 	}
 
-	max170xx_dumpreg(sc->sc_dev);
+	if (bootverbose)
+	    max170xx_dumpreg(sc->sc_dev);
 
 	rv = max170xx_read(sc->sc_dev, MAX170xx_REG_DESIGNCAP, &designcap);
 	rv = max170xx_read(sc->sc_dev, MAX170xx_REG_FULLCAP, &lastfullcap);
