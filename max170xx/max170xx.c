@@ -206,10 +206,10 @@ max170xx_attach(device_t dev)
 	sc->sc_bif.gra1 = 70;		/* granularity 1 (warn to low) */
 	sc->sc_bif.gra2 = 70;		/* granularity 2 (full to warn) */
 
-	//sc->sc_bif.model = "max17042 Fuel Guage";
-	//sc->sc_bif.serial = "default";
-	//sc->sc_bif.type = "fuel guage";
-	//sc->sc_bif.oeminfo = "null";
+	memcpy(sc->sc_bif.model, "max170xx Fuel Guage", strlen("max170xx Fuel Guage"));
+	memcpy(sc->sc_bif.serial, "unknown", strlen("unknown"));
+	memcpy(sc->sc_bif.type, "fuel guage", strlen("fuel guage"));
+	memcpy(sc->sc_bif.oeminfo, "unknown", strlen("unknown"));
 
 	return (0);
 }
