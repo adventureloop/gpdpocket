@@ -45,8 +45,6 @@
 #include <dev/acpica/acpivar.h>
 #include <dev/acpica/acpiio.h>
 
-#include "max170xx_var.h"
-
 #define	MAX170xx_REG_STATUS	0x00
 #define MAX170xx_REG_SALRT_TH	0x03
 #define	MAX170xx_REG_TEMP	0x08	// MSB +1C
@@ -63,9 +61,23 @@
 #define MAX170xx_REG_VFOCV	0xFB	//raw open-circuit volt- age output of the voltage fuel gauge
 #define	MAX170xx_REG_SOCVF	0xFF	//State Of Charge
 
+struct max170xx_softc {
+	device_t	sc_dev;
+
+	uint32_t	sc_rsns;	/* sense resistor in micro ohms */
+
+	struct	acpi_bif sc_bif;
+	struct	acpi_bst sc_bst;
+};
+
+static int max170xx_attach(device_t);
+static int max170xx_detach(device_t);
 static int max170xx_read(device_t, uint8_t, uint16_t *);
 static int max170xx_write(device_t, uint8_t, uint16_t );
 static void max170xx_dumpreg(device_t);
+
+static int max170xx_get_bst(device_t, struct acpi_bst *);
+static int max170xx_get_bif(device_t, struct acpi_bif *);
 
 static int
 max170xx_remaining(device_t dev)
