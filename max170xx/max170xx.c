@@ -70,9 +70,7 @@ struct max170xx_softc {
 };
 
 static int max170xx_attach(device_t);
-static int max170xx_detach(device_t);
 static int max170xx_read(device_t, uint8_t, uint16_t *);
-static int max170xx_write(device_t, uint8_t, uint16_t );
 static void max170xx_dumpreg(device_t);
 
 static int max170xx_get_bst(device_t, struct acpi_bst *);
@@ -214,12 +212,6 @@ max170xx_attach(device_t dev)
 	return (0);
 }
 
-int
-max170xx_detach(device_t dev)
-{
-	return (0);
-}
-
 static int 
 max170xx_read(device_t dev, uint8_t reg, uint16_t *val)
 {
@@ -238,29 +230,6 @@ max170xx_read(device_t dev, uint8_t reg, uint16_t *val)
 	msg[1].flags = IIC_M_RD;
 	msg[1].len = sizeof(uint16_t);
 	msg[1].buf = (uint8_t *)val;
-
-	return (iicbus_transfer(dev, msg, 2));
-}
-
-static int 
-max170xx_write(device_t dev, uint8_t reg, uint16_t val)
-{
-	struct max170xx_softc *sc;
-	struct iic_msg msg[2];
-	uint16_t addr = iicbus_get_addr(dev);
-
-	sc = device_get_softc(dev);
-	reg = htobe16(reg);
-
-	msg[0].slave = addr;
-	msg[0].flags = IIC_M_WR | IIC_M_NOSTOP;
-	msg[0].len = 1;
-	msg[0].buf = &reg;
-
-	msg[1].slave = addr;		
-	msg[1].flags = IIC_M_WR;
-	msg[1].len = sizeof(uint16_t);
-	msg[1].buf = (uint8_t *)&val;
 
 	return (iicbus_transfer(dev, msg, 2));
 }
