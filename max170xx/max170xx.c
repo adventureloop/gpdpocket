@@ -178,7 +178,7 @@ max170xx_attach(device_t dev)
 
 	sc->sc_dev = dev;
 
-	/* datasheet reccomends 0.01 ohms default sense resistor value */
+	/* datasheet recommends 0.01 ohms default sense resistor value */
 	sc->sc_rsns = 10; 
 	status = 0;
 	rv = max170xx_read(sc->sc_dev, MAX170xx_REG_STATUS, &status);
@@ -241,12 +241,6 @@ max170xx_get_bif(device_t dev, struct acpi_bif *bif)
 	struct max170xx_softc *sc;
 	sc = device_get_softc(dev);
 
-	/*                  
-	 * Just copy the data.  The only value that should change is the
-	 * last-full capacity, so we only update when we get a notify that says
-	 * the info has changed. 
-	 */                 
-
 	bif->units = sc->sc_bif.units;
 	bif->dcap = sc->sc_bif.dcap;
 	bif->lfcap = sc->sc_bif.lfcap;
@@ -262,7 +256,7 @@ max170xx_get_bif(device_t dev, struct acpi_bif *bif)
 	strncpy(bif->type, sc->sc_bif.type, sizeof(sc->sc_bif.type));
 	strncpy(bif->oeminfo, sc->sc_bif.oeminfo, sizeof(sc->sc_bif.oeminfo));
 
-    return (0);
+	return (0);
 }
 
 int
@@ -281,6 +275,7 @@ max170xx_get_bst(device_t dev, struct acpi_bst *bst)
 	max170xx_read(dev, MAX170xx_REG_AVG_VOLT, &volt);
 	max170xx_read(dev, MAX170xx_REG_AVG_CUR, &rate);
 
+	/* fuel guage can't detect power, always say we are discharging */
 	bst->state = ACPI_BATT_STAT_DISCHARG;
 	bst->cap = remcap;
 	//bst->cap = remcap / sc->sc_rsns;
@@ -296,7 +291,7 @@ static device_method_t max170xx_methods[] = {
 
 	/* ACPI battery interface */                        
 	DEVMETHOD(acpi_batt_get_status, max170xx_get_bst),
-	DEVMETHOD(acpi_batt_get_info, max170xx_get_bif),  
+	DEVMETHOD(acpi_batt_get_info, max170xx_get_bif),
 	DEVMETHOD_END
 };
 
