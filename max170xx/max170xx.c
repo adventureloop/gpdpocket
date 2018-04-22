@@ -46,24 +46,23 @@
 #include <dev/acpica/acpiio.h>
 
 #define	MAX170xx_REG_STATUS	0x00
-#define MAX170xx_REG_SALRT_TH	0x03
-#define	MAX170xx_REG_TEMP	0x08	// MSB +1C
-#define MAX170xx_REG_VCELL	0x09	// 0.625mV per div bottom 3 bits don't cate
-#define MAX170xx_REG_FULLCAP	0x10	// calculated full cap in uVh
-#define MAX170xx_REG_AVG_CUR	0x0B	// average current
-#define MAX170xx_REG_SOCAV	0x0E	// state of charge
-#define	MAX170xx_REG_TTE	0x11	// time to empty
-#define MAX170xx_REG_DESIGNCAP	0x18	// design capacity in uVh
-#define MAX170xx_REG_AVG_VOLT	0x19	// average voltage
+#define MAX170xx_REG_SALRT_TH	0x03	/* temperature alert */
+#define	MAX170xx_REG_TEMP	0x08	/* MSB +1C */
+#define MAX170xx_REG_VCELL	0x09	/* 0.625mV per div bottom 3 bits don't care */
+#define MAX170xx_REG_FULLCAP	0x10	/* calculated full cap in uVh */
+#define MAX170xx_REG_AVG_CUR	0x0B	/* average current */
+#define MAX170xx_REG_SOCAV	0x0E	/* state of charge */
+#define	MAX170xx_REG_TTE	0x11	/* time to empty */
+#define MAX170xx_REG_DESIGNCAP	0x18	/* design capacity in uVh */
+#define MAX170xx_REG_AVG_VOLT	0x19	/* average voltage */
 #define	MAX170xx_REG_CONFIG 	0x1D
-#define	MAX170xx_REG_REMCAP	0x1F	//remaining capacity in uVh
+#define	MAX170xx_REG_REMCAP	0x1F	/* remaining capacity in uVh */
 #define MAX170xx_REG_VERSION	0x21
-#define MAX170xx_REG_VFOCV	0xFB	//raw open-circuit volt- age output of the voltage fuel gauge
-#define	MAX170xx_REG_SOCVF	0xFF	//State Of Charge
+#define MAX170xx_REG_VFOCV	0xFB	/* raw open-circuit volt- age output of the voltage fuel gauge */
+#define	MAX170xx_REG_SOCVF	0xFF	/* state of charge */
 
 struct max170xx_softc {
 	device_t	sc_dev;
-
 	uint32_t	sc_rsns;	/* sense resistor in micro ohms */
 
 	struct	acpi_bif sc_bif;
@@ -200,12 +199,12 @@ max170xx_attach(device_t dev)
 	sc->sc_bif.units = ACPI_BIF_UNITS_MW;
 	sc->sc_bif.dcap = designcap;
 	sc->sc_bif.lfcap = lastfullcap;
-	sc->sc_bif.btech = 1;		// rechargable battery
+	sc->sc_bif.btech = 1;		/* rechargable battery */
 	sc->sc_bif.dvol = ((uint32_t)designvolt>>3)*1000/625;
 	sc->sc_bif.wcap = (uint32_t)lastfullcap*100/95;
 	sc->sc_bif.lcap = (uint32_t)lastfullcap*100/80;
-	sc->sc_bif.gra1 = 70;		//granularity 1 (warn to low)
-	sc->sc_bif.gra2 = 70;		//granularity 1 (full to warn)
+	sc->sc_bif.gra1 = 70;		/* granularity 1 (warn to low) */
+	sc->sc_bif.gra2 = 70;		/* granularity 2 (full to warn) */
 
 	//sc->sc_bif.model = "max17042 Fuel Guage";
 	//sc->sc_bif.serial = "default";
