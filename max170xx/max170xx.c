@@ -61,8 +61,22 @@
 #define MAX170xx_REG_VFOCV	0xFB	/* raw open-circuit volt- age output of the voltage fuel gauge */
 #define	MAX170xx_REG_SOCVF	0xFF	/* state of charge */
 
+/*
+ * Macros for driver mutex locking
+ */
+#define MAX170XX_LOCK(_sc)               mtx_lock_spin(&(_sc)->sc_mtx)
+#define MAX170XX_UNLOCK(_sc)             mtx_unlock_spin(&(_sc)->sc_mtx)
+#define MAX170XX_LOCK_INIT(_sc) \
+	mtx_init(&_sc->sc_mtx, device_get_nameunit((_sc)->sc_dev), \
+	"max170xx", MTX_SPIN)
+#define MAX170XX_LOCK_DESTROY(_sc)       mtx_destroy(&(_sc)->sc_mtx)
+#define MAX170XX_ASSERT_LOCKED(_sc)      mtx_assert(&(_sc)->sc_mtx, MA_OWNED)
+#define MAX170XX_ASSERT_UNLOCKED(_sc)    mtx_assert(&(_sc)->sc_mtx, MA_NOTOWNED)
+
 struct max170xx_softc {
 	device_t	sc_dev;
+	struct mtx	sc_mtx;
+
 	uint32_t	sc_rsns;	/* sense resistor in micro ohms */
 
 	struct	acpi_bif sc_bif;
@@ -178,11 +192,16 @@ max170xx_attach(device_t dev)
 
 	sc->sc_dev = dev;
 
+	MAX170XX_LOCK_INIT(sc);
+	MAX170XX_LOCK(sc);
+
 	/* datasheet recommends 0.01 ohms default sense resistor value */
 	sc->sc_rsns = 10; 
 	status = 0;
 	rv = max170xx_read(sc->sc_dev, MAX170xx_REG_STATUS, &status);
 	if (rv != 0) {
+		MAX170XX_UNLOCK(sc);
+		MAX170XX_LOCK_DESTROY(sc);
 		device_printf(sc->sc_dev, "failed to read status %d %d\n",
 			rv, iic2errno(rv));
 		return ENXIO;
@@ -209,6 +228,18 @@ max170xx_attach(device_t dev)
 	memcpy(sc->sc_bif.serial, "unknown", strlen("unknown"));
 	memcpy(sc->sc_bif.type, "fuel guage", strlen("fuel guage"));
 	memcpy(sc->sc_bif.oeminfo, "unknown", strlen("unknown"));
+
+	MAX170XX_UNLOCK(sc);
+	return (0);
+}
+
+static int
+max170xx_detach(device_t dev)
+{
+	struct max170xx_softc *sc;
+	sc = device_get_softc(dev);
+
+	MAX170XX_LOCK_DESTROY(sc);
 
 	return (0);
 }
@@ -241,6 +272,8 @@ max170xx_get_bif(device_t dev, struct acpi_bif *bif)
 	struct max170xx_softc *sc;
 	sc = device_get_softc(dev);
 
+	MAX170XX_LOCK(sc);
+
 	bif->units = sc->sc_bif.units;
 	bif->dcap = sc->sc_bif.dcap;
 	bif->lfcap = sc->sc_bif.lfcap;
@@ -256,6 +289,8 @@ max170xx_get_bif(device_t dev, struct acpi_bif *bif)
 	strncpy(bif->type, sc->sc_bif.type, sizeof(sc->sc_bif.type));
 	strncpy(bif->oeminfo, sc->sc_bif.oeminfo, sizeof(sc->sc_bif.oeminfo));
 
+	MAX170XX_UNLOCK(sc);
+
 	return (0);
 }
 
@@ -266,6 +301,7 @@ max170xx_get_bst(device_t dev, struct acpi_bst *bst)
 	uint16_t remcap , volt, rate;
 	sc = device_get_softc(dev);
 
+	MAX170XX_LOCK(sc);
 	/* 
 	 * The value is stored in terms of μVh and must be divided by the
 	 * application sense-resistor value to determine remaining capacity in
@@ -282,7 +318,8 @@ max170xx_get_bst(device_t dev, struct acpi_bst *bst)
 	bst->volt = (((uint32_t)volt >> 3) * 625)/1000;	/* 0.625mV per lsb */
 	bst->rate = (((uint32_t)rate * 15625)/10000)/sc->sc_rsns; /* 1.5625uV/rsense per lsb */
 
-    return (0);
+	MAX170XX_UNLOCK(sc);
+	return (0);
 }
 
 static device_method_t max170xx_methods[] = {
