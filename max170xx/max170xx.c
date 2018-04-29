@@ -296,7 +296,7 @@ static device_method_t max170xx_methods[] = {
 };
 
 static driver_t max170xx_driver = {
-	.name = "max170xx",
+	.name = "battery",
 	.methods = max170xx_methods,
 	.size = sizeof(struct max170xx_softc)
 };
