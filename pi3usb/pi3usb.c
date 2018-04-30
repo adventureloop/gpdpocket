@@ -65,22 +65,6 @@ static int pi3usb_read(device_t, uint8_t *);
 static int pi3usb_write(device_t, uint8_t);
 static int pi3usb_sysctl(SYSCTL_HANDLER_ARGS);
 
-#if 0
-static int
-pi3usb_sysctl(SYSCTL_HANDLER_ARGS)
-{
-	struct pi3usb_softc *sc;
-
-	sc = (struct pi3usb_softc *)arg1;
-
-	if (req->newptr != NULL && CAST_PTR_INT(req->newptr) > 7)
-		return (EINVAL);
-
-	device_printf(sc->sc_dev, "debug req val %d\n", CAST_PTR_INT(req->newptr));
-	return (sysctl_handle_int(oidp, arg1, arg2, req));
-}
-#endif
-
 static int
 pi3usb_probe(device_t dev)
 {
