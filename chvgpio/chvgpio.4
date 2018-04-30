@@ -24,7 +24,7 @@
 .\"
 .\" $FreeBSD$
 .\"
-.Dd November 11, 2017
+.Dd November 17, 2017
 .Dt CHVGPIO 4
 .Os
 .Sh NAME
@@ -34,14 +34,15 @@
 .Cd "device gpio"
 .Cd "device chvgpio"
 .Sh DESCRIPTION
-The
 .Nm
-is a driver for GPIO controller that can be found in Intel's Cherry View SoC
+supports the GPIO controller that can be found in Intel's Cherry View SoC
 family.
 .Pp
-Cherry View SoC has 5 banks of GPIO pins, NORTH, EAST, SOUTHEAST, SOUTHWEST and
-VIRTUAL.
-All but VIRTUAL are exposed to userland as /dev/gpiocN, where N is 0-3.
+The Cherry View SoC has 5 banks of GPIO pins, NORTH, EAST, SOUTHEAST, SOUTHWEST
+and VIRTUAL.
+All but VIRTUAL are exposed to userland as
+.Pa /dev/gpiocN ,
+where N is 0-3.
 Pins in each bank are pre-named to match names in the Intel® Atom™ Z8000
 Processor Series Vol 2
 .Sh SEE ALSO
@@ -60,5 +61,5 @@ The
 manual page first appeared in
 .Fx 12 .
 .Sh AUTHORS
-This driver and man page was written by
+This driver and man page were written by
 .An Tom Jones Aq Mt tj@enoti.me .
