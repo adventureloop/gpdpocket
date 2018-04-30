@@ -265,7 +265,10 @@ chvpower_get_bst(device_t dev, struct acpi_bst *bst)
 	struct chvpower_softc *sc;
 	sc = device_get_softc(dev);
 
-	return ACPI_BATT_GET_STATUS(sc->sc_max170xx, bst);
+	if (sc->sc_max170xx)
+		return ACPI_BATT_GET_STATUS(sc->sc_max170xx, bst);
+	else
+		return (0);
 }
 
 static int 
@@ -273,7 +276,11 @@ chvpower_get_bif(device_t dev, struct acpi_bif *bif)
 {
 	struct chvpower_softc *sc;
 	sc = device_get_softc(dev);
-	return ACPI_BATT_GET_INFO(sc->sc_max170xx, bif);
+
+	if (sc->sc_max170xx)
+		return ACPI_BATT_GET_INFO(sc->sc_max170xx, bif);
+	else
+		return (0);
 }
 
 static device_method_t chvpower_methods[] = {
