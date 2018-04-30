@@ -164,6 +164,7 @@ pi3usb_sysctl(SYSCTL_HANDLER_ARGS)
 		value = CAST_PTR_INT(req->newptr);
 		if (value < 0 || value > 8)
 			return (EINVAL);
+		device_printf(sc->sc_dev, "value %d\n", value);
 		if ((rv = pi3usb_write(sc->sc_dev, value)) != 0)
 			device_printf(sc->sc_dev, "write config failed rv: %d errno: %d\n",
 		    	rv, iic2errno(rv));
@@ -171,6 +172,7 @@ pi3usb_sysctl(SYSCTL_HANDLER_ARGS)
 		if ((rv = pi3usb_read(sc->sc_dev, &value)) != 0)	
 			device_printf(sc->sc_dev, "read config failed rv: %d errno: %d\n",
 				rv, iic2errno(rv));
+		device_printf(sc->sc_dev, "value %d\n", value);
 		SYSCTL_OUT(req, &value, sizeof(value));
 	}
 
