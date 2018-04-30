@@ -68,7 +68,6 @@ struct chvpower_softc {
 	struct chvpower_child 	sc_iicchildren[IIC_CHILD_MAX];
 
 	device_t		sc_max170xx;
-	device_t		sc_pi3usb;
 };
 
 static char *chvpower_hids[] = {
@@ -112,7 +111,7 @@ chvpower_attach(device_t dev)
 		return (ENXIO);
 
     parent = device_get_parent(dev);
-#if 0
+
 	/* 
 	 * The String in the child acpi is missing an underscore (\_SB. vs \/_SB_)
 	 * compensate for this manually, free the alloced string and replace it 
@@ -138,34 +137,6 @@ chvpower_attach(device_t dev)
 		} else
 			device_printf(dev, "failed to add max170xx child\n");
 	} 
-#endif
-#if 1
-	/* 
-	 * The String in the child acpi is missing an underscore (\_SB. vs \/_SB_)
-	 * compensate for this manually, free the alloced string and replace it 
-	 * with the correct one.
-	 */
-	free(sc->sc_iicchildren[1].resource_source, M_CHVPWR);
-	sc->sc_iicchildren[1].resource_source = "\\_SB_.PCI0.I2C1";
-
-	iicbus = iicbus_for_acpi_resource_source(dev, parent, "ig4iic_acpi",
-		sc->sc_iicchildren[1].resource_source);
-
-	if (iicbus != NULL) {
-		device_t child = BUS_ADD_CHILD(iicbus, 0, "pi3usb", -1);
-		if (child != NULL) {
-			iicbus_set_addr(child, sc->sc_iicchildren[3].address << 1);
-			sc->sc_pi3usb = child;
-			bus_generic_attach(iicbus);
-
-			if (acpi_battery_register(dev) != 0) {
-				device_printf(dev, "failed to register battery\n");
-				return (ENXIO);                                 
-			}                                                   
-		} else
-			device_printf(dev, "failed to add max170xx child\n");
-	} 
-#endif
 	return (0);
 }
 
