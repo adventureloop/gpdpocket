@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2018 Tom Jones <tj@enoti.me>
+ * Copyright (c) 2018 Tom Jones <thj@freebsd.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,9 +43,7 @@
 
 struct pi3usb_softc {
 	device_t			sc_dev;
-	uint8_t				sc_addr;
 	uint8_t				sc_config;
-
 };
 
 #define PI3USB_SADDR	0x54 // datasheet disagrees with acpi
@@ -86,6 +84,7 @@ pi3usb_sysctl(SYSCTL_HANDLER_ARGS)
 static int
 pi3usb_probe(device_t dev)
 {
+	device_printf(dev, "probe\n");
 	device_set_desc(dev, "pi3usb USB Type-C Mux");
 	return (0);
 }
@@ -139,7 +138,7 @@ pi3usb_attach(device_t dev)
 	uint8_t config = 0;
 
 	sc->sc_dev = dev;
-	sc->sc_addr = PI3USB_SADDR << 1;
+	device_printf(dev, "attach\n");
 
 	if ((rv = pi3usb_read(dev, &config)) != 0)	
 		device_printf(dev, "read config failed rv: %d errno: %d\n", rv, iic2errno(rv));
@@ -197,10 +196,11 @@ pi3usb_read(device_t dev, uint8_t *val)
 	struct iic_msg msg[1];
 	uint8_t buf[2];
 	int rv;
+	uint16_t addr = iicbus_get_addr(dev); 
 
 	sc = device_get_softc(dev);
 
-	msg[0].slave = sc->sc_addr;
+	msg[0].slave = addr;
 	msg[0].flags = IIC_M_RD;
 	msg[0].len = 2;
 	msg[0].buf = buf;
@@ -217,13 +217,14 @@ pi3usb_write(device_t dev, uint8_t val)
 	struct pi3usb_softc *sc;
 	struct iic_msg msg[2];
 	uint8_t buf[2];
+	uint16_t addr = iicbus_get_addr(dev); 
 
 	buf[0] = 0;
 	buf[1] = val;
 
 	sc = device_get_softc(dev);
 
-	msg[0].slave = sc->sc_addr;
+	msg[0].slave = addr;
 	msg[0].flags = IIC_M_WR;
 	msg[0].len = 2;
 	msg[0].buf = buf;
