@@ -438,7 +438,7 @@ chvgpio_attach(device_t dev)
 
 	/* Mask and ack all interrupts. */
 	//fusb is pin 0x0005 on \_SB.GPO1
-	if (uid == 2)	// 1 (goes 1-4)
+	if (uid == 3)	// 1 (goes 1-4) 2 
 		bus_write_4(sc->sc_mem_res, CHVGPIO_INTERRUPT_MASK, 0x0020);
 	else
 		bus_write_4(sc->sc_mem_res, CHVGPIO_INTERRUPT_MASK, 0);
