@@ -1,8 +1,7 @@
 /*-
  * SPDX-License-Identifier: BSD-2-Clause-FreeBSD
  *
- * Copyright (c) 2017 Tom Jones <tj@enoti.me>
- * All rights reserved.
+ * Copyright (c) 2017, 2018 Tom Jones <thj@freebsd.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -438,7 +437,8 @@ chvgpio_attach(device_t dev)
 	}
 
 	/* Mask and ack all interrupts. */
-	bus_write_4(sc->sc_mem_res, CHVGPIO_INTERRUPT_MASK, 0);
+	//bus_write_4(sc->sc_mem_res, CHVGPIO_INTERRUPT_MASK, 0);
+	bus_write_4(sc->sc_mem_res, CHVGPIO_INTERRUPT_MASK, 0xffff);
 	bus_write_4(sc->sc_mem_res, CHVGPIO_INTERRUPT_STATUS, 0xffff);
 
 	sc->sc_busdev = gpiobus_attach_bus(dev);
