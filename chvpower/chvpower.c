@@ -2,7 +2,6 @@
  * SPDX-License-Identifier: BSD-2-Clause-FreeBSD
  *
  * Copyright (c) 2018 Tom Jones <thj@freebsd.org>
- * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -53,7 +52,7 @@
 
 #define IIC_CHILD_MAX 4
 
-static MALLOC_DEFINE(M_CHVPWR, "chv-power", "CherryView Power Driver");
+static MALLOC_DEFINE(M_CHVPWR, "chvpower", "CherryView Power Driver");
 
 struct chvpower_child {
 	uint8_t address;
@@ -113,7 +112,7 @@ chvpower_attach(device_t dev)
     parent = device_get_parent(dev);
 
 	/* 
-	 * The String in the child acpi is missing an underscore (\_SB. vs \/_SB_)
+	 * The String in the child acpi is missing an underscore (\_SB. vs \_SB_)
 	 * compensate for this manually, free the alloced string and replace it 
 	 * with the correct one.
 	 */
