@@ -71,6 +71,11 @@
 	"maxfg", MTX_DEF)
 #define MAXFG_LOCK_DESTROY(_sc)       mtx_destroy(&(_sc)->sc_mtx)
 
+#define MAXFG_BIF_MODEL	"Fuel Gauge"
+#define MAXFG_BIF_SERIAL	"unknown"
+#define MAXFG_BIF_TYPE	"fuel gauge"
+#define MAXFG_BIF_OEMINFO	"unknown"
+
 struct maxfg_softc {
 	device_t	sc_dev;
 	struct mtx	sc_mtx;
@@ -177,7 +182,7 @@ maxfg_dumpreg(device_t dev)
 static int
 maxfg_probe(device_t dev)
 {
-	device_set_desc(dev, "Maxim maxfg Fuel Guage");
+	device_set_desc(dev, "Maxim max170xx Fuel Guage");
 	return (0);
 }
 
@@ -225,10 +230,10 @@ maxfg_attach(device_t dev)
 	sc->sc_bif.gra1 = 70;		/* granularity 1 (warn to low) */
 	sc->sc_bif.gra2 = 70;		/* granularity 2 (full to warn) */
 
-	memcpy(sc->sc_bif.model, "maxfg Fuel Gauge", strlen("maxfg Fuel Gauge"));
-	memcpy(sc->sc_bif.serial, "unknown", strlen("unknown"));
-	memcpy(sc->sc_bif.type, "fuel gauge", strlen("fuel gauge"));
-	memcpy(sc->sc_bif.oeminfo, "unknown", strlen("unknown"));
+	memcpy(sc->sc_bif.model, MAXFG_BIF_MODEL, strlen(MAXFG_BIF_MODEL));
+	memcpy(sc->sc_bif.serial, MAXFG_BIF_SERIAL, strlen(MAXFG_BIF_SERIAL));
+	memcpy(sc->sc_bif.type, MAXFG_BIF_TYPE, strlen(MAXFG_BIF_TYPE));
+	memcpy(sc->sc_bif.oeminfo, MAXFG_BIF_OEMINFO, strlen(MAXFG_BIF_OEMINFO));
 
 	return (0);
 }
@@ -239,6 +244,7 @@ maxfg_detach(device_t dev)
 	struct maxfg_softc *sc;
 	sc = device_get_softc(dev);
 
+	MAXFG_LOCK(sc);
 	MAXFG_LOCK_DESTROY(sc);
 
 	return (0);
