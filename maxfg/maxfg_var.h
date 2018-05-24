@@ -34,7 +34,7 @@
 struct max170xx_softc {
 	device_t		sc_dev;
 
-	uint32_t		sc_rsns;		/* sense resistor in micro ohms*/
+	uint32_t		sc_rsns;		/* sense resistor in micro ohms */
 
 	struct acpi_bif	sc_bif;
 	struct acpi_bst	sc_bst;
