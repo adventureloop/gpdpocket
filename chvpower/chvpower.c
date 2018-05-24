@@ -50,9 +50,21 @@
 #include <dev/iicbus/iicbus.h>
 #include <dev/iicbus/iiconf.h>
 
+/*
+ *     Macros for driver mutex locking
+ */
+#define CHVPOWER_LOCK(_sc)               mtx_lock_spin(&(_sc)->sc_mtx)
+#define CHVPOWER_UNLOCK(_sc)             mtx_unlock_spin(&(_sc)->sc_mtx)
+#define CHVPOWER_LOCK_INIT(_sc) \
+        mtx_init(&_sc->sc_mtx, device_get_nameunit((_sc)->sc_dev), \
+        "chvpower", MTX_SPIN)
+#define CHVPOWER_LOCK_DESTROY(_sc)       mtx_destroy(&(_sc)->sc_mtx)
+#define CHVPOWER_ASSERT_LOCKED(_sc)      mtx_assert(&(_sc)->sc_mtx, MA_OWNED)
+#define CHVPOWER_ASSERT_UNLOCKED(_sc)    mtx_assert(&(_sc)->sc_mtx, MA_NOTOWNED)
+
 #define IIC_CHILD_MAX 4
 
-static MALLOC_DEFINE(M_CHVPWR, "chvpower", "CherryView Power Driver");
+static MALLOC_DEFINE(M_CHVPWR, "chvpower", "Cherry View Power Driver");
 
 struct chvpower_child {
 	uint8_t address;
@@ -62,6 +74,7 @@ struct chvpower_child {
 struct chvpower_softc {
 	device_t		sc_dev;
 	ACPI_HANDLE		sc_handle;
+	struct mtx		sc_mtx;
 
 	uint8_t			sc_iicchild_count;
 	struct chvpower_child 	sc_iicchildren[IIC_CHILD_MAX];
@@ -104,12 +117,14 @@ chvpower_attach(device_t dev)
 	sc->sc_dev = dev;
 	sc->sc_handle = acpi_get_handle(dev);
 
+	CHVPOWER_LOCK_INIT(sc);
+
 	status = AcpiWalkResources(sc->sc_handle, "_CRS", acpi_collect_i2c_resources, dev);
 
 	if (sc->sc_iicchild_count != 4)
 		return (ENXIO);
 
-    parent = device_get_parent(dev);
+	parent = device_get_parent(dev);
 
 	/* 
 	 * The String in the child acpi is missing an underscore (\_SB. vs \_SB_)
@@ -215,6 +230,8 @@ chvpower_detach(device_t dev)
 	struct chvpower_softc *sc;
 	sc = device_get_softc(dev);
 
+	CHVPOWER_LOCK(sc);
+
 	if (sc->sc_max170xx)
 		device_delete_child(device_get_parent(sc->sc_max170xx), sc->sc_max170xx);
 
@@ -226,6 +243,8 @@ chvpower_detach(device_t dev)
 			sc->sc_iicchildren[child].resource_source = NULL;
 		}
 	}
+
+	CHVPOWER_LOCK_DESTROY(sc);
 	return (0);
 }
 
@@ -233,24 +252,35 @@ static int
 chvpower_get_bst(device_t dev, struct acpi_bst *bst)
 {
 	struct chvpower_softc *sc;
+	int error;
+
 	sc = device_get_softc(dev);
+	error = 0;
+
+	CHVPOWER_LOCK(sc);
 
 	if (sc->sc_max170xx)
-		return ACPI_BATT_GET_STATUS(sc->sc_max170xx, bst);
-	else
-		return (0);
+		error = ACPI_BATT_GET_STATUS(sc->sc_max170xx, bst);
+	CHVPOWER_UNLOCK(sc);
+	return (error);
 }
 
 static int 
 chvpower_get_bif(device_t dev, struct acpi_bif *bif)
 {
 	struct chvpower_softc *sc;
+	int error;
+
 	sc = device_get_softc(dev);
+	error = 0;
+
+	CHVPOWER_LOCK(sc);
 
 	if (sc->sc_max170xx)
-		return ACPI_BATT_GET_INFO(sc->sc_max170xx, bif);
-	else
-		return (0);
+		error = ACPI_BATT_GET_INFO(sc->sc_max170xx, bif);
+
+	CHVPOWER_UNLOCK(sc);
+	return (error);
 }
 
 static device_method_t chvpower_methods[] = {
