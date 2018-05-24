@@ -28,44 +28,21 @@
 .\" $FreeBSD$
 .\"
 .Dd May 50, 2018
-.Dt MAX170XX 4
+.Dt MAXFG 4
 .Os
 .Sh NAME
-.Nm max170xx
+.Nm maxfg
 .Nd Maxim(TM) 17047 and 17050 Fuel Gauge driver
 .Sh SYNOPSIS
-To compile this driver into the kernel, place the following lines into
-the kernel configuration file:
-.Bd -ragged -offset indent
-.Cd "device iic"
-.Cd "device iicbus"
-.Cd "device ig4"
-.Cd "device max170xx"
-.Ed
-.Pp
-On a system using
-.Xr device.hints 5 ,
-these values are configurable for
-.Nm :
-.Bl -tag -width "hint.max170xx.%d.addr"
-.It Va hint.max170xx.%d.at
-target
-.Xr iicbus 4 .
-.It Va hint.max170xx.%d.addr
-.Nm
-i2c address on the
-.Xr iicbus 4 .
-.El
-.Pp
 .Sh DESCRIPTION
 The
 .Nm
 driver provides access to battery sensor information provided by
-Maxim(TM) I2C 17047 and 17050 1-Cell Fuel Gauge sensors. 
-
+Maxim(TM) I2C 17047 and 17050 1-Cell Fuel Gauge sensors.
 .Sh SEE ALSO
 .Xr ig4 4 ,
 .Xr iicbus 4
+.Xr chvpower 4
 .Xr acpiconf 8
 .Rs
 .%T MAX17047/MAX17050 1-Cell Fuel Gauge with ModelGauge m3
