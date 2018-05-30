@@ -224,7 +224,7 @@ maxfg_attach(device_t dev)
 	MAXFG_UNLOCK(sc);
 
 	sc->sc_bif.units = ACPI_BIF_UNITS_MA;
-	sc->sc_bif.dcap = designcap;				//TODO should be mAh
+	sc->sc_bif.dcap = designcap/sc->sc_rsns;		//TODO should be mAh
 	sc->sc_bif.lfcap = lastfullcap;				//TODO mAh
 	sc->sc_bif.btech = 1;		/* rechargable battery */
 	sc->sc_bif.dvol = ((uint32_t)designvolt>>3)*1000/625;	//TODO mV
