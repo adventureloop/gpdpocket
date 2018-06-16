@@ -140,7 +140,7 @@ chvpower_attach(device_t dev)
 	if (iicbus != NULL) {
 		device_t child = BUS_ADD_CHILD(iicbus, 0, "maxfg", -1);
 		if (child != NULL) {
-			iicbus_set_addr(child, sc->sc_iicchildren[1].address << 1);
+			iicbus_set_addr(child, sc->sc_iicchildren[1].address);
 			sc->sc_maxfg = child;
 			bus_generic_attach(iicbus);
 
