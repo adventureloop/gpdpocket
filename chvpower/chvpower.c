@@ -57,7 +57,7 @@
 #define CHVPOWER_UNLOCK(_sc)             mtx_unlock(&(_sc)->sc_mtx)
 #define CHVPOWER_LOCK_INIT(_sc) \
         mtx_init(&_sc->sc_mtx, device_get_nameunit((_sc)->sc_dev), \
-        "chvpower", MTX_SPIN)
+        "chvpower", MTX_DEF)
 #define CHVPOWER_LOCK_DESTROY(_sc)       mtx_destroy(&(_sc)->sc_mtx)
 #define CHVPOWER_ASSERT_LOCKED(_sc)      mtx_assert(&(_sc)->sc_mtx, MA_OWNED)
 #define CHVPOWER_ASSERT_UNLOCKED(_sc)    mtx_assert(&(_sc)->sc_mtx, MA_NOTOWNED)
