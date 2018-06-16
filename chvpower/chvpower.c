@@ -131,7 +131,7 @@ chvpower_attach(device_t dev)
 	 * compensate for this manually, free the alloced string and replace it 
 	 * with the correct one.
 	 */
-	free(sc->sc_iicchildren[1].resource_source, M_CHVPWR);
+	//free(sc->sc_iicchildren[1].resource_source, M_CHVPWR);
 	sc->sc_iicchildren[1].resource_source = "\\_SB_.PCI0.I2C1";
 
 	iicbus = iicbus_for_acpi_resource_source(dev, parent, "ig4iic_acpi",
@@ -204,12 +204,12 @@ acpi_collect_i2c_resources(ACPI_RESOURCE *res, void *context)
 				if (sc->sc_iicchild_count < IIC_CHILD_MAX) {
 					sc->sc_iicchildren[sc->sc_iicchild_count].address = 
 						res->Data.I2cSerialBus.SlaveAddress;
-
+/*
 					sc->sc_iicchildren[sc->sc_iicchild_count].resource_source = 
 						strndup(res->Data.CommonSerialBus.ResourceSource.StringPtr,
 						(size_t)res->Data.CommonSerialBus.ResourceSource.StringLength, 
 						M_CHVPWR);
-
+*/
 					sc->sc_iicchild_count++;
 				}
 			break;
