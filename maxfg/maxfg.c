@@ -188,7 +188,7 @@ maxfg_attach(device_t dev)
 
 	/* datasheet recommends 0.01 ohms default sense resistor value */
 	/* 0.01 ohms as microohms */
-	sc->sc_rsns = 10000;
+	sc->sc_rsns = 10;
 	status = 0;
 
 	rv = maxfg_read(sc->sc_dev, MAXFG_REG_STATUS, &status);
@@ -208,14 +208,14 @@ maxfg_attach(device_t dev)
 	lastfullcap = lastfullcap/sc->sc_rsns;
 
 	sc->sc_bif.units = ACPI_BIF_UNITS_MA;
-	sc->sc_bif.dcap = designcap/sc->sc_rsns;		//TODO should be mAh
-	sc->sc_bif.lfcap = lastfullcap;				//TODO mAh
+	sc->sc_bif.dcap = designcap*5/sc->sc_rsns;
+	sc->sc_bif.lfcap = lastfullcap*5/sc->sc_rsns;
 	sc->sc_bif.btech = 1;		/* rechargable battery */
-	sc->sc_bif.dvol = ((uint32_t)designvolt>>3)*1000/625;	//TODO mV
-	sc->sc_bif.wcap = (uint32_t)lastfullcap*15/100;		//TODO mAh
-	sc->sc_bif.lcap = (uint32_t)lastfullcap*10/100;		//TODO mAh
-	sc->sc_bif.gra1 = 70;		/* granularity 1 (warn to low) */	//TODO mAh
-	sc->sc_bif.gra2 = 70;		/* granularity 2 (full to warn) */	//TODO mAh
+	sc->sc_bif.dvol = ((uint32_t)designvolt>>3)*1000/625;
+	sc->sc_bif.wcap = (uint32_t)lastfullcap*15/100;
+	sc->sc_bif.lcap = (uint32_t)lastfullcap*10/100;
+	sc->sc_bif.gra1 = 70;		/* granularity 1 (warn to low) */
+	sc->sc_bif.gra2 = 70;		/* granularity 2 (full to warn) */
 
 	memcpy(sc->sc_bif.model, MAXFG_BIF_MODEL, strlen(MAXFG_BIF_MODEL));
 	memcpy(sc->sc_bif.serial, MAXFG_BIF_SERIAL, strlen(MAXFG_BIF_SERIAL));
@@ -298,7 +298,7 @@ maxfg_get_bst(device_t dev, struct acpi_bst *bst)
 
 	/* fuel guage can't detect power, always say we are discharging */
 	bst->state = ACPI_BATT_STAT_DISCHARG;
-	bst->cap = remcap / sc->sc_rsns;
+	bst->cap = remcap*5/sc->sc_rsns;
 	bst->volt = (((uint32_t)volt >> 3) * 625)/1000;	/* 0.625mV per lsb */
 	bst->rate = (((uint32_t)rate * 15625)/10000)/sc->sc_rsns; /* 1.5625uV/rsense per lsb */
 
