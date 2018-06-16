@@ -47,23 +47,23 @@
 
 #define	MAXFG_REG_STATUS	0x00
 #define MAXFG_REG_SALRT_TH	0x03	/* temperature alert */
-#define	MAXFG_REG_TEMP	0x08	/* MSB +1C */
-#define MAXFG_REG_VCELL	0x09	/* 0.625mV per div bottom 3 bits don't care */
+#define	MAXFG_REG_TEMP		0x08	/* MSB +1C */
+#define MAXFG_REG_VCELL		0x09	/* 0.625mV per div bottom 3 bits don't care */
 #define MAXFG_REG_FULLCAP	0x10	/* calculated full cap in uVh */
 #define MAXFG_REG_AVG_CUR	0x0B	/* average current */
-#define MAXFG_REG_SOCAV	0x0E	/* state of charge */
-#define	MAXFG_REG_TTE	0x11	/* time to empty */
+#define MAXFG_REG_SOCAV		0x0E	/* state of charge */
+#define	MAXFG_REG_TTE		0x11	/* time to empty */
 #define MAXFG_REG_DESIGNCAP	0x18	/* design capacity in uVh */
 #define MAXFG_REG_AVG_VOLT	0x19	/* average voltage */
 #define	MAXFG_REG_CONFIG 	0x1D
 #define	MAXFG_REG_REMCAP	0x1F	/* remaining capacity in uVh */
 #define MAXFG_REG_VERSION	0x21
-#define MAXFG_REG_VFOCV	0xFB	/* raw open-circuit voltage output */
-#define	MAXFG_REG_SOCVF	0xFF	/* state of charge */
+#define MAXFG_REG_VFOCV		0xFB	/* raw open-circuit voltage output */
+#define	MAXFG_REG_SOCVF		0xFF	/* state of charge */
 
-#define MAXFG_BIF_MODEL	"Fuel Gauge"
+#define MAXFG_BIF_MODEL		"max17047/max17050"
 #define MAXFG_BIF_SERIAL	"unknown"
-#define MAXFG_BIF_TYPE	"fuel gauge"
+#define MAXFG_BIF_TYPE		"fuel gauge"
 #define MAXFG_BIF_OEMINFO	"unknown"
 
 struct maxfg_softc {
