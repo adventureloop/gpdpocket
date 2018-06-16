@@ -258,11 +258,11 @@ chvpower_get_bst(device_t dev, struct acpi_bst *bst)
 	sc = device_get_softc(dev);
 	error = 0;
 
-	CHVPOWER_LOCK(sc);
+//	CHVPOWER_LOCK(sc);
 
 	if (sc->sc_maxfg)
 		error = ACPI_BATT_GET_STATUS(sc->sc_maxfg, bst);
-	CHVPOWER_UNLOCK(sc);
+//	CHVPOWER_UNLOCK(sc);
 	return (error);
 }
 
@@ -275,12 +275,12 @@ chvpower_get_bif(device_t dev, struct acpi_bif *bif)
 	sc = device_get_softc(dev);
 	error = 0;
 
-	CHVPOWER_LOCK(sc);
+//	CHVPOWER_LOCK(sc);
 
 	if (sc->sc_maxfg)
 		error = ACPI_BATT_GET_INFO(sc->sc_maxfg, bif);
 
-	CHVPOWER_UNLOCK(sc);
+//	CHVPOWER_UNLOCK(sc);
 	return (error);
 }
 
