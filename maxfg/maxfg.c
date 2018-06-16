@@ -61,16 +61,6 @@
 #define MAXFG_REG_VFOCV	0xFB	/* raw open-circuit voltage output */
 #define	MAXFG_REG_SOCVF	0xFF	/* state of charge */
 
-/*
- * Macros for driver mutex locking
- */
-#define MAXFG_LOCK(_sc)               mtx_lock(&(_sc)->sc_mtx)
-#define MAXFG_UNLOCK(_sc)             mtx_unlock(&(_sc)->sc_mtx)
-#define MAXFG_LOCK_INIT(_sc) \
-	mtx_init(&_sc->sc_mtx, device_get_nameunit((_sc)->sc_dev), \
-	"maxfg", MTX_DEF)
-#define MAXFG_LOCK_DESTROY(_sc)       mtx_destroy(&(_sc)->sc_mtx)
-
 #define MAXFG_BIF_MODEL	"Fuel Gauge"
 #define MAXFG_BIF_SERIAL	"unknown"
 #define MAXFG_BIF_TYPE	"fuel gauge"
@@ -196,18 +186,13 @@ maxfg_attach(device_t dev)
 
 	sc->sc_dev = dev;
 
-	//MAXFG_LOCK_INIT(sc);
-
 	/* datasheet recommends 0.01 ohms default sense resistor value */
 	/* 0.01 ohms as microohms */
 	sc->sc_rsns = 10000;
 	status = 0;
 
-	//MAXFG_LOCK(sc);
 	rv = maxfg_read(sc->sc_dev, MAXFG_REG_STATUS, &status);
 	if (rv != 0) {
-		//MAXFG_UNLOCK(sc);
-		//MAXFG_LOCK_DESTROY(sc);
 		device_printf(sc->sc_dev, "failed to read status %d %d\n",
 			rv, iic2errno(rv));
 		return ENXIO;
@@ -221,8 +206,6 @@ maxfg_attach(device_t dev)
 	rv = maxfg_read(sc->sc_dev, MAXFG_REG_VCELL, &designvolt);
 
 	lastfullcap = lastfullcap/sc->sc_rsns;
-
-	//MAXFG_UNLOCK(sc);
 
 	sc->sc_bif.units = ACPI_BIF_UNITS_MA;
 	sc->sc_bif.dcap = designcap/sc->sc_rsns;		//TODO should be mAh
@@ -247,9 +230,6 @@ maxfg_detach(device_t dev)
 {
 	struct maxfg_softc *sc;
 	sc = device_get_softc(dev);
-
-	//MAXFG_LOCK(sc);
-	//MAXFG_LOCK_DESTROY(sc);
 
 	return (0);
 }
@@ -307,7 +287,6 @@ maxfg_get_bst(device_t dev, struct acpi_bst *bst)
 	uint16_t remcap , volt, rate;
 	sc = device_get_softc(dev);
 
-	//MAXFG_LOCK(sc);
 	/* 
 	 * The value is stored in terms of μVh and must be divided by the
 	 * application sense-resistor value to determine remaining capacity in
@@ -316,8 +295,6 @@ maxfg_get_bst(device_t dev, struct acpi_bst *bst)
 	maxfg_read(dev, MAXFG_REG_REMCAP, &remcap);
 	maxfg_read(dev, MAXFG_REG_AVG_VOLT, &volt);
 	maxfg_read(dev, MAXFG_REG_AVG_CUR, &rate);
-
-	//MAXFG_UNLOCK(sc);
 
 	/* fuel guage can't detect power, always say we are discharging */
 	bst->state = ACPI_BATT_STAT_DISCHARG;
