@@ -263,7 +263,7 @@ maxfg_read(device_t dev, uint8_t reg, uint16_t *val)
 
 	sc = device_get_softc(dev);
 
-	msg[0].slave = addr;
+	msg[0].slave = addr << 1;
 	msg[0].flags = IIC_M_WR | IIC_M_NOSTOP;
 	msg[0].len = 1;
 	msg[0].buf = &reg;
