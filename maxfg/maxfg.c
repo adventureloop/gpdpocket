@@ -197,12 +197,13 @@ maxfg_attach(device_t dev)
 	sc->sc_dev = dev;
 
 	MAXFG_LOCK_INIT(sc);
-	MAXFG_LOCK(sc);
 
 	/* datasheet recommends 0.01 ohms default sense resistor value */
 	/* 0.01 ohms as microohms */
 	sc->sc_rsns = 10000;
 	status = 0;
+
+	MAXFG_LOCK(sc);
 	rv = maxfg_read(sc->sc_dev, MAXFG_REG_STATUS, &status);
 	if (rv != 0) {
 		MAXFG_UNLOCK(sc);
