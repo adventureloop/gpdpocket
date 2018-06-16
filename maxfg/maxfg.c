@@ -198,7 +198,7 @@ maxfg_attach(device_t dev)
 		return ENXIO;
 	}
 
-	if (bootverbose)
+	//if (bootverbose)
 	    maxfg_dumpreg(sc->sc_dev);
 
 	rv = maxfg_read(sc->sc_dev, MAXFG_REG_DESIGNCAP, &designcap);
