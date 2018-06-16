@@ -79,7 +79,7 @@ struct chvpower_softc {
 	uint8_t			sc_iicchild_count;
 	struct chvpower_child 	sc_iicchildren[IIC_CHILD_MAX];
 
-	device_t		sc_max170xx;
+	device_t		sc_maxfg;
 };
 
 static char *chvpower_hids[] = {
@@ -138,10 +138,10 @@ chvpower_attach(device_t dev)
 		sc->sc_iicchildren[1].resource_source);
 
 	if (iicbus != NULL) {
-		device_t child = BUS_ADD_CHILD(iicbus, 0, "max170xx", -1);
+		device_t child = BUS_ADD_CHILD(iicbus, 0, "maxfg", -1);
 		if (child != NULL) {
 			iicbus_set_addr(child, sc->sc_iicchildren[1].address << 1);
-			sc->sc_max170xx = child;
+			sc->sc_maxfg = child;
 			bus_generic_attach(iicbus);
 
 			if (acpi_battery_register(dev) != 0) {
@@ -149,7 +149,7 @@ chvpower_attach(device_t dev)
 				return (ENXIO);                                 
 			}                                                   
 		} else
-			device_printf(dev, "failed to add max170xx child\n");
+			device_printf(dev, "failed to add maxfg child\n");
 	} 
 	return (0);
 }
@@ -232,8 +232,10 @@ chvpower_detach(device_t dev)
 
 	CHVPOWER_LOCK(sc);
 
-	if (sc->sc_max170xx)
-		device_delete_child(device_get_parent(sc->sc_max170xx), sc->sc_max170xx);
+	if (sc->sc_maxfg)
+		device_delete_child(device_get_parent(sc->sc_maxfg), sc->sc_maxfg);
+
+	CHVPOWER_LOCK_DESTROY(sc);
 
 	for (child = 0; child < IIC_CHILD_MAX; child++) {
 		if (child == 0)		//HACK TODO REMOVE
@@ -244,7 +246,6 @@ chvpower_detach(device_t dev)
 		}
 	}
 
-	CHVPOWER_LOCK_DESTROY(sc);
 	return (0);
 }
 
@@ -259,8 +260,8 @@ chvpower_get_bst(device_t dev, struct acpi_bst *bst)
 
 	CHVPOWER_LOCK(sc);
 
-	if (sc->sc_max170xx)
-		error = ACPI_BATT_GET_STATUS(sc->sc_max170xx, bst);
+	if (sc->sc_maxfg)
+		error = ACPI_BATT_GET_STATUS(sc->sc_maxfg, bst);
 	CHVPOWER_UNLOCK(sc);
 	return (error);
 }
@@ -276,8 +277,8 @@ chvpower_get_bif(device_t dev, struct acpi_bif *bif)
 
 	CHVPOWER_LOCK(sc);
 
-	if (sc->sc_max170xx)
-		error = ACPI_BATT_GET_INFO(sc->sc_max170xx, bif);
+	if (sc->sc_maxfg)
+		error = ACPI_BATT_GET_INFO(sc->sc_maxfg, bif);
 
 	CHVPOWER_UNLOCK(sc);
 	return (error);
