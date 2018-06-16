@@ -134,39 +134,39 @@ maxfg_dumpreg(device_t dev)
 	);
 
 	maxfg_read(dev, MAXFG_REG_SALRT_TH, &reg);
-	device_printf(dev, "MAXFG_REG_SALRT_TH %02x\n", reg);
+	device_printf(dev, "MAXFG_REG_SALRT_TH 0x%02x\n", reg);
 
 	maxfg_read(dev, MAXFG_REG_TEMP, &reg);
-	device_printf(dev, "MAXFG_REG_TEMP %02x\n", reg);
+	device_printf(dev, "MAXFG_REG_TEMP 0x%02x\n", reg);
 
 	maxfg_read(dev, MAXFG_REG_VCELL, &reg);
-	device_printf(dev, "MAXFG_REG_VCELL %02x %02x\n", reg, (reg>>3) * 1000/625);
+	device_printf(dev, "MAXFG_REG_VCELL 0x%02x 0x%02x\n", reg, (reg>>3) * 1000/625);
 
 	maxfg_read(dev, MAXFG_REG_FULLCAP, &reg);
-	device_printf(dev, "MAXFG_REG_FULLCAP %02x\n", reg);
+	device_printf(dev, "MAXFG_REG_FULLCAP 0x%02x\n", reg);
 
 	maxfg_read(dev, MAXFG_REG_SOCAV, &reg);
-	device_printf(dev, "MAXFG_REG_SOCAV %02x\n", reg);
+	device_printf(dev, "MAXFG_REG_SOCAV 0x%02x\n", reg);
 
 	maxfg_read(dev, MAXFG_REG_TTE, &reg);
-	device_printf(dev, "MAXFG_REG_TTE %02x\n", reg);
+	device_printf(dev, "MAXFG_REG_TTE 0x%02x\n", reg);
 
 	maxfg_read(dev, MAXFG_REG_DESIGNCAP, &reg);
-	device_printf(dev, "MAXFG_REG_DESIGNCAP %02x\n", reg);
+	device_printf(dev, "MAXFG_REG_DESIGNCAP 0x%02x\n", reg);
 
 	maxfg_read(dev, MAXFG_REG_REMCAP, &reg);
-	device_printf(dev, "MAXFG_REG_REMCAP %02x\n", reg);
+	device_printf(dev, "MAXFG_REG_REMCAP 0x%02x\n", reg);
 
 	maxfg_read(dev, MAXFG_REG_VERSION, &reg);
-	device_printf(dev, "MAXFG_REG_VERSION, %02x\n", reg);
+	device_printf(dev, "MAXFG_REG_VERSION 0x%02x\n", reg);
 
 	maxfg_read(dev, MAXFG_REG_VFOCV, &reg);
-	device_printf(dev, "MAXFG_REG_VFOCV %02x\n", reg);
+	device_printf(dev, "MAXFG_REG_VFOCV 0x%02x\n", reg);
 
 	maxfg_read(dev, MAXFG_REG_SOCVF, &reg);
-	device_printf(dev, "MAXFG_REG_SOCVF %02x\n", reg);
+	device_printf(dev, "MAXFG_REG_SOCVF 0x%02x\n", reg);
 
-	device_printf(dev, "battery %02x%%\n", maxfg_remaining(dev));	
+	device_printf(dev, "battery %02d%%\n", maxfg_remaining(dev));	
 }
 
 static int
