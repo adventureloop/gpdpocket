@@ -52,13 +52,14 @@
 #define MAXFG_REG_FULLCAP	0x10	/* calculated full cap in uVh */
 #define MAXFG_REG_AVG_CUR	0x0B	/* average current */
 #define MAXFG_REG_SOCAV		0x0E	/* state of charge */
+#define MAXFG_REG_SOCREP	0x06	/* state of charge filtered */
 #define	MAXFG_REG_TTE		0x11	/* time to empty */
 #define MAXFG_REG_DESIGNCAP	0x18	/* design capacity in uVh */
 #define MAXFG_REG_AVG_VOLT	0x19	/* average voltage */
 #define	MAXFG_REG_CONFIG 	0x1D
 #define	MAXFG_REG_REMCAPAV	0x1F	/* remaining capacity in uVh */
-#define	MAXFG_REG_REMCAPMIX	0x0F	/* remaining capacity in uVh */
-#define	MAXFG_REG_REMCAPREP	0x05	/* remaining capacity in uVh */	//filtered version
+#define	MAXFG_REG_REMCAPMIX	0x0F	/* remaining capacity in uVh filtered sans empter conpensation */
+#define	MAXFG_REG_REMCAPREP	0x05	/* remaining capacity in uVh filtered */
 #define MAXFG_REG_VERSION	0x21
 #define MAXFG_REG_VFOCV		0xFB	/* raw open-circuit voltage output */
 #define	MAXFG_REG_SOCVF		0xFF	/* state of charge */
@@ -149,6 +150,9 @@ maxfg_dumpreg(device_t dev)
 
 	maxfg_read(dev, MAXFG_REG_SOCAV, &reg);
 	device_printf(dev, "MAXFG_REG_SOCAV 0x%02x\n", reg);
+
+	maxfg_read(dev, MAXFG_REG_SOCREP, &reg);
+	device_printf(dev, "MAXFG_REG_SOCREP 0x%02x\n", reg);
 
 	maxfg_read(dev, MAXFG_REG_TTE, &reg);
 	device_printf(dev, "MAXFG_REG_TTE 0x%02x\n", reg);
