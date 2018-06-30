@@ -221,7 +221,6 @@ maxfg_attach(device_t dev)
 
 	sc->sc_bif.units = ACPI_BIF_UNITS_MA;
 	sc->sc_bif.dcap = designcap*5/sc->sc_rsns;
-	//sc->sc_bif.lfcap = lastfullcap*5/sc->sc_rsns;
 	sc->sc_bif.lfcap = lastfullcap*5;
 	sc->sc_bif.btech = 1;		/* rechargable battery */
 	sc->sc_bif.dvol = 0; //((uint32_t)designvolt>>3)*625/1000;
@@ -317,8 +316,8 @@ maxfg_get_bst(device_t dev, struct acpi_bst *bst)
 	bst->volt = (((uint32_t)volt >> 3) * 625)/1000;	/* 0.625mV per lsb */
 	bst->rate = (((uint32_t)rate * 15625)/10000)/sc->sc_rsns; /* 1.5625uV/rsense per lsb */
 
-	device_printf(dev, "battery %02d%% MAXFG_REG_REMCAPREP: remcap 0x%02x bst->cap 0x%02x\n",
-		remaining, remcap, bst->cap);
+//	device_printf(dev, "battery %02d%% MAXFG_REG_REMCAPREP: remcap 0x%02x bst->cap 0x%02x\n",
+//		remaining, remcap, bst->cap);
 
 	return (0);
 }
