@@ -56,7 +56,8 @@
 #define MAXFG_REG_DESIGNCAP	0x18	/* design capacity in uVh */
 #define MAXFG_REG_AVG_VOLT	0x19	/* average voltage */
 #define	MAXFG_REG_CONFIG 	0x1D
-#define	MAXFG_REG_REMCAP	0x1F	/* remaining capacity in uVh */
+//#define	MAXFG_REG_REMCAP	0x1F	/* remaining capacity in uVh */
+#define	MAXFG_REG_REMCAP	0x05	/* remaining capacity in uVh */	//filtered version
 #define MAXFG_REG_VERSION	0x21
 #define MAXFG_REG_VFOCV		0xFB	/* raw open-circuit voltage output */
 #define	MAXFG_REG_SOCVF		0xFF	/* state of charge */
