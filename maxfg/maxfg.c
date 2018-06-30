@@ -56,8 +56,9 @@
 #define MAXFG_REG_DESIGNCAP	0x18	/* design capacity in uVh */
 #define MAXFG_REG_AVG_VOLT	0x19	/* average voltage */
 #define	MAXFG_REG_CONFIG 	0x1D
-//#define	MAXFG_REG_REMCAP	0x1F	/* remaining capacity in uVh */
-#define	MAXFG_REG_REMCAP	0x05	/* remaining capacity in uVh */	//filtered version
+#define	MAXFG_REG_REMCAPAV	0x1F	/* remaining capacity in uVh */
+#define	MAXFG_REG_REMCAPMIX	0x0F	/* remaining capacity in uVh */
+#define	MAXFG_REG_REMCAPREP	0x05	/* remaining capacity in uVh */	//filtered version
 #define MAXFG_REG_VERSION	0x21
 #define MAXFG_REG_VFOCV		0xFB	/* raw open-circuit voltage output */
 #define	MAXFG_REG_SOCVF		0xFF	/* state of charge */
@@ -155,8 +156,14 @@ maxfg_dumpreg(device_t dev)
 	maxfg_read(dev, MAXFG_REG_DESIGNCAP, &reg);
 	device_printf(dev, "MAXFG_REG_DESIGNCAP 0x%02x\n", reg);
 
-	maxfg_read(dev, MAXFG_REG_REMCAP, &reg);
-	device_printf(dev, "MAXFG_REG_REMCAP 0x%02x\n", reg);
+	maxfg_read(dev, MAXFG_REG_REMCAPAV, &reg);
+	device_printf(dev, "MAXFG_REG_REMCAPAV 0x%02x\n", reg);
+
+	maxfg_read(dev, MAXFG_REG_REMCAPMIX, &reg);
+	device_printf(dev, "MAXFG_REG_REMCAPMIX 0x%02x\n", reg);
+
+	maxfg_read(dev, MAXFG_REG_REMCAPREP, &reg);
+	device_printf(dev, "MAXFG_REG_REMCAPREP 0x%02x\n", reg);
 
 	maxfg_read(dev, MAXFG_REG_VERSION, &reg);
 	device_printf(dev, "MAXFG_REG_VERSION 0x%02x\n", reg);
@@ -294,7 +301,7 @@ maxfg_get_bst(device_t dev, struct acpi_bst *bst)
 	 * application sense-resistor value to determine remaining capacity in
 	 * mAh 
 	 */
-	maxfg_read(dev, MAXFG_REG_REMCAP, &remcap);
+	maxfg_read(dev, MAXFG_REG_REMCAPMIX, &remcap);
 	maxfg_read(dev, MAXFG_REG_AVG_VOLT, &volt);
 	maxfg_read(dev, MAXFG_REG_AVG_CUR, &rate);
 
@@ -306,7 +313,7 @@ maxfg_get_bst(device_t dev, struct acpi_bst *bst)
 	bst->volt = (((uint32_t)volt >> 3) * 625)/1000;	/* 0.625mV per lsb */
 	bst->rate = (((uint32_t)rate * 15625)/10000)/sc->sc_rsns; /* 1.5625uV/rsense per lsb */
 
-	device_printf(dev, "battery %02d%% remcap 0x%02x bst->cap 0x%02x\n",
+	device_printf(dev, "battery %02d%% MAXFG_REG_REMCAPMIX: remcap 0x%02x bst->cap 0x%02x\n",
 		remaining, remcap, bst->cap);
 
 	return (0);
