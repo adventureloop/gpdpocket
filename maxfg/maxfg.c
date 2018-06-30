@@ -297,6 +297,8 @@ maxfg_get_bst(device_t dev, struct acpi_bst *bst)
 	maxfg_read(dev, MAXFG_REG_AVG_VOLT, &volt);
 	maxfg_read(dev, MAXFG_REG_AVG_CUR, &rate);
 
+	device_printf(dev, "battery %02d%%\n", maxfg_remaining(dev));	
+
 	/* fuel guage can't detect power, always say we are discharging */
 	bst->state = ACPI_BATT_STAT_DISCHARG;
 	bst->cap = remcap*5/sc->sc_rsns;
