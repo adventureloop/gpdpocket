@@ -209,7 +209,8 @@ maxfg_attach(device_t dev)
 
 	sc->sc_bif.units = ACPI_BIF_UNITS_MA;
 	sc->sc_bif.dcap = designcap*5/sc->sc_rsns;
-	sc->sc_bif.lfcap = lastfullcap*5/sc->sc_rsns;
+	//sc->sc_bif.lfcap = lastfullcap*5/sc->sc_rsns;
+	sc->sc_bif.lfcap = lastfullcap*5;
 	sc->sc_bif.btech = 1;		/* rechargable battery */
 	sc->sc_bif.dvol = 0; //((uint32_t)designvolt>>3)*625/1000;
 	sc->sc_bif.wcap = (uint32_t)lastfullcap*15/100;
