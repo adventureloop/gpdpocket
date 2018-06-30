@@ -88,12 +88,12 @@ static int maxfg_get_bst(device_t, struct acpi_bst *);
 static int maxfg_get_bif(device_t, struct acpi_bif *);
 
 static int
-maxfg_remaining(device_t dev)
+maxfg_remaining(device_t dev, int reg)
 {
-	uint16_t socvf = 0;
+	uint16_t soc = 0;
 	
-	maxfg_read(dev, MAXFG_REG_SOCVF, &socvf);
-	return (((socvf >> 8) * 100) + (((socvf & 0x00FF) * 100)/256) )/100;
+	maxfg_read(dev, reg, &soc);
+	return (((soc >> 8) * 100) + (((soc & 0x00FF) * 100)/256) )/100;
 }
 
 void 
@@ -178,7 +178,7 @@ maxfg_dumpreg(device_t dev)
 	maxfg_read(dev, MAXFG_REG_SOCVF, &reg);
 	device_printf(dev, "MAXFG_REG_SOCVF 0x%02x\n", reg);
 
-	device_printf(dev, "battery %02d%%\n", maxfg_remaining(dev));	
+	device_printf(dev, "battery %02d%%\n", maxfg_remaining(dev, MAXFG_REG_SOCREP));	
 }
 
 static int
@@ -305,11 +305,11 @@ maxfg_get_bst(device_t dev, struct acpi_bst *bst)
 	 * application sense-resistor value to determine remaining capacity in
 	 * mAh 
 	 */
-	maxfg_read(dev, MAXFG_REG_REMCAPAV, &remcap);
+	maxfg_read(dev, MAXFG_REG_REMCAPREP, &remcap);
 	maxfg_read(dev, MAXFG_REG_AVG_VOLT, &volt);
 	maxfg_read(dev, MAXFG_REG_AVG_CUR, &rate);
 
-	remaining = maxfg_remaining(dev);
+	remaining = maxfg_remaining(dev, MAXFG_REG_SOCREP);
 
 	/* fuel guage can't detect power, always say we are discharging */
 	bst->state = ACPI_BATT_STAT_DISCHARG;
@@ -317,7 +317,7 @@ maxfg_get_bst(device_t dev, struct acpi_bst *bst)
 	bst->volt = (((uint32_t)volt >> 3) * 625)/1000;	/* 0.625mV per lsb */
 	bst->rate = (((uint32_t)rate * 15625)/10000)/sc->sc_rsns; /* 1.5625uV/rsense per lsb */
 
-	device_printf(dev, "battery %02d%% MAXFG_REG_REMCAPAV: remcap 0x%02x bst->cap 0x%02x\n",
+	device_printf(dev, "battery %02d%% MAXFG_REG_REMCAPREP: remcap 0x%02x bst->cap 0x%02x\n",
 		remaining, remcap, bst->cap);
 
 	return (0);
