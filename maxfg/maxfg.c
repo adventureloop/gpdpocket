@@ -51,7 +51,7 @@
 #define MAXFG_REG_VCELL		0x09	/* 0.625mV per div bottom 3 bits don't care */
 #define MAXFG_REG_FULLCAP	0x10	/* calculated full cap in uVh */
 #define MAXFG_REG_AVG_CUR	0x0B	/* average current */
-#define MAXFG_REG_SOCAV		0x0E	/* state of charge */
+#define MAXFG_REG_SOCAV		0x0E	/* state of charge unfiltered */
 #define MAXFG_REG_SOCREP	0x06	/* state of charge filtered */
 #define	MAXFG_REG_TTE		0x11	/* time to empty */
 #define MAXFG_REG_DESIGNCAP	0x18	/* design capacity in uVh */
@@ -222,7 +222,8 @@ maxfg_attach(device_t dev)
 	sc->sc_bif.units = ACPI_BIF_UNITS_MA;
 	sc->sc_bif.dcap = designcap*5/sc->sc_rsns;
 	//sc->sc_bif.lfcap = lastfullcap*5/sc->sc_rsns;
-	sc->sc_bif.lfcap = lastfullcap*5;
+	//sc->sc_bif.lfcap = lastfullcap*5;
+	sc->sc_bif.lfcap = designcap*5/sc->sc_rsns;
 	sc->sc_bif.btech = 1;		/* rechargable battery */
 	sc->sc_bif.dvol = 0; //((uint32_t)designvolt>>3)*625/1000;
 	sc->sc_bif.wcap = (uint32_t)lastfullcap*15/100;
