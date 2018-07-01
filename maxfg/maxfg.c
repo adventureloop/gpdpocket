@@ -50,6 +50,7 @@
 #define	MAXFG_REG_TEMP		0x08	/* MSB +1C */
 #define MAXFG_REG_VCELL		0x09	/* 0.625mV per div bottom 3 bits don't care */
 #define MAXFG_REG_FULLCAP	0x10	/* calculated full cap in uVh */
+#define MAXFG_REG_CUR		0x0B	/* current */
 #define MAXFG_REG_AVG_CUR	0x0B	/* average current */
 #define MAXFG_REG_SOCAV		0x0E	/* state of charge unfiltered */
 #define MAXFG_REG_SOCREP	0x06	/* state of charge filtered */
@@ -147,6 +148,12 @@ maxfg_dumpreg(device_t dev)
 
 	maxfg_read(dev, MAXFG_REG_FULLCAP, &reg);
 	device_printf(dev, "MAXFG_REG_FULLCAP 0x%02x\n", reg);
+
+	maxfg_read(dev, MAXFG_REG_CUR, &reg);
+	device_printf(dev, "MAXFG_REG_CUR 0x%02x\n", reg);
+
+	maxfg_read(dev, MAXFG_REG_AVG_CUR, &reg);
+	device_printf(dev, "MAXFG_REG_AVG_CUR 0x%02x\n", reg);
 
 	maxfg_read(dev, MAXFG_REG_SOCAV, &reg);
 	device_printf(dev, "MAXFG_REG_SOCAV 0x%02x\n", reg);
