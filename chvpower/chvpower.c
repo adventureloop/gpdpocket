@@ -80,6 +80,7 @@ struct chvpower_softc {
 	struct chvpower_child 	sc_iicchildren[IIC_CHILD_MAX];
 
 	device_t		sc_maxfg;
+	device_t		sc_bqreg;
 };
 
 static char *chvpower_hids[] = {
@@ -125,7 +126,7 @@ chvpower_attach(device_t dev)
 		return (ENXIO);
 
 	parent = device_get_parent(dev);
-
+#if 0
 	/* 
 	 * The String in the child acpi is missing an underscore (\_SB. vs \_SB_)
 	 * compensate for this manually, free the alloced string and replace it 
@@ -151,6 +152,31 @@ chvpower_attach(device_t dev)
 		} else
 			device_printf(dev, "failed to add maxfg child\n");
 	} 
+#endif
+#if 1
+	/* 
+	 * The String in the child acpi is missing an underscore (\_SB. vs \_SB_)
+	 * compensate for this manually, free the alloced string and replace it 
+	 * with the correct one.
+	 */
+	device_printf(dev, "bqreg resource_source %s\n", sc->sc_iicchildren[0].resource_source);
+	free(sc->sc_iicchildren[0].resource_source, M_CHVPWR);
+	sc->sc_iicchildren[0].resource_source = "\\_SB_.PCI0.I2C1";
+
+	iicbus = iicbus_for_acpi_resource_source(dev, parent, "ig4iic_acpi",
+		sc->sc_iicchildren[0].resource_source);
+
+	if (iicbus != NULL) {
+		device_t child = BUS_ADD_CHILD(iicbus, 0, "bqreg", -1);
+		if (child != NULL) {
+			device_printf(dev, "bqreg addr %x\n", sc->sc_iicchildren[0].address);
+			iicbus_set_addr(child, sc->sc_iicchildren[0].address);
+			sc->sc_bqreg = child;
+			bus_generic_attach(iicbus);
+		} else
+			device_printf(dev, "failed to add bqreg child\n");
+	} 
+#endif
 	return (0);
 }
 
