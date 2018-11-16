@@ -1,0 +1,53 @@
+registered pin groups:
+group: pwm0_grp
+pin 5 (PWM0)
+
+group: pwm1_grp
+pin 1 (PWM1)
+
+group: sdmmc1_grp
+pin 16 (SDMMC1_CLK)
+pin 17 (SDMMC1_D0)
+pin 20 (SDMMC1_D2)
+pin 23 (SDMMC1_CMD)
+pin 24 (SDMMC1_D1)
+pin 26 (SDMMC1_D3_CD_B)
+pin 63 (MMC1_D6)
+pin 65 (MMC1_D5)
+pin 67 (MMC1_D4_SD_WE)
+pin 68 (MMC1_D7)
+pin 69 (MMC1_RCLK)
+
+group: sdmmc2_grp
+pin 15 (SDMMC2_D3_CD_B)
+pin 18 (SDMMC2_D1)
+pin 19 (SDMMC2_CLK)
+pin 21 (SDMMC2_D2)
+pin 22 (SDMMC2_CMD)
+pin 25 (SDMMC2_D0)
+
+group: sdmmc3_grp
+pin 30 (SDMMC3_D1)
+pin 31 (SDMMC3_CLK)
+pin 32 (SDMMC3_D3)
+pin 33 (SDMMC3_D2)
+pin 34 (SDMMC3_CMD)
+pin 35 (SDMMC3_D0)
+pin 78 (SDMMC3_PWR_EN_B)
+pin 81 (SDMMC3_CD_B)
+pin 85 (SDMMC3_1P8_EN)
+
+group: spi1_grp
+pin 60 (SPI1_MISO)
+pin 61 (SPI1_CSO_B)
+pin 62 (SPI1_CLK)
+pin 64 (SPI1_MOSI)
+pin 66 (SPI1_CS1_B)
+
+group: spi2_grp
+pin 2 (MF_PLT_CLK1)
+pin 3 (MF_PLT_CLK4)
+pin 4 (MF_PLT_CLK3)
+pin 6 (MF_PLT_CLK5)
+pin 7 (MF_PLT_CLK2)
+

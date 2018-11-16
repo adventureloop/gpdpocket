@@ -1,0 +1,3 @@
+GPIO ranges handled:
+0: INT33FF:02 GPIOS [314 - 325] PINS [0 - 11]
+15: INT33FF:02 GPIOS [329 - 340] PINS [15 - 26]

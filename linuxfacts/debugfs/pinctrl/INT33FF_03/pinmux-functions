@@ -1,0 +1,7 @@
+function: pwm0, groups = [ pwm0_grp ]
+function: pwm1, groups = [ pwm1_grp ]
+function: sdmmc1, groups = [ sdmmc1_grp ]
+function: sdmmc2, groups = [ sdmmc2_grp ]
+function: sdmmc3, groups = [ sdmmc3_grp ]
+function: spi1, groups = [ spi1_grp ]
+function: spi2, groups = [ spi2_grp ]

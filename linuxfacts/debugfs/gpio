@@ -1,0 +1,20 @@
+gpiochip4: GPIOs 225-227, parent: platform/INT0002:00, INT0002 Virtual GPIO:
+ gpio-227 (                    |ACPI:Event          ) in  lo IRQ
+
+gpiochip3: GPIOs 228-313, parent: platform/INT33FF:03, INT33FF:03:
+ gpio-229 (                    |ACPI:Event          ) in  hi IRQ
+
+gpiochip2: GPIOs 314-340, parent: platform/INT33FF:02, INT33FF:02:
+ gpio-322 (                    |power               ) in  hi IRQ
+
+gpiochip1: GPIOs 341-413, parent: platform/INT33FF:01, INT33FF:01:
+ gpio-341 (                    |FAN02501:00         ) out lo    
+ gpio-342 (                    |FAN02501:00         ) out lo    
+ gpio-344 (                    |shutdown            ) out hi    
+ gpio-349 (                    |volume_down         ) in  hi IRQ
+
+gpiochip0: GPIOs 414-511, parent: platform/INT33FF:00, INT33FF:00:
+ gpio-449 (                    |ACPI:Event          ) in  hi IRQ
+ gpio-490 (                    |host-wakeup         ) in  hi    
+ gpio-492 (                    |device-wakeup       ) out hi    
+ gpio-507 (                    |volume_up           ) in  hi IRQ

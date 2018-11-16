@@ -1,0 +1,171 @@
+[   42.068897] sw reset
+[   42.072739] fusb302 device ID: 0x81
+[   42.074329] pd := off
+[   42.074343] vbus is already Off
+[   42.074344] charge is already Off
+[   42.074345] vconn is already Off
+[   42.074351] current limit: 0 ma, 0 mv (not implemented)
+[   42.332823] pd header := Sink, Device
+[   42.332940] cc1=Open, cc2=Open
+[   42.337309] pd := off
+[   42.337314] vbus is already Off
+[   42.337315] charge is already Off
+[   42.337316] vconn is already Off
+[   42.337320] current limit: 0 ma, 0 mv (not implemented)
+[   42.337617] pd header := Sink, Device
+[   42.338912] cc := Open
+[   42.443488] start drp toggling
+[  917.693499] IRQ: 0x01, a: 0x40, b: 0x00, status0: 0x01
+[  917.693524] IRQ: TOGDONE
+[  917.697362] detected cc1=Open, cc2=Rd
+[  917.698179] IRQ: 0x20, a: 0x00, b: 0x00, status0: 0x01
+[  917.698196] IRQ: COMP_CHNG, comp=false
+[  917.698454] cc1=Open, cc2=Rd
+[  917.904968] cc := Rd
+[  918.014622] cc := Rp-def
+[  918.015307] IRQ: 0x01, a: 0x00, b: 0x00, status0: 0x01
+[  918.121509] start drp toggling
+[  918.173122] IRQ: 0x01, a: 0x40, b: 0x00, status0: 0x01
+[  918.173146] IRQ: TOGDONE
+[  918.177720] detected cc1=Open, cc2=Rd
+[  918.177934] cc1=Open, cc2=Rd
+[  918.178707] IRQ: 0x20, a: 0x00, b: 0x00, status0: 0x01
+[  918.178723] IRQ: COMP_CHNG, comp=false
+[  918.636462] pd header := Source, Host
+[  918.639593] pd := on
+[  918.665545] vbus := On
+[  918.665562] charge is already Off
+[  918.683782] IRQ: 0x80, a: 0x00, b: 0x00, status0: 0x81
+[  918.683811] IRQ: VBUS_OK, vbus=On
+[  918.684939] sending PD message header: 11a1
+[  918.684960] sending PD message len: 4
+[  918.692557] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  918.692584] IRQ: PD retry failed
+[  918.849366] sending PD message header: 11a1
+[  918.849386] sending PD message len: 4
+[  918.856774] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  918.856798] IRQ: PD retry failed
+[  919.014052] sending PD message header: 11a1
+[  919.014076] sending PD message len: 4
+[  919.021147] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  919.021176] IRQ: PD retry failed
+[  919.177553] sending PD message header: 11a1
+[  919.177574] sending PD message len: 4
+[  919.184721] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  919.184746] IRQ: PD retry failed
+[  919.341625] sending PD message header: 11a1
+[  919.341654] sending PD message len: 4
+[  919.349441] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  919.349460] IRQ: PD retry failed
+[  919.505539] sending PD message header: 11a1
+[  919.505559] sending PD message len: 4
+[  919.512662] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  919.512686] IRQ: PD retry failed
+[  919.669359] sending PD message header: 11a1
+[  919.669381] sending PD message len: 4
+[  919.676891] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  919.676916] IRQ: PD retry failed
+[  919.833736] sending PD message header: 11a1
+[  919.833757] sending PD message len: 4
+[  919.841105] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  919.841129] IRQ: PD retry failed
+[  919.997358] sending PD message header: 11a1
+[  919.997379] sending PD message len: 4
+[  920.004994] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  920.005020] IRQ: PD retry failed
+[  920.161308] sending PD message header: 11a1
+[  920.161328] sending PD message len: 4
+[  920.168835] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  920.168861] IRQ: PD retry failed
+[  920.325456] sending PD message header: 11a1
+[  920.325497] sending PD message len: 4
+[  920.332697] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  920.332723] IRQ: PD retry failed
+[  920.488952] sending PD message header: 11a1
+[  920.488959] sending PD message len: 4
+[  920.496795] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  920.496814] IRQ: PD retry failed
+[  920.653042] sending PD message header: 11a1
+[  920.653060] sending PD message len: 4
+[  920.660605] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  920.660628] IRQ: PD retry failed
+[  920.816807] sending PD message header: 11a1
+[  920.816822] sending PD message len: 4
+[  920.824424] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  920.824451] IRQ: PD retry failed
+[  920.981294] sending PD message header: 11a1
+[  920.981314] sending PD message len: 4
+[  920.988709] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  920.988734] IRQ: PD retry failed
+[  921.145587] sending PD message header: 11a1
+[  921.145616] sending PD message len: 4
+[  921.153275] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  921.153302] IRQ: PD retry failed
+[  921.309452] sending PD message header: 11a1
+[  921.309474] sending PD message len: 4
+[  921.316682] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  921.316708] IRQ: PD retry failed
+[  921.473374] sending PD message header: 11a1
+[  921.473396] sending PD message len: 4
+[  921.480996] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  921.481022] IRQ: PD retry failed
+[  921.637697] sending PD message header: 11a1
+[  921.637716] sending PD message len: 4
+[  921.645594] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  921.645620] IRQ: PD retry failed
+[  921.801144] sending PD message header: 11a1
+[  921.801166] sending PD message len: 4
+[  921.808648] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  921.808670] IRQ: PD retry failed
+[  921.965369] sending PD message header: 11a1
+[  921.965394] sending PD message len: 4
+[  921.972303] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  921.972323] IRQ: PD retry failed
+[  922.128748] sending PD message header: 11a1
+[  922.128758] sending PD message len: 4
+[  922.135935] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  922.135954] IRQ: PD retry failed
+[  922.293704] sending PD message header: 11a1
+[  922.293731] sending PD message len: 4
+[  922.301019] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  922.301041] IRQ: PD retry failed
+[  922.457603] sending PD message header: 11a1
+[  922.457621] sending PD message len: 4
+[  922.464465] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  922.464487] IRQ: PD retry failed
+[  922.621327] sending PD message header: 11a1
+[  922.621343] sending PD message len: 4
+[  922.629252] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  922.629270] IRQ: PD retry failed
+[  922.785398] sending PD message header: 11a1
+[  922.785419] sending PD message len: 4
+[  922.792701] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  922.792727] IRQ: PD retry failed
+[  922.949467] sending PD message header: 11a1
+[  922.949488] sending PD message len: 4
+[  922.957162] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  922.957189] IRQ: PD retry failed
+[  923.113580] sending PD message header: 11a1
+[  923.113601] sending PD message len: 4
+[  923.120642] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  923.120667] IRQ: PD retry failed
+[  923.277345] sending PD message header: 11a1
+[  923.277394] sending PD message len: 4
+[  923.284812] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  923.284838] IRQ: PD retry failed
+[  923.441464] sending PD message header: 11a1
+[  923.441485] sending PD message len: 4
+[  923.448809] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  923.448835] IRQ: PD retry failed
+[  923.605359] sending PD message header: 11a1
+[  923.605379] sending PD message len: 4
+[  923.612585] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  923.612608] IRQ: PD retry failed
+[  923.769372] sending PD message header: 11a1
+[  923.769392] sending PD message len: 4
+[  923.776740] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  923.776765] IRQ: PD retry failed
+[  923.933412] sending PD message header: 11a1
+[  923.933434] sending PD message len: 4
+[  923.940962] IRQ: 0x41, a: 0x10, b: 0x00, status0: 0x81
+[  923.940989] IRQ: PD retry failed

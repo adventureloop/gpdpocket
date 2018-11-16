@@ -1,0 +1,9 @@
+Pin config settings per pin group
+Format: group (name): configs
+0 (pwm0_grp): input bias pull down
+1 (pwm1_grp): input bias pull up
+2 (sdmmc1_grp): input bias disabled
+3 (sdmmc2_grp): input bias pull up
+4 (sdmmc3_grp): input bias pull up
+5 (spi1_grp): input bias pull up
+6 (spi2_grp): input bias disabled

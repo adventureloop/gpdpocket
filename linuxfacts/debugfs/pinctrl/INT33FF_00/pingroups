@@ -1,0 +1,80 @@
+registered pin groups:
+group: uart0_grp
+pin 16 (UART1_RXD)
+pin 20 (UART1_TXD)
+
+group: uart1_grp
+pin 15 (UART1_RTS_B)
+pin 16 (UART1_RXD)
+pin 18 (UART1_CTS_B)
+pin 20 (UART1_TXD)
+
+group: uart2_grp
+pin 17 (UART2_RXD)
+pin 19 (UART2_RTS_B)
+pin 21 (UART2_TXD)
+pin 22 (UART2_CTS_B)
+
+group: hda_grp
+pin 30 (MF_HDA_CLK)
+pin 31 (MF_HDA_RSTB)
+pin 32 (MF_HDA_SDIO)
+pin 33 (MF_HDA_SDO)
+pin 34 (MF_HDA_DOCKRSTB)
+pin 35 (MF_HDA_SYNC)
+pin 36 (MF_HDA_SDI1)
+pin 37 (MF_HDA_DOCKENB)
+
+group: i2c0_grp
+pin 61 (I2C0_SDA)
+pin 65 (I2C0_SCL)
+
+group: i2c1_grp
+pin 60 (I2C1_SDA)
+pin 63 (I2C1_SCL)
+
+group: i2c2_grp
+pin 62 (I2C2_SDA)
+pin 66 (I2C2_SCL)
+
+group: i2c3_grp
+pin 64 (I2C3_SDA)
+pin 67 (I2C3_SCL)
+
+group: i2c4_grp
+pin 46 (I2C4_SDA)
+pin 50 (I2C4_SCL)
+
+group: i2c5_grp
+pin 45 (I2C5_SDA)
+pin 48 (I2C5_SCL)
+
+group: i2c6_grp
+pin 47 (I2C6_SDA)
+pin 51 (I2C6_SCL)
+
+group: i2c_nfc_grp
+pin 49 (I2C_NFC_SDA)
+pin 52 (I2C_NFC_SCL)
+
+group: lpe_grp
+pin 30 (MF_HDA_CLK)
+pin 31 (MF_HDA_RSTB)
+pin 32 (MF_HDA_SDIO)
+pin 33 (MF_HDA_SDO)
+pin 34 (MF_HDA_DOCKRSTB)
+pin 35 (MF_HDA_SYNC)
+pin 36 (MF_HDA_SDI1)
+pin 37 (MF_HDA_DOCKENB)
+pin 92 (GP_SSP_2_CLK)
+pin 94 (GP_SSP_2_RXD)
+pin 96 (GP_SSP_2_FS)
+pin 97 (GP_SSP_2_TXD)
+
+group: spi3_grp
+pin 76 (SATA_GP1)
+pin 79 (MF_SMB_ALERTB)
+pin 80 (SATA_GP3)
+pin 81 (MF_SMB_CLK)
+pin 82 (MF_SMB_DATA)
+

@@ -1,0 +1,16 @@
+Pin config settings per pin group
+Format: group (name): configs
+0 (uart0_grp): input bias disabled
+1 (uart1_grp): input bias disabled
+2 (uart2_grp): input bias disabled
+3 (hda_grp): input bias disabled
+4 (i2c0_grp): input bias pull up
+5 (i2c1_grp): input bias pull up
+6 (i2c2_grp): input bias pull up
+7 (i2c3_grp): input bias high impedance, input bias pull up
+8 (i2c4_grp): input bias pull up
+9 (i2c5_grp): input bias pull up
+10 (i2c6_grp): input bias pull up
+11 (i2c_nfc_grp): input bias high impedance, input bias pull up
+12 (lpe_grp): input bias disabled
+13 (spi3_grp): input bias disabled

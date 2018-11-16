@@ -1,0 +1,57 @@
+Pin config settings per pin
+Format: pin (name): configs
+pin 0 (MF_PLT_CLK0): input bias disabled
+pin 1 (PWM1): input bias pull up
+pin 2 (MF_PLT_CLK1): input bias disabled
+pin 3 (MF_PLT_CLK4): input bias disabled
+pin 4 (MF_PLT_CLK3): input bias disabled
+pin 5 (PWM0): input bias pull down
+pin 6 (MF_PLT_CLK5): input bias disabled
+pin 7 (MF_PLT_CLK2): input bias disabled
+pin 15 (SDMMC2_D3_CD_B): input bias pull up
+pin 16 (SDMMC1_CLK): input bias disabled
+pin 17 (SDMMC1_D0): input bias pull up
+pin 18 (SDMMC2_D1): input bias pull up
+pin 19 (SDMMC2_CLK): input bias pull up
+pin 20 (SDMMC1_D2): input bias pull up
+pin 21 (SDMMC2_D2): input bias pull up
+pin 22 (SDMMC2_CMD): input bias pull up
+pin 23 (SDMMC1_CMD): input bias pull up
+pin 24 (SDMMC1_D1): input bias pull up
+pin 25 (SDMMC2_D0): input bias pull up
+pin 26 (SDMMC1_D3_CD_B): input bias pull up
+pin 30 (SDMMC3_D1): input bias pull up
+pin 31 (SDMMC3_CLK): input bias disabled
+pin 32 (SDMMC3_D3): input bias pull up
+pin 33 (SDMMC3_D2): input bias pull up
+pin 34 (SDMMC3_CMD): input bias pull up
+pin 35 (SDMMC3_D0): input bias pull up
+pin 45 (MF_LPC_AD2): input bias pull up
+pin 46 (LPC_CLKRUNB): input bias pull up
+pin 47 (MF_LPC_AD0): input bias pull up
+pin 48 (LPC_FRAMEB): input bias disabled
+pin 49 (MF_LPC_CLKOUT1): input bias disabled
+pin 50 (MF_LPC_AD3): input bias pull up
+pin 51 (MF_LPC_CLKOUT0): input bias disabled
+pin 52 (MF_LPC_AD1): input bias pull up
+pin 60 (SPI1_MISO): input bias pull up
+pin 61 (SPI1_CSO_B): input bias pull up
+pin 62 (SPI1_CLK): input bias disabled
+pin 63 (MMC1_D6): input bias pull up
+pin 64 (SPI1_MOSI): input bias pull up
+pin 65 (MMC1_D5): input bias pull up
+pin 66 (SPI1_CS1_B): input bias pull up
+pin 67 (MMC1_D4_SD_WE): input bias pull up
+pin 68 (MMC1_D7): input bias pull up
+pin 69 (MMC1_RCLK): input bias high impedance, input bias pull down
+pin 75 (USB_OC1_B): input bias disabled
+pin 76 (PMU_RESETBUTTON_B): input bias pull up
+pin 77 (GPIO_ALERT): input bias pull up
+pin 78 (SDMMC3_PWR_EN_B): input bias high impedance, input bias pull down
+pin 79 (ILB_SERIRQ): input bias disabled
+pin 80 (USB_OC0_B): input bias pull up
+pin 81 (SDMMC3_CD_B): input bias pull up
+pin 82 (SPKR): input bias high impedance, input bias pull up
+pin 83 (SUSPWRDNACK): input bias disabled
+pin 84 (SPARE_PIN): input bias disabled
+pin 85 (SDMMC3_1P8_EN): input bias high impedance, input bias pull down

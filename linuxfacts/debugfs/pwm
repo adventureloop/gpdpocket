@@ -1,0 +1,2 @@
+platform/80862288:00, 1 PWM device
+ pwm-0   (pwm_backlight       ): requested enabled period: 21333 ns duty: 10667 ns polarity: normal
